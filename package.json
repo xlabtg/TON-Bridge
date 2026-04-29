@@ -2,15 +2,18 @@
   "name": "ton-bridge",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "npm run build:css && npm run build:html",
+    "build": "npm run build:css && eleventy --config=eleventy.config.js",
     "build:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions",
-    "build:html": "node scripts/inject-env.js",
-    "check:env": "node scripts/inject-env.js --check",
+    "check:env": "node --input-type=module --eval \"import('./src/_data/env.js').then(m => { m.default(); console.log('All required environment variables are set.'); }).catch(e => { console.error(e.message); process.exit(1); })\"",
     "watch:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions --watch"
   },
   "devDependencies": {
+    "@11ty/eleventy": "^3.1.5",
+    "@lhci/cli": "^0.15.1",
     "dotenv": "^16.0.0",
+    "html-validate": "^10.13.1",
     "sass": "^1.77.0"
   }
 }

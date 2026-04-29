@@ -34,7 +34,3 @@ paths = [
   '''.env\.example''',
   '''\.gitleaks\.toml''',
 ]
-regexes = [
-  # Allow the %%VAR_NAME%% template placeholders used in source HTML.
-  '''%%[A-Z_]+%%''',
-]

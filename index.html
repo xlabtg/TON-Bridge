@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport"
-        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+        content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
@@ -40,14 +40,14 @@
 <script>
     function initAnalytics() {
       window.telegramAnalytics.init({
-        token: '%%TG_ANALYTICS_TOKEN%%', // SDK Auth token received via @DataChief_bot
-        appName: '%%TG_ANALYTICS_APP_NAME%%', // The analytics identifier you entered in @DataChief_bot
+        token: '', // Set via TG_ANALYTICS_TOKEN — see .env.example
+        appName: '', // Set via TG_ANALYTICS_APP_NAME — see .env.example
       });
     }
 </script>
     <!-- loader -->
     <div id="loader">
-        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon" width="256" height="256">
     </div>
     <!-- * loader -->
 
@@ -59,7 +59,7 @@
             </a>
         </div>
         <div class="pageTitle">
-            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo">
+            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo" width="200" height="40">
         </div>
     </div>
     <!-- * App Header -->
@@ -70,7 +70,7 @@
 		<!-- App Bridge -->
 <!-- img -->
             <div class="text-center mb-4">
-                <img src="assets/img/gfx-a-1.png" alt="Intro Image" style="width: 300px; height: 200px;">
+                <img src="assets/img/gfx-a-1.png" alt="Intro Image" width="300" height="259" style="max-width: 300px; height: auto;">
             </div>
 <!-- Security and Privacy -->
 
@@ -84,10 +84,10 @@
                         <li>&nbsp;- We do not control your funds</li>
                         <li>&nbsp;- We do not force you to register</li>
                     </ul>
-	    </br><iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=10&amountFiat&backgroundColor=f6fafd&darkMode=false&from=ton&horizontal=false&isFiat=false&lang=en-EN&link_id=%%CHANGENOW_LINK_ID%%&locales=true&logo=false&primaryColor=1bb2da&to=tonbsc&toTheMoon=false' style="height: 450px; width: 100%; border: none"></iframe>
+	    </br><iframe id='iframe-widget' title="Exchange Widget" src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=10&amountFiat&backgroundColor=f6fafd&darkMode=false&from=ton&horizontal=false&isFiat=false&lang=en-EN&link_id=CHANGENOW_LINK_ID&locales=true&logo=false&primaryColor=1bb2da&to=tonbsc&toTheMoon=false' style="height: 450px; width: 100%; border: none"></iframe>
 		<script defer type='text/javascript' src='https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js'></script>
         <!-- * App Bridge -->
-<center><a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy"/></a></center></br></br>
+<center><a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" width="240" height="60" loading="lazy"/></a></center></br></br>
 <center>
 <table>
 <tr><td>
@@ -240,14 +240,14 @@
    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-   ym(%%YANDEX_METRIKA_ID%%, "init", {
+   ym(0 /* YANDEX_METRIKA_ID */, "init", {
         clickmap:true,
         trackLinks:true,
         accurateTrackBounce:true,
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/%%YANDEX_METRIKA_ID%%" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/0" style="position:absolute; left:-9999px;" alt="" width="1" height="1" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
 </body>
 

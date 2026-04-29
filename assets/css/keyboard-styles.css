@@ -1,0 +1,133 @@
+/* Основной контейнер */
+.keyboard-aware {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    -webkit-tap-highlight-color: transparent;
+    padding-bottom: 200px;
+}
+
+/* Контейнер для фрейма */
+.exchange-frame-container {
+    position: relative;
+    transition: all 0.3s ease-out;
+    z-index: 1000;
+    will-change: transform;
+    touch-action: manipulation;
+    margin-bottom: 50px;
+}
+
+/* iframe */
+.exchange-frame {
+    width: 100%;
+    height: 356px;
+    border: none;
+    background: transparent;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+}
+
+/* Анимация при открытии клавиатуры */
+.frame-keyboard-open {
+    transition: transform 0.3s ease-out;
+    transform: translateY(-350px) !important; /* Увеличили смещение еще больше */
+    position: fixed;
+    top: 50%;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+}
+
+/* Адаптация под экраны */
+@media (max-height: 600px) {
+    .exchange-frame {
+        height: 320px;
+    }
+    .frame-keyboard-open {
+        transform: translateY(-380px) !important;
+    }
+}
+
+@media (max-height: 480px) {
+    .exchange-frame {
+        height: 280px;
+    }
+    .frame-keyboard-open {
+        transform: translateY(-400px) !important;
+    }
+}
+
+/* Базовые стили */
+html {
+    scroll-behavior: smooth;
+    height: 100%;
+    overflow: hidden; /* Предотвращаем прокрутку всей страницы */
+}
+
+body {
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: all 0.3s ease-out;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+}
+
+/* Предотвращение прыжков */
+body.keyboard-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+/* Маленькие экраны */
+@media (max-width: 320px) {
+    .exchange-frame {
+        height: 300px;
+    }
+    .frame-keyboard-open {
+        transform: translateY(-420px) !important;
+    }
+}
+
+/* Ландшафтный режим */
+@media (max-height: 400px) and (orientation: landscape) {
+    .exchange-frame {
+        height: 250px;
+        min-height: 250px;
+    }
+    .frame-keyboard-open {
+        transform: translateY(-300px) !important;
+    }
+}
+
+/* Поддержка касаний */
+* {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* Отступы контента */
+.bridge-content {
+    padding-bottom: 150px;
+}
+
+/* iOS поддержка */
+@supports (-webkit-touch-callout: none) {
+    .keyboard-aware {
+        -webkit-overflow-scrolling: touch;
+    }
+    .frame-keyboard-open {
+        transform: translateY(-380px) !important; /* Специальное значение для iOS */
+    }
+}
+
+/* Дополнительные стили для предотвращения прокрутки */
+.no-scroll {
+    overflow: hidden !important;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}

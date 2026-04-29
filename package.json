@@ -2,12 +2,14 @@
   "name": "ton-bridge",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "npm run build:css",
+    "build": "npm run build:css && eleventy --config=eleventy.config.js",
     "build:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions",
     "watch:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions --watch"
   },
   "devDependencies": {
+    "@11ty/eleventy": "^3.1.5",
     "@lhci/cli": "^0.15.1",
     "html-validate": "^10.13.1",
     "sass": "^1.77.0"

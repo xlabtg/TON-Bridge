@@ -51,8 +51,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build
+        run: npm run build
+
       - name: Validate HTML
-        run: npx html-validate "*.html"
+        run: npx html-validate "dist/*.html"
 
   lighthouse:
     name: Lighthouse CI
@@ -116,7 +119,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: dist
 
       - name: Deploy to GitHub Pages
         id: deployment

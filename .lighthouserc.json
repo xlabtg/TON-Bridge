@@ -1,7 +1,7 @@
 {
   "ci": {
     "collect": {
-      "staticDistDir": ".",
+      "staticDistDir": "dist",
       "url": ["http://localhost/index.html"],
       "settings": {
         "preset": "desktop"

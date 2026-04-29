@@ -3,11 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "npm run build:css",
+    "build": "npm run build:css && npm run build:html",
     "build:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions",
+    "build:html": "node scripts/inject-env.js",
+    "check:env": "node scripts/inject-env.js --check",
     "watch:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions --watch"
   },
   "devDependencies": {
+    "dotenv": "^16.0.0",
     "sass": "^1.77.0"
   }
 }

@@ -1,0 +1,40 @@
+# gitleaks configuration for TON-Bridge.
+# Install: https://github.com/gitleaks/gitleaks#installing
+# Run manually: gitleaks detect --source . -v
+# Pre-commit: add `gitleaks protect --staged` as a pre-commit hook.
+
+title = "TON-Bridge gitleaks config"
+
+[extend]
+# Extend the default ruleset shipped with gitleaks.
+useDefault = true
+
+[[rules]]
+id = "tg-analytics-jwt"
+description = "Telegram Analytics JWT token (tganalytics.xyz)"
+# Matches the base64url+custom-sig pattern used by @DataChief_bot tokens.
+regex = '''eyJ[A-Za-z0-9+/=]+![A-Za-z0-9+/=]+'''
+tags = ["telegram", "jwt", "analytics"]
+
+[[rules]]
+id = "yandex-metrika-id"
+description = "Yandex Metrika counter ID (hard-coded numeric id in ym() call)"
+regex = '''ym\(\s*\d{7,10}\s*,\s*["']init["']'''
+tags = ["yandex", "analytics", "counter"]
+
+[[rules]]
+id = "changenow-link-id"
+description = "ChangeNOW partner link_id in iframe src"
+regex = '''link_id=[0-9a-f]{14,}'''
+tags = ["changenow", "partner-id"]
+
+[allowlist]
+description = "Allow placeholder tokens and example files"
+paths = [
+  '''.env\.example''',
+  '''\.gitleaks\.toml''',
+]
+regexes = [
+  # Allow the %%VAR_NAME%% template placeholders used in source HTML.
+  '''%%[A-Z_]+%%''',
+]

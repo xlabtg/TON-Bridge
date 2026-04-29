@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>TON Bridge</title>
+    <meta name="description" content="TON Bridge HTML Mobile Template">
+    <meta name="keywords" content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
+    <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="manifest" href="__manifest.json">
+</head>
+
+<body>
+
+    <!-- loader -->
+    <div id="loader">
+        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+    </div>
+    <!-- * loader -->
+
+    <!-- App Header -->
+    <div class="appHeader">
+        <div class="left">
+            <a href="index-ru.html" class="headerButton goBack">
+                <ion-icon name="chevron-back-outline"></ion-icon>
+            </a>
+        </div>
+        <div class="pageTitle">
+            Настройки
+        </div>
+    </div>
+    <!-- * App Header -->
+
+    <!-- App Capsule -->
+    <div id="appCapsule">
+
+    <div class="listview-title mt-1">Тема</div>
+    <ul class="listview image-listview text inset no-line">
+        <li>
+            <div class="item">
+                <div class="in">
+                    <div>
+                        Темный режим
+                    </div>
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input dark-mode-switch" type="checkbox" id="darkmodeSwitch">
+                        <label class="form-check-label" for="darkmodeSwitch"></label>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+    <div class="listview-title mt-1">Язык</div>
+    <ul class="listview image-listview text inset no-line">
+        <li>
+            <div class="item">
+                <div class="in">
+                    <div>
+                        Язык (RU/EN)
+                    </div>
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input language-switch" type="checkbox" id="languageSwitch">
+                        <label class="form-check-label" for="languageSwitch"></label>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+</div>
+
+<script>
+    // Переключение языка
+    document.getElementById('languageSwitch').addEventListener('change', function() {
+        if (this.checked) {
+            // Переключение на страницу с английским интерфейсом
+            window.location.href = 'app-settings.html';
+        } else {
+            // Переключение на страницу с русским интерфейсом
+            window.location.href = 'app-settings-ru.html';
+        }
+    });
+</script>
+
+    <!-- * App Capsule -->
+
+
+    <!-- App Bottom Menu -->
+    <div class="appBottomMenu">
+        <a href="index-ru.html" class="item">
+            <div class="col">
+                <ion-icon name="sync"></ion-icon>
+                <strong>Мост</strong>
+            </div>
+        </a>
+        <a href="index2-ru.html" class="item">
+            <div class="col">
+                <ion-icon name="swap-horizontal-outline"></ion-icon>
+                <strong>Обмен</strong>
+            </div>
+        </a>
+        <a href="index3-ru.html" class="item">
+            <div class="col">
+                <ion-icon name="cash-outline"></ion-icon>
+                <strong>OTC</strong>
+            </div>
+        </a>
+        <!-- <a href="index4-ru.html" class="item">
+            <div class="col">
+                <ion-icon name="stats-chart"></ion-icon>
+                <strong>Статистика</strong>
+            </div>
+        </a> -->
+        <a href="app-settings-ru.html" class="item active">
+            <div class="col">
+                <ion-icon name="settings-outline"></ion-icon>
+                <strong>Настройки</strong>
+            </div>
+        </a>
+    </div>
+    <!-- * App Bottom Menu -->
+
+    <!-- ========= JS Files =========  -->
+    <!-- Bootstrap -->
+    <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <!-- Splide -->
+    <script src="assets/js/plugins/splide/splide.min.js"></script>
+    <!-- Base Js File -->
+    <script src="assets/js/base.js"></script>
+
+
+</body>
+
+</html>

@@ -8,6 +8,8 @@
     "watch:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions --watch"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.15.1",
+    "html-validate": "^10.13.1",
     "sass": "^1.77.0"
   }
 }

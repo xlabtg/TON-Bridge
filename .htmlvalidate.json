@@ -1,0 +1,23 @@
+{
+  "root": true,
+  "rules": {
+    "close-order": "warn",
+    "no-implicit-close": "warn",
+    "void-content": "warn",
+    "element-required-attributes": "warn",
+    "wcag/h30": "warn",
+    "prefer-tbody": "warn",
+    "attr-quotes": "warn",
+    "deprecated": "warn",
+    "element-permitted-content": "warn",
+    "no-inline-style": "off",
+    "no-trailing-whitespace": "off",
+    "void-style": "off",
+    "doctype-style": "off",
+    "script-type": "warn",
+    "missing-doctype": "error",
+    "unrecognized-char-ref": "error",
+    "attribute-boolean-style": "warn",
+    "valid-id": "error"
+  }
+}

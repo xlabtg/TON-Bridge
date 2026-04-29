@@ -1,3 +1,19 @@
+# Issue tracker bodies
 .issue-bodies/
+
+# Node
 node_modules/
+
+# Build output
+dist/
+
+# Sass source maps
+assets/css/*.css.map
+
+# OS noise
 .DS_Store
+Thumbs.db
+
+# Editor directories
+.idea/
+.vscode/

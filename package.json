@@ -1,0 +1,13 @@
+{
+  "name": "ton-bridge",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm run build:css",
+    "build:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions",
+    "watch:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions --watch"
+  },
+  "devDependencies": {
+    "sass": "^1.77.0"
+  }
+}

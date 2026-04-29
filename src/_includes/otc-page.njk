@@ -30,6 +30,36 @@
         });
 
         Telegram.WebApp.setHeaderColor('secondary_bg_color');
+
+        (function() {
+            var tg = Telegram.WebApp;
+            var mainButton = tg.MainButton;
+            mainButton.setText('{{ t.main_button_otc }}');
+
+            window.addEventListener('message', function(event) {
+                if (!event.data || typeof event.data !== 'object') return;
+                var type = event.data.type;
+                if (type === 'deeplink' || type === 'change-now-widget-step') {
+                    var step = event.data.step || event.data.value || '';
+                    if (step === 'initial' || step === 'success' || step === 'finish') {
+                        mainButton.hide();
+                    } else {
+                        mainButton.show();
+                    }
+                }
+            });
+
+            mainButton.onClick(function() {
+                var iframe = document.getElementById('iframe-widget');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({ type: 'submit' }, '*');
+                }
+            });
+
+            window.addEventListener('beforeunload', function() {
+                mainButton.hide();
+            });
+        })();
     </script>
 	<script
     async

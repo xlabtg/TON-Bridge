@@ -17,3 +17,7 @@ Thumbs.db
 # Editor directories
 .idea/
 .vscode/
+
+# Playwright
+test-results/
+playwright-report/

@@ -43,6 +43,12 @@
                     var step = event.data.step || event.data.value || '';
                     if (step === 'initial' || step === 'success' || step === 'finish') {
                         mainButton.hide();
+                        if (step === 'finish' || step === 'success') {
+                            haptic.notification('success');
+                        }
+                    } else if (step === 'failed' || step === 'error' || step === 'refunded') {
+                        haptic.notification('error');
+                        mainButton.show();
                     } else {
                         mainButton.show();
                     }
@@ -50,6 +56,7 @@
             });
 
             mainButton.onClick(function() {
+                haptic.impact('medium');
                 var iframe = document.getElementById('iframe-widget');
                 if (iframe && iframe.contentWindow) {
                     iframe.contentWindow.postMessage({ type: 'submit' }, '*');
@@ -259,6 +266,14 @@
     <script src="assets/js/plugins/splide/splide.min.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Haptic Feedback -->
+    <script src="assets/js/haptic.js"></script>
+    <script>
+        // Tab-bar taps
+        document.querySelectorAll('.appBottomMenu .item').forEach(function (el) {
+            el.addEventListener('click', function () { haptic.impact('light'); });
+        });
+    </script>
 
     <script>
         // Add to Home with 2 seconds delay.

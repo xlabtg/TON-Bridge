@@ -137,6 +137,21 @@
     <!-- Telegram BackButton -->
     <script src="assets/js/back-button.js"></script>
     <script>wireBackButton();</script>
+    <!-- Haptic Feedback -->
+    <script src="assets/js/haptic.js"></script>
+    <script>
+        // Tab-bar taps
+        document.querySelectorAll('.appBottomMenu .item').forEach(function (el) {
+            el.addEventListener('click', function () { haptic.impact('light'); });
+        });
+        // Settings toggles
+        document.getElementById('darkmodeSwitch').addEventListener('change', function () {
+            haptic.selection();
+        });
+        document.getElementById('languageSwitch').addEventListener('change', function () {
+            haptic.selection();
+        });
+    </script>
 
 
 </body>

@@ -16,7 +16,6 @@ The repository is a static Telegram Mini App (TMA) bundled as a PWA. It is built
 ├── index3.html / index3-ru.html      # OTC tab (ChangeNOW widget: USDT-TON → TON, $1M)
 ├── index4.html                       # Statistics dashboard (Chart.js, RU only)
 ├── 0.html / 1.html / 2.html (+ -ru)  # static "Instruction" pages
-├── 00.html, index0.html, index2-ru0.html, index3-ru.html…  # legacy / duplicate copies
 ├── app-settings.html / -ru.html      # Dark mode + EN/RU toggle
 └── assets/
     ├── css/style.css (≈150 KB), keyboard-styles.css
@@ -61,7 +60,7 @@ Tasks are ordered so each builds on the previous one. Estimates are rough develo
 - [ ] **0.2 Set up CI** ([#4](https://github.com/xlabtg/TON-Bridge/issues/4)) — GitHub Actions: build, HTML-validate, lighthouse-ci on every PR, and auto-deploy to GitHub Pages / static host on merge. *(1 d)*
 - [ ] **0.3 De-duplicate HTML via a tiny templating step** ([#5](https://github.com/xlabtg/TON-Bridge/issues/5)) — pick one of: 11ty, Astro, or plain `handlebars` precompile. Convert the 14 HTML files to 4 templates × 2 locales. *(2 d)*
 - [ ] **0.4 Move secrets out of source** ([#6](https://github.com/xlabtg/TON-Bridge/issues/6)) — Telegram Analytics JWT and Yandex.Metrika id should be injected at build time from environment variables and rotated. *(0.5 d)*
-- [ ] **0.5 Delete legacy/duplicate files** ([#7](https://github.com/xlabtg/TON-Bridge/issues/7)) — `index0.html`, `index2-ru0.html`, `00.html`, etc., once 0.3 lands. *(0.25 d)*
+- [x] **0.5 Delete legacy/duplicate files** ([#7](https://github.com/xlabtg/TON-Bridge/issues/7)) — `index0.html`, `index2-ru0.html`, `00.html`, etc., once 0.3 lands. *(0.25 d)*
 
 ### Phase 1 — Telegram Mini App best-practices *(highest-leverage UX wins)*
 

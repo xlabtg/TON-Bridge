@@ -51,8 +51,24 @@
 
             mainButton.onClick(function() {
                 var iframe = document.getElementById('iframe-widget');
-                if (iframe && iframe.contentWindow) {
-                    iframe.contentWindow.postMessage({ type: 'submit' }, '*');
+                function submitToIframe() {
+                    if (iframe && iframe.contentWindow) {
+                        iframe.contentWindow.postMessage({ type: 'submit' }, '*');
+                    }
+                }
+                // Read user-entered amount from the OTC widget iframe URL default (1 000 000)
+                // as a fallback; a real USD oracle will be wired once #6.4 lands.
+                var amount = window.__otcAmount || 1000000;
+                if (window.BiometricAuth) {
+                    BiometricAuth.guardTrade(
+                        amount,
+                        '{{ t.biometric_reason }}',
+                        '{{ t.biometric_failure_toast }}',
+                        submitToIframe,
+                        null
+                    );
+                } else {
+                    submitToIframe();
                 }
             });
 
@@ -259,6 +275,11 @@
     <script src="assets/js/plugins/splide/splide.min.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- BiometricManager -->
+    <script src="assets/js/biometric-manager.js"></script>
+    <script>
+        BiometricAuth.init(function () {});
+    </script>
 
     <script>
         // Add to Home with 2 seconds delay.

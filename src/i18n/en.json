@@ -7,6 +7,7 @@
   "title_intro_bridge": "TON Bridge - Welcome EN",
   "title_intro_bridge_steps": "TON Bridge - Welcome 2 EN",
   "title_intro_exchange_steps": "TON Bridge - Welcome 2 EN",
+  "title_statistics": "TON Bridge - Statistics",
   "title_settings": "TON Bridge",
 
   "nav_bridge": "Bridge",
@@ -103,5 +104,21 @@
   "intro_exchange_steps_s3_title": "Step 3 - Get Cryptocurrency",
   "intro_exchange_steps_s3_desc": "Our users do not need to worry about the safety of their personal data. We provide complete anonymity.",
   "intro_exchange_steps_btn": "Start Exchange",
-  "intro_exchange_steps_target": "index2.html"
+  "intro_exchange_steps_target": "index2.html",
+
+  "stats_title": "Statistics",
+  "stats_total_volume": "Total Volume Bridged",
+  "stats_24h": "24h",
+  "stats_7d": "7d",
+  "stats_30d": "30d",
+  "stats_top_pairs": "Top Pairs (24h by volume)",
+  "stats_pair": "Pair",
+  "stats_volume": "Volume",
+  "stats_avg_completion": "Average Completion Time",
+  "stats_avg_completion_unit": "min",
+  "stats_bridges_per_hour": "Bridges per Hour (last 24h)",
+  "stats_last_updated": "Last updated",
+  "stats_loading": "Loading…",
+  "stats_error": "Could not load data",
+  "stats_never": "never"
 }

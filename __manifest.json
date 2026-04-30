@@ -7,6 +7,20 @@
     "background_color": "#000000",
     "theme_color": "#000000",
     "orientation": "portrait",
+    "shortcuts": [
+        {
+            "name": "Bridge",
+            "short_name": "Bridge",
+            "url": "index.html",
+            "icons": [{ "src": "assets/img/icon/96x96.png", "sizes": "96x96" }]
+        },
+        {
+            "name": "Statistics",
+            "short_name": "Stats",
+            "url": "index4.html",
+            "icons": [{ "src": "assets/img/icon/96x96.png", "sizes": "96x96" }]
+        }
+    ],
     "icons": [
         {
             "src": "assets/img/icon/72x72.png",

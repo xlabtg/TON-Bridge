@@ -7,6 +7,7 @@
   "title_intro_bridge": "TON Bridge - Welcome RU",
   "title_intro_bridge_steps": "TON Bridge - Welcome 2 RU",
   "title_intro_exchange_steps": "TON Bridge - Welcome 2 RU",
+  "title_statistics": "TON Bridge - Статистика",
   "title_settings": "TON Bridge",
 
   "nav_bridge": "Мост",
@@ -103,5 +104,21 @@
   "intro_exchange_steps_s3_title": "Шаг 3 - Получите криптовалюту",
   "intro_exchange_steps_s3_desc": "Нашим пользователям не нужно беспокоиться о сохранности своих персональных данных. <strong>Мы обеспечиваем полную анонимность.</strong>",
   "intro_exchange_steps_btn": "Приступить к обмену",
-  "intro_exchange_steps_target": "index2-ru.html"
+  "intro_exchange_steps_target": "index2-ru.html",
+
+  "stats_title": "Статистика",
+  "stats_total_volume": "Общий объём переводов",
+  "stats_24h": "24ч",
+  "stats_7d": "7д",
+  "stats_30d": "30д",
+  "stats_top_pairs": "Топ пар (24ч по объёму)",
+  "stats_pair": "Пара",
+  "stats_volume": "Объём",
+  "stats_avg_completion": "Среднее время завершения",
+  "stats_avg_completion_unit": "мин",
+  "stats_bridges_per_hour": "Переводов в час (последние 24ч)",
+  "stats_last_updated": "Обновлено",
+  "stats_loading": "Загрузка…",
+  "stats_error": "Не удалось загрузить данные",
+  "stats_never": "никогда"
 }

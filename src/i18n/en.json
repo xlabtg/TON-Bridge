@@ -103,5 +103,8 @@
   "intro_exchange_steps_s3_title": "Step 3 - Get Cryptocurrency",
   "intro_exchange_steps_s3_desc": "Our users do not need to worry about the safety of their personal data. We provide complete anonymity.",
   "intro_exchange_steps_btn": "Start Exchange",
-  "intro_exchange_steps_target": "index2.html"
+  "intro_exchange_steps_target": "index2.html",
+
+  "share_story_btn": "Share my bridge",
+  "share_story_skip": "Skip"
 }

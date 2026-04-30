@@ -72,9 +72,72 @@
         </li>
     </ul>
 
+    <div id="wallet-section">
+        <div class="listview-title mt-1">{{ t.settings_wallet_section }}</div>
+        <ul class="listview image-listview text inset no-line">
+            <li id="wallet-connect-item">
+                <div class="item">
+                    <div class="in">
+                        <button id="wallet-connect-btn" class="btn btn-primary btn-sm">
+                            <ion-icon name="wallet-outline"></ion-icon>
+                            {{ t.settings_wallet_connect_btn }}
+                        </button>
+                    </div>
+                </div>
+            </li>
+            <li id="wallet-connected-block" class="d-none">
+                <div class="item">
+                    <div class="in">
+                        <div>
+                            <strong>{{ t.settings_wallet_connected_label }}</strong><br>
+                            <small id="wallet-address-display" class="text-muted" title=""></small>
+                        </div>
+                        <button id="wallet-replace-btn" class="btn btn-outline-secondary btn-sm ms-2">
+                            {{ t.settings_wallet_replace_btn }}
+                        </button>
+                    </div>
+                </div>
+            </li>
+            <li id="wallet-exchange-warning" class="d-none">
+                <div class="item">
+                    <div class="in">
+                        <div class="alert alert-warning mb-0 py-1 px-2" role="alert" style="font-size:0.85em;">
+                            <ion-icon name="warning-outline"></ion-icon>
+                            {{ t.settings_wallet_exchange_warning }}
+                        </div>
+                    </div>
+                </div>
+            </li>
+            <li id="wallet-disconnect-note" class="d-none">
+                <div class="item">
+                    <div class="in">
+                        <small class="text-muted">{{ t.settings_wallet_disconnect_note }}</small>
+                    </div>
+                </div>
+            </li>
+            <li id="wallet-remove-item">
+                <div class="item">
+                    <div class="in">
+                        <button id="wallet-remove-btn" class="btn btn-outline-danger btn-sm">
+                            <ion-icon name="trash-outline"></ion-icon>
+                            {{ t.settings_wallet_remove_btn }}
+                        </button>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+
 </div>
 
 <script>
+    // i18n strings passed to wallet-connect.js
+    window._walletI18n = {
+        replaceConfirm: {{ t.settings_wallet_replace_confirm | dump | safe }},
+        rateLimitError: {{ t.settings_wallet_rate_limit_error | dump | safe }},
+        connectError: {{ t.settings_wallet_connect_error | dump | safe }}
+    };
+
     // Переключение языка
     document.getElementById('languageSwitch').addEventListener('change', function() {
         if (this.checked) {
@@ -137,6 +200,9 @@
     <!-- Telegram BackButton -->
     <script src="assets/js/back-button.js"></script>
     <script>wireBackButton();</script>
+    <!-- TonConnect UI (wallet linking) -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <script src="assets/js/wallet-connect.js"></script>
 
 
 </body>

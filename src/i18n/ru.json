@@ -73,6 +73,17 @@
   "settings_lang_checked_goto": "app-settings.html",
   "settings_lang_unchecked_goto": "app-settings-ru.html",
 
+  "settings_wallet_section": "Кошелёк для выплат",
+  "settings_wallet_connect_btn": "Подключить TON-кошелёк",
+  "settings_wallet_connected_label": "Подключённый кошелёк",
+  "settings_wallet_replace_btn": "Заменить",
+  "settings_wallet_remove_btn": "Удалить адрес выплат",
+  "settings_wallet_exchange_warning": "Похоже, это адрес централизованной биржи — убедитесь, что она поддерживает токены TBC.",
+  "settings_wallet_replace_confirm": "Заменить существующий адрес выплат?",
+  "settings_wallet_rate_limit_error": "Вы можете менять адрес выплат не чаще одного раза в 24 часа.",
+  "settings_wallet_connect_error": "Не удалось подключить кошелёк. Пожалуйста, попробуйте ещё раз.",
+  "settings_wallet_disconnect_note": "Отключение кошелька не удаляет адрес выплат. Используйте «Удалить адрес выплат» ниже.",
+
   "intro_bridge_heading": "TON Bridge",
   "intro_bridge_p1": "Откройте для себя TON Bridge от TONBANKCARD – надежный мост между блокчейнами TON и BSC.\n                        Узнайте, как быстро и безопасно проводить криптовалютные транзакции между двумя популярными\n                        блокчейн-платформами с помощью TON Bridge.",
   "intro_bridge_p2_bold": "Кроме того, TON Bridge поддерживает обмен криптовалют  в 200 блокчейнах, включая TON, TRX, ETH, Arbitrum, Solana, NEAR, EOS, ALGO, KCS, Polygon, Polkadot, OP, KAVAFVM, OMNI, XTL, AVAX C и BSC. Теперь пользователи могут проводить обмены более 1200+ криптовалют между этими популярными сетями с максимальной удобностью.",

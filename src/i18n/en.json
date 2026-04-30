@@ -73,6 +73,17 @@
   "settings_lang_checked_goto": "app-settings-ru.html",
   "settings_lang_unchecked_goto": "app-settings.html",
 
+  "settings_wallet_section": "Payout Wallet",
+  "settings_wallet_connect_btn": "Connect TON Wallet",
+  "settings_wallet_connected_label": "Connected wallet",
+  "settings_wallet_replace_btn": "Replace",
+  "settings_wallet_remove_btn": "Remove payout address",
+  "settings_wallet_exchange_warning": "This looks like a centralized exchange address — make sure it supports TBC tokens.",
+  "settings_wallet_replace_confirm": "Replace existing payout address?",
+  "settings_wallet_rate_limit_error": "You can replace your payout address only once every 24 hours.",
+  "settings_wallet_connect_error": "Could not connect wallet. Please try again.",
+  "settings_wallet_disconnect_note": "Disconnecting the wallet does not clear your payout address. Use \"Remove payout address\" below.",
+
   "intro_bridge_heading": "TON Bridge",
   "intro_bridge_p1": "Discover TON Bridge by TONBANKCARD – a reliable bridge between the TON and BSC blockchains.\n                        Learn how to quickly and securely carry out cryptocurrency transactions between these two\n                        popular blockchain platforms using TON Bridge.",
   "intro_bridge_p2_bold": "In addition, TON Bridge supports the exchange of cryptocurrencies in 200 blockchains, including TON, TRX, ETH, Arbitrum, Solana, NEAR, EOS, ALGO, KCS, Polygon, Polkadot, OP, KAVAFVM, OMNI, XTL, AVAX C and BSC. Users can now exchange over 1200+ cryptocurrencies between these popular networks with maximum convenience.",

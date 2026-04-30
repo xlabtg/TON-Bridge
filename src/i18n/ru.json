@@ -73,6 +73,15 @@
   "settings_lang_checked_goto": "app-settings.html",
   "settings_lang_unchecked_goto": "app-settings-ru.html",
 
+  "settings_credits_section": "О приложении",
+  "settings_credits_finapp": "UI-шаблон от Bragher (лицензия MIT)",
+  "settings_credits_bootstrap": "CSS-фреймворк (лицензия MIT)",
+  "settings_credits_changenow": "Виджет обмена",
+  "settings_credits_apexcharts": "Библиотека графиков (лицензия MIT)",
+  "settings_credits_splide": "Библиотека слайдера (лицензия MIT)",
+  "settings_credits_ionicons": "Библиотека иконок (лицензия MIT)",
+  "settings_credits_third_party": "Лицензии сторонних компонентов",
+
   "intro_bridge_heading": "TON Bridge",
   "intro_bridge_p1": "Откройте для себя TON Bridge от TONBANKCARD – надежный мост между блокчейнами TON и BSC.\n                        Узнайте, как быстро и безопасно проводить криптовалютные транзакции между двумя популярными\n                        блокчейн-платформами с помощью TON Bridge.",
   "intro_bridge_p2_bold": "Кроме того, TON Bridge поддерживает обмен криптовалют  в 200 блокчейнах, включая TON, TRX, ETH, Arbitrum, Solana, NEAR, EOS, ALGO, KCS, Polygon, Polkadot, OP, KAVAFVM, OMNI, XTL, AVAX C и BSC. Теперь пользователи могут проводить обмены более 1200+ криптовалют между этими популярными сетями с максимальной удобностью.",

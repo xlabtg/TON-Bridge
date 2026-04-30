@@ -13,6 +13,7 @@ export default function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ 'assets': 'assets' });
   eleventyConfig.addPassthroughCopy('__manifest.json');
   eleventyConfig.addPassthroughCopy('__service-worker.js');
+  eleventyConfig.addPassthroughCopy('humans.txt');
 
   return {
     dir: {

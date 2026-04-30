@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 
@@ -20,7 +21,7 @@
 
 <body>
     <div id="viewport"></div>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
@@ -30,11 +31,41 @@
         });
 
         Telegram.WebApp.setHeaderColor('secondary_bg_color');
+
+        (function() {
+            var tg = Telegram.WebApp;
+            var mainButton = tg.MainButton;
+            mainButton.setText('Подтвердить обмен');
+
+            window.addEventListener('message', function(event) {
+                if (!event.data || typeof event.data !== 'object') return;
+                var type = event.data.type;
+                if (type === 'deeplink' || type === 'change-now-widget-step') {
+                    var step = event.data.step || event.data.value || '';
+                    if (step === 'initial' || step === 'success' || step === 'finish') {
+                        mainButton.hide();
+                    } else {
+                        mainButton.show();
+                    }
+                }
+            });
+
+            mainButton.onClick(function() {
+                var iframe = document.getElementById('iframe-widget');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({ type: 'submit' }, '*');
+                }
+            });
+
+            window.addEventListener('beforeunload', function() {
+                mainButton.hide();
+            });
+        })();
     </script>
-	<script 
-    async 
-    src="https://tganalytics.xyz/index.js" 
-    onload="initAnalytics()" 
+	<script
+    async
+    src="https://tganalytics.xyz/index.js"
+    onload="initAnalytics()"
     type="text/javascript"
 ></script>
 <script>
@@ -68,9 +99,9 @@
     <div id="appCapsule">
         <!-- App Bridge -->
         <div class="text-center mb-4">
-            <img src="assets/img/OTC.png" alt="Intro Image" style="width: 288px; height: 288px;">
+            <img src="assets/img/OTC.png" alt="Intro Image" class="otc-img mx-auto">
         </div>
-                    <center><h3>&nbsp;PrimeFlow OTC</h3></center>
+                    <h3 class="text-center">&nbsp;PrimeFlow OTC</h3>
                     <p>
                         &nbsp;Купите TON от 1 миллиона долларов без потерь:
                     </p>
@@ -79,32 +110,12 @@
                         <li>&nbsp;- Нулевое проскальзывание</li>
                         <li>&nbsp;- Агрегация CEX + DEX</li>
                     </ul>
-        <iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=1000000&amountFiat&backgroundColor=f6fafd&darkMode=false&from=usdtton&horizontal=false&isFiat=false&lang=ru-RU&link_id=3cc0024a18fd9d&locales=false&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false' style="height: 356px; width: 100%; border: none"></iframe>
-    <script defer type='text/javascript' src='https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js'></script></br></br>
+        <iframe id="iframe-widget" title="OTC Widget" class="embed-widget embed-widget--medium" src="https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=1000000&amountFiat&backgroundColor=f6fafd&darkMode=false&from=usdtton&horizontal=false&isFiat=false&lang=ru-RU&link_id=3cc0024a18fd9d&locales=false&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false"></iframe>
+        <script defer type="text/javascript" src="https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js"></script>
         <!-- * App Bridge -->
-        <center>
-            <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy" /></a>
-        </center>
-        </br>
-        <!-- </br>
-        <center>
-            <table>
-                <tr>
-                    <td>
-                        <div class="col-lg-4">
-                            <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
-                                <div class="feature-icon dot">
-                                    <center><ion-icon name="information-outline" style="font-size: 64px;"></center>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                    <td><a href="1.html" class="btn btn-primary btn-lg">Instruction</a></td>
-                </tr>
-            </table>
-        </center>
-        </br>
-        </br> -->
+        <div class="text-center mb-2">
+            <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy" width="240" height="60"></a>
+        </div>
     </div>
     <!-- * App Capsule -->
 
@@ -149,10 +160,10 @@
             <div class="modal-content">
                 <div class="modal-body p-0">
                     <!-- menu -->
-                    <div class="listview-title mt-1">Menu</div>
+                    <div class="listview-title mt-1">Меню</div>
                     <ul class="listview flush transparent no-line image-listview">
                         <li>
-                            <a href="app-settings.html" class="item">
+                            <a href="app-settings-ru.html" class="item">
                                 <div class="icon-box bg-primary">
                                     <ion-icon name="settings-outline"></ion-icon>
                                 </div>
@@ -176,22 +187,22 @@
                     <div class="listview-title mt-1">Сообщество</div>
                     <ul class="listview flush transparent no-line image-listview">
                         <li>
-                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard');" class="item">
+                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_ru');" class="item">
                                 <div class="icon-box bg-secondary">
                                     <ion-icon name="people-circle-outline"></ion-icon>
                                 </div>
                                 <div class="in">
-                                    Telegram группа
+                                    Группа в Telegram
                                 </div>
                             </a>
                         </li>
                         <li>
-                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_chat');" class="item">
+                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_chat_ru');" class="item">
                                 <div class="icon-box bg-secondary">
                                     <ion-icon name="chatbubbles-outline"></ion-icon>
                                 </div>
                                 <div class="in">
-                                    Telegram Чат
+                                    Чат в Telegram
                                 </div>
                             </a>
                         </li>
@@ -207,15 +218,15 @@
     <div id="cookiesbox" class="offcanvas offcanvas-bottom cookies-box" tabindex="-1" data-bs-scroll="true"
         data-bs-backdrop="false">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title">We use cookies</h5>
+            <h5 class="offcanvas-title">Мы используем файлы cookie</h5>
         </div>
         <div class="offcanvas-body">
             <div>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla non lacinia quam. Nulla facilisi.
-                <a href="#" class="text-secondary"><u>Learn more</u></a>
+                Закон, который должен соблюдать каждый, - это закон, который объединяет элиту. Ничего не значит для лацинии. Ничего не значит для облегчения.
+                <a href="#" class="text-secondary"><u>Учить больше</u></a>
             </div>
             <div class="buttons">
-                <a href="#" class="btn btn-primary btn-block" data-bs-dismiss="offcanvas">I understand</a>
+                <a href="#" class="btn btn-primary btn-block" data-bs-dismiss="offcanvas">Я понимаю</a>
             </div>
         </div>
     </div>
@@ -249,8 +260,9 @@
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/98019798" class="ym-noscript" alt=""></div></noscript>
 <!-- /Yandex.Metrika counter -->
 </body>
 
 </html>
+

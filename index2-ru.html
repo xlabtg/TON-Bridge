@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 
@@ -30,11 +31,42 @@
         });
 
         Telegram.WebApp.setHeaderColor('secondary_bg_color');
+
+        (function() {
+            var tg = Telegram.WebApp;
+            var mainButton = tg.MainButton;
+            var buttonText = 'Подтвердить обмен';
+            mainButton.setText(buttonText);
+
+            window.addEventListener('message', function(event) {
+                if (!event.data || typeof event.data !== 'object') return;
+                var type = event.data.type;
+                if (type === 'deeplink' || type === 'change-now-widget-step') {
+                    var step = event.data.step || event.data.value || '';
+                    if (step === 'initial' || step === 'success' || step === 'finish') {
+                        mainButton.hide();
+                    } else {
+                        mainButton.show();
+                    }
+                }
+            });
+
+            mainButton.onClick(function() {
+                var iframe = document.getElementById('iframe-widget');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({ type: 'submit' }, '*');
+                }
+            });
+
+            window.addEventListener('beforeunload', function() {
+                mainButton.hide();
+            });
+        })();
     </script>
-	<script 
-    async 
-    src="https://tganalytics.xyz/index.js" 
-    onload="initAnalytics()" 
+	<script
+    async
+    src="https://tganalytics.xyz/index.js"
+    onload="initAnalytics()"
     type="text/javascript"
 ></script>
 <script>
@@ -66,41 +98,38 @@
 
     <!-- App Capsule -->
     <div id="appCapsule">
-	    
+
 		<!-- App Swap -->
 <!-- Изображение -->
             <div class="text-center mb-4">
-                <img src="https://exchange.tonbankcard.com/images/header/gfx-a-1.png" alt="Intro Image" style="width: 300px; height: 300px;">
+                <img src="https://exchange.tonbankcard.com/images/header/gfx-a-1.png" alt="Intro Image" class="intro-img" width="300" height="300">
             </div>
 <!-- Безопасность и конфиденциальность -->
 
                     <h3>&nbsp;Безопасность и конфиденциальность</h3>
                     <p>
-                        &nbsp;TONBANKCARD сохраняет вашу &nbsp;конфиденциальность и гарантирует безопасность.
-                        &nbsp;Мы не являемся службой кастодиального обмена:
+                        &nbsp;TONBANKCARD сохраняет вашу  конфиденциальность и гарантирует безопасность.
+                        Мы не являемся службой кастодиального обмена:
                     </p>
                     <ul class="list-unstyled">
                         <li>&nbsp;- Мы не сохраняем ваши данные</li>
                         <li>&nbsp;- Мы не контролируем ваши средства</li>
                         <li>&nbsp;- Мы не заставляем вас регистрироваться</li>
                     </ul>
-	    </br><iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=0.1&amountFiat&backgroundColor=f6fafd&darkMode=false&from=btc&horizontal=false&isFiat=false&lang=ru-RU&link_id=3cc0024a18fd9d&locales=true&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false' style="height: 450px; width: 100%; border: none"></iframe>
-    <script defer type='text/javascript' src='https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js'></script>
+        <iframe id="iframe-widget" title="Exchange Widget" class="embed-widget embed-widget--tall" src="https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=0.1&amountFiat&backgroundColor=f6fafd&darkMode=false&from=btc&horizontal=false&isFiat=false&lang=ru-RU&link_id=3cc0024a18fd9d&locales=true&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false"></iframe>
+        <script defer type="text/javascript" src="https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js"></script>
         <!-- * App Swap -->
-<center><a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy"/></a></center></br></br>
-<center>
-<table>
-<tr><td>
-                        <div class="col-lg-4">
-                            <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
-                                <div class="feature-icon dot">
-                                    <center><ion-icon name="information-outline" style="font-size: 64px;"></center>
-                                </div>
-                            </div>
-                        </div></td><td><a href="2-ru.html" class="btn btn-primary btn-lg">Инструкция</a></td></tr>
-</table>
-                  
-</center></br></br>
+        <div class="text-center mb-2">
+            <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy" width="240" height="60"></a>
+        </div>
+        <div class="info-action-row mb-4">
+            <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
+                <div class="feature-icon dot text-center">
+                    <ion-icon name="information-outline" class="feature-icon-md"></ion-icon>
+                </div>
+            </div>
+            <a href="2-ru.html" class="btn btn-primary btn-lg">Инструкция</a>
+        </div>
     </div>
     <!-- * App Capsule -->
 
@@ -144,7 +173,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-body p-0">
-				
+
 <!-- menu -->
 <div class="listview-title mt-1">Меню</div>
 <ul class="listview flush transparent no-line image-listview">
@@ -247,8 +276,9 @@
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/98019798" class="ym-noscript" alt=""></div></noscript>
 <!-- /Yandex.Metrika counter -->
 </body>
 
 </html>
+

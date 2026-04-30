@@ -79,8 +79,8 @@
                     <div class="row">
                         <div class="col-lg-4">
                             <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
-                                <div class="feature-icon dot">
-                                    <center><ion-icon name="wallet-outline" style="font-size: 100px;"></ion-icon></center>
+                                <div class="feature-icon dot text-center">
+                                    <ion-icon name="wallet-outline" class="feature-icon-lg"></ion-icon>
                                 </div>
                                 <div class="feature-text">
                                     <h3 class="title title-lg">{% if stepsType == 'bridge' %}{{ t.intro_bridge_steps_s1_title }}{% else %}{{ t.intro_exchange_steps_s1_title }}{% endif %}</h3>
@@ -90,8 +90,8 @@
                         </div>
                        <div class="col-lg-4">
     <div class="feature animated" data-animate="fadeInUp" data-delay=".8">
-        <div class="feature-icon dot">
-            {% if stepsType == 'bridge' %}<center><img src="https://tonbankcard.com/bridge/TMA2/assets/img/ton-logo.png" alt="TON Logo" style="font-size: 100px; height: 100px;"></center></br>{% else %}<center><ion-icon name="code-download" style="font-size: 100px;"></ion-icon></center>{% endif %}
+        <div class="feature-icon dot text-center">
+            {% if stepsType == 'bridge' %}<img src="https://tonbankcard.com/bridge/TMA2/assets/img/ton-logo.png" alt="TON Logo" class="feature-img-lg mx-auto">{% else %}<ion-icon name="code-download" class="feature-icon-lg"></ion-icon>{% endif %}
         </div>
         <div class="feature-text">
             <h3 class="title title-lg">{% if stepsType == 'bridge' %}{{ t.intro_bridge_steps_s2_title }}{% else %}{{ t.intro_exchange_steps_s2_title }}{% endif %}</h3>
@@ -101,8 +101,8 @@
 </div>
                         <div class="col-lg-4">
                             <div class="feature animated" data-animate="fadeInUp" data-delay=".9">
-                                <div class="feature-icon dot">
-                                    <center><ion-icon name="checkmark-done-outline" style="font-size: 100px;"></ion-icon></center>
+                                <div class="feature-icon dot text-center">
+                                    <ion-icon name="checkmark-done-outline" class="feature-icon-lg"></ion-icon>
                                 </div>
                                 <div class="feature-text">
                                     <h3 class="title title-lg">{% if stepsType == 'bridge' %}{{ t.intro_bridge_steps_s3_title }}{% else %}{{ t.intro_exchange_steps_s3_title }}{% endif %}</h3>
@@ -118,7 +118,7 @@
                 </div>
             </div>
         </section>
-    </div></br>
+    </div>
 
     <!-- Bootstrap -->
     <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
@@ -145,7 +145,7 @@
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/98019798" class="ym-noscript" alt=""></div></noscript>
 <!-- /Yandex.Metrika counter -->
 
 </body>

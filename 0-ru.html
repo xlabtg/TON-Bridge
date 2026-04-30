@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 
@@ -29,10 +30,10 @@
 
         Telegram.WebApp.setHeaderColor('secondary_bg_color');
     </script>
-	<script 
-    async 
-    src="https://tganalytics.xyz/index.js" 
-    onload="initAnalytics()" 
+	<script
+    async
+    src="https://tganalytics.xyz/index.js"
+    onload="initAnalytics()"
     type="text/javascript"
 ></script>
 <script>
@@ -62,7 +63,7 @@
 
     <!-- App Capsule -->
     <div id="appCapsule">
-        <!-- Вводная страница -->
+        <!-- Intro Page -->
         <section id="introSection" class="section mt-5">
             <div class="container">
                 <div class="section-head text">
@@ -76,17 +77,10 @@
                         <b>Кроме того, TON Bridge поддерживает обмен криптовалют  в 200 блокчейнах, включая TON, TRX, ETH, Arbitrum, Solana, NEAR, EOS, ALGO, KCS, Polygon, Polkadot, OP, KAVAFVM, OMNI, XTL, AVAX C и BSC. Теперь пользователи могут проводить обмены более 1200+ криптовалют между этими популярными сетями с максимальной удобностью.</b>
                     </p>
                 </div>
-
-                <!-- Кнопка "Начать обмен" -->
-<center><table class="iksweb">
-	<tbody>
-		<tr>
-			<td><a href="index-ru.html" class="btn btn-primary btn-lg">Начать обмен</a></td>
-			<!-- <td><center><a href="1-ru.html" class="btn btn-primary btn-lg">Инструкция</a></center></td> -->
-		</tr>
-	</tbody>
-</table></center>
-
+                <!-- "Start Exchange" Button -->
+                <div class="text-center mt-4">
+                    <a href="index-ru.html" class="btn btn-primary btn-lg">Начать обмен</a>
+                </div>
             </div>
         </section>
     </div>
@@ -98,6 +92,9 @@
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Telegram BackButton -->
+    <script src="assets/js/back-button.js"></script>
+    <script>wireBackButton();</script>
 
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript" >
@@ -114,9 +111,10 @@
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/98019798" class="ym-noscript" alt=""></div></noscript>
 <!-- /Yandex.Metrika counter -->
 
 </body>
 
 </html>
+

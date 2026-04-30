@@ -781,3 +781,58 @@
   color: #fff;
   background: darken($colorLine, 5%);
 }
+
+.embed-widget {
+  display: block;
+  width: 100%;
+  border: none;
+  &--tall {
+    height: 450px;
+  }
+  &--medium {
+    height: 356px;
+  }
+}
+
+.intro-img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.otc-img {
+  display: block;
+  width: 288px;
+  height: 288px;
+  max-width: 100%;
+}
+
+.feature-icon-lg {
+  font-size: 100px;
+  display: block;
+  line-height: 1;
+}
+
+.feature-icon-md {
+  font-size: 64px;
+  display: block;
+  line-height: 1;
+}
+
+.feature-img-lg {
+  height: 100px;
+  width: auto;
+  display: block;
+}
+
+.info-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.ym-noscript {
+  position: absolute;
+  left: -9999px;
+}

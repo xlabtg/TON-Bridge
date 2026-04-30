@@ -10,7 +10,7 @@
     "attr-quotes": "warn",
     "deprecated": "warn",
     "element-permitted-content": "warn",
-    "no-inline-style": "off",
+    "no-inline-style": "error",
     "no-trailing-whitespace": "off",
     "void-style": "off",
     "doctype-style": "off",

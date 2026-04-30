@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 
@@ -29,10 +30,10 @@
 
         Telegram.WebApp.setHeaderColor('secondary_bg_color');
     </script>
-	<script 
-    async 
-    src="https://tganalytics.xyz/index.js" 
-    onload="initAnalytics()" 
+	<script
+    async
+    src="https://tganalytics.xyz/index.js"
+    onload="initAnalytics()"
     type="text/javascript"
 ></script>
 <script>
@@ -79,8 +80,8 @@
                     <div class="row">
                         <div class="col-lg-4">
                             <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
-                                <div class="feature-icon dot">
-                                    <center><ion-icon name="wallet-outline" style="font-size: 100px;"></ion-icon></center>
+                                <div class="feature-icon dot text-center">
+                                    <ion-icon name="wallet-outline" class="feature-icon-lg"></ion-icon>
                                 </div>
                                 <div class="feature-text">
                                     <h3 class="title title-lg">Step 1 - Specify the TON amount</h3>
@@ -90,9 +91,9 @@
                         </div>
                        <div class="col-lg-4">
     <div class="feature animated" data-animate="fadeInUp" data-delay=".8">
-        <div class="feature-icon dot">
-            <center><img src="https://tonbankcard.com/bridge/TMA2/assets/img/ton-logo.png" alt="TON Logo" style="font-size: 100px; height: 100px;"></center>
-        </div></br>
+        <div class="feature-icon dot text-center">
+            <img src="https://tonbankcard.com/bridge/TMA2/assets/img/ton-logo.png" alt="TON Logo" class="feature-img-lg mx-auto">
+        </div>
         <div class="feature-text">
             <h3 class="title title-lg">Step 2 - Make the deposit</h3>
             <p>Check the details and send the funds to the specified deposit address.</p>
@@ -101,8 +102,8 @@
 </div>
                         <div class="col-lg-4">
                             <div class="feature animated" data-animate="fadeInUp" data-delay=".9">
-                                <div class="feature-icon dot">
-                                    <center><ion-icon name="checkmark-done-outline" style="font-size: 100px;"></ion-icon></center>
+                                <div class="feature-icon dot text-center">
+                                    <ion-icon name="checkmark-done-outline" class="feature-icon-lg"></ion-icon>
                                 </div>
                                 <div class="feature-text">
                                     <h3 class="title title-lg">Step 3 - Receive TON (1000+ cryptocurrencies)</h3>
@@ -118,7 +119,7 @@
                 </div>
             </div>
         </section>
-    </div></br>
+    </div>
 
     <!-- Bootstrap -->
     <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
@@ -126,6 +127,9 @@
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Telegram BackButton -->
+    <script src="assets/js/back-button.js"></script>
+    <script>wireBackButton();</script>
 
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript" >
@@ -142,9 +146,10 @@
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/98019798" class="ym-noscript" alt=""></div></noscript>
 <!-- /Yandex.Metrika counter -->
 
 </body>
 
 </html>
+

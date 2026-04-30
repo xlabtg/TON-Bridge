@@ -1,10 +1,11 @@
+
 <!doctype html>
 <html lang="en">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport"
-        content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
@@ -30,11 +31,42 @@
         });
 
         Telegram.WebApp.setHeaderColor('secondary_bg_color');
+
+        (function() {
+            var tg = Telegram.WebApp;
+            var mainButton = tg.MainButton;
+            var buttonText = 'Continue';
+            mainButton.setText(buttonText);
+
+            window.addEventListener('message', function(event) {
+                if (!event.data || typeof event.data !== 'object') return;
+                var type = event.data.type;
+                if (type === 'deeplink' || type === 'change-now-widget-step') {
+                    var step = event.data.step || event.data.value || '';
+                    if (step === 'initial' || step === 'success' || step === 'finish') {
+                        mainButton.hide();
+                    } else {
+                        mainButton.show();
+                    }
+                }
+            });
+
+            mainButton.onClick(function() {
+                var iframe = document.getElementById('iframe-widget');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({ type: 'submit' }, '*');
+                }
+            });
+
+            window.addEventListener('beforeunload', function() {
+                mainButton.hide();
+            });
+        })();
     </script>
-	<script 
-    async 
-    src="https://tganalytics.xyz/index.js" 
-    onload="initAnalytics()" 
+	<script
+    async
+    src="https://tganalytics.xyz/index.js"
+    onload="initAnalytics()"
     type="text/javascript"
 ></script>
 <script>
@@ -47,7 +79,7 @@
 </script>
     <!-- loader -->
     <div id="loader">
-        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon" width="256" height="256">
+        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
     </div>
     <!-- * loader -->
 
@@ -59,48 +91,45 @@
             </a>
         </div>
         <div class="pageTitle">
-            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo" width="200" height="40">
+            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo">
         </div>
     </div>
     <!-- * App Header -->
 
     <!-- App Capsule -->
     <div id="appCapsule">
-	    
+
 		<!-- App Bridge -->
 <!-- img -->
             <div class="text-center mb-4">
-                <img src="assets/img/gfx-a-1.png" alt="Intro Image" width="300" height="259" style="max-width: 300px; height: auto;">
+                <img src="assets/img/gfx-a-1.png" alt="Intro Image" class="intro-img" width="300" height="200">
             </div>
 <!-- Security and Privacy -->
 
                     <h3>&nbsp;Security and privacy</h3>
                     <p>
-                        &nbsp;TONBANKCARD preserves your privacy and &nbsp;guarantees security.
-                        We are not a custodial &nbsp;exchange service:
+                        &nbsp;TONBANKCARD preserves your privacy and  guarantees security.
+                        We are not a custodial  exchange service:
                     </p>
                     <ul class="list-unstyled">
                         <li>&nbsp;- We do not save your data</li>
                         <li>&nbsp;- We do not control your funds</li>
                         <li>&nbsp;- We do not force you to register</li>
                     </ul>
-	    </br><iframe id='iframe-widget' title="Exchange Widget" src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=10&amountFiat&backgroundColor=f6fafd&darkMode=false&from=ton&horizontal=false&isFiat=false&lang=en-EN&link_id=3cc0024a18fd9d&locales=true&logo=false&primaryColor=1bb2da&to=tonbsc&toTheMoon=false' style="height: 450px; width: 100%; border: none"></iframe>
-		<script defer type='text/javascript' src='https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js'></script>
+        <iframe id="iframe-widget" title="Exchange Widget" class="embed-widget embed-widget--tall" src="https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=10&amountFiat&backgroundColor=f6fafd&darkMode=false&from=ton&horizontal=false&isFiat=false&lang=en-EN&link_id=3cc0024a18fd9d&locales=true&logo=false&primaryColor=1bb2da&to=tonbsc&toTheMoon=false"></iframe>
+        <script defer type="text/javascript" src="https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js"></script>
         <!-- * App Bridge -->
-<center><a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" width="240" height="60" loading="lazy"/></a></center></br></br>
-<center>
-<table>
-<tr><td>
-                        <div class="col-lg-4">
-                            <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
-                                <div class="feature-icon dot">
-                                    <center><ion-icon name="information-outline" style="font-size: 64px;"></center>
-                                </div>
-                            </div>
-                        </div></td><td><a href="1.html" class="btn btn-primary btn-lg">Instruction</a></td></tr>
-</table>
-                  
-</center></br></br>
+        <div class="text-center mb-2">
+            <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy" width="240" height="60"></a>
+        </div>
+        <div class="info-action-row mb-4">
+            <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
+                <div class="feature-icon dot text-center">
+                    <ion-icon name="information-outline" class="feature-icon-md"></ion-icon>
+                </div>
+            </div>
+            <a href="1.html" class="btn btn-primary btn-lg">Instruction</a>
+        </div>
     </div>
     <!-- * App Capsule -->
 
@@ -144,7 +173,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-body p-0">
-				
+
 <!-- menu -->
 <div class="listview-title mt-1">Menu</div>
 <ul class="listview flush transparent no-line image-listview">
@@ -247,8 +276,9 @@
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" style="position:absolute; left:-9999px;" alt="" width="1" height="1" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/98019798" class="ym-noscript" alt=""></div></noscript>
 <!-- /Yandex.Metrika counter -->
 </body>
 
 </html>
+

@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 
@@ -29,10 +30,10 @@
 
         Telegram.WebApp.setHeaderColor('secondary_bg_color');
     </script>
-	<script 
-    async 
-    src="https://tganalytics.xyz/index.js" 
-    onload="initAnalytics()" 
+	<script
+    async
+    src="https://tganalytics.xyz/index.js"
+    onload="initAnalytics()"
     type="text/javascript"
 ></script>
 <script>
@@ -91,6 +92,9 @@
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Telegram BackButton -->
+    <script src="assets/js/back-button.js"></script>
+    <script>wireBackButton();</script>
 
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript" >
@@ -107,9 +111,10 @@
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/98019798" class="ym-noscript" alt=""></div></noscript>
 <!-- /Yandex.Metrika counter -->
 
 </body>
 
 </html>
+

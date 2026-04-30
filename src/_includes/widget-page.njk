@@ -101,7 +101,7 @@
 		<!-- App {{ sectionLabel }} -->
 <!-- {% if activePage == 'bridge' %}{{ t.bridge_img_comment }}{% else %}{{ t.exchange_img_comment }}{% endif %} -->
             <div class="text-center mb-4">
-                <img src="{{ imgSrc }}" alt="Intro Image" style="width: {{ imgW }}; height: {{ imgH }};">
+                <img src="{{ imgSrc }}" alt="Intro Image" class="intro-img" width="{{ imgW }}" height="{{ imgH }}">
             </div>
 <!-- {% if activePage == 'bridge' %}{{ t.bridge_section_comment }}{% else %}{{ t.exchange_section_comment }}{% endif %} -->
 
@@ -115,23 +115,20 @@
                         <li>&nbsp;{% if activePage == 'bridge' %}{{ t.bridge_point2 }}{% else %}{{ t.exchange_point2 }}{% endif %}</li>
                         <li>&nbsp;{% if activePage == 'bridge' %}{{ t.bridge_point3 }}{% else %}{{ t.exchange_point3 }}{% endif %}</li>
                     </ul>
-	    </br><iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount={{ iframeAmount }}&amountFiat&backgroundColor=f6fafd&darkMode=false&from={{ iframeFrom }}&horizontal=false&isFiat=false&lang={{ t.widget_lang }}&link_id=3cc0024a18fd9d&locales=true&logo=false&primaryColor=1bb2da&to={{ iframeTo }}&toTheMoon=false' style="height: 450px; width: 100%; border: none"></iframe>
-		<script defer type='text/javascript' src='https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js'></script>
+        <iframe id="iframe-widget" title="Exchange Widget" class="embed-widget embed-widget--tall" src="https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount={{ iframeAmount }}&amountFiat&backgroundColor=f6fafd&darkMode=false&from={{ iframeFrom }}&horizontal=false&isFiat=false&lang={{ t.widget_lang }}&link_id=3cc0024a18fd9d&locales=true&logo=false&primaryColor=1bb2da&to={{ iframeTo }}&toTheMoon=false"></iframe>
+        <script defer type="text/javascript" src="https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js"></script>
         <!-- * App {{ sectionLabel }} -->
-<center><a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy"/></a></center></br></br>
-<center>
-<table>
-<tr><td>
-                        <div class="col-lg-4">
-                            <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
-                                <div class="feature-icon dot">
-                                    <center><ion-icon name="information-outline" style="font-size: 64px;"></center>
-                                </div>
-                            </div>
-                        </div></td><td><a href="{% if activePage == 'bridge' %}{{ t.bridge_instruction_link }}{% else %}{{ t.exchange_instruction_link }}{% endif %}" class="btn btn-primary btn-lg">{% if activePage == 'bridge' %}{{ t.bridge_instruction_btn }}{% else %}{{ t.exchange_instruction_btn }}{% endif %}</a></td></tr>
-</table>
-
-</center></br></br>
+        <div class="text-center mb-2">
+            <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy" width="240" height="60"></a>
+        </div>
+        <div class="info-action-row mb-4">
+            <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
+                <div class="feature-icon dot text-center">
+                    <ion-icon name="information-outline" class="feature-icon-md"></ion-icon>
+                </div>
+            </div>
+            <a href="{% if activePage == 'bridge' %}{{ t.bridge_instruction_link }}{% else %}{{ t.exchange_instruction_link }}{% endif %}" class="btn btn-primary btn-lg">{% if activePage == 'bridge' %}{{ t.bridge_instruction_btn }}{% else %}{{ t.exchange_instruction_btn }}{% endif %}</a>
+        </div>
     </div>
     <!-- * App Capsule -->
 
@@ -278,7 +275,7 @@
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/98019798" class="ym-noscript" alt=""></div></noscript>
 <!-- /Yandex.Metrika counter -->
 </body>
 

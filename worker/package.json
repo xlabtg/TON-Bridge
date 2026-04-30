@@ -1,0 +1,17 @@
+{
+  "name": "ton-bridge-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --testPathPattern=tests/",
+    "test:redeem": "node --experimental-vm-modules node_modules/.bin/jest tests/redeemHandler.test.js"
+  },
+  "devDependencies": {
+    "better-sqlite3": "^9.4.3",
+    "jest": "^29.7.0",
+    "wrangler": "^3.0.0"
+  }
+}

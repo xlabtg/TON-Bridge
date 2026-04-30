@@ -7,7 +7,8 @@
     "build": "npm run build:css && eleventy --config=eleventy.config.js",
     "build:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions",
     "watch:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions --watch",
-    "test": "playwright test"
+    "test": "playwright test",
+    "test:redeem": "node --experimental-vm-modules worker/node_modules/.bin/jest worker/tests/redeemHandler.test.js --no-coverage --rootDir worker"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.1.5",

@@ -61,20 +61,6 @@
             });
         })();
     </script>
-	<script
-    async
-    src="https://tganalytics.xyz/index.js"
-    onload="initAnalytics()"
-    type="text/javascript"
-></script>
-<script>
-    function initAnalytics() {
-      window.telegramAnalytics.init({
-        token: 'eyJhcHBfbmFtZSI6IlRPTkJyaWRnZV9yb2JvdCIsImFwcF91cmwiOiJodHRwczovL3QubWUvVE9OQnJpZGdlX3JvYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vdG9uYmFua2NhcmQuY29tL2JyaWRnZS9UTUEvMDAuaHRtbCJ9!PQ40y7Tz3lZti6uDVlApq+BcGxi8tR9WEsH6Hyu+mD0=', // SDK Auth token received via @DataChief_bot
-        appName: 'TONBridge_robot', // The analytics identifier you entered in @DataChief_bot
-      });
-    }
-</script>
     <!-- loader -->
     <div id="loader">
         <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
@@ -235,17 +221,63 @@
     <!-- * App Sidebar -->
 
     <div id="cookiesbox" class="offcanvas offcanvas-bottom cookies-box" tabindex="-1" data-bs-scroll="true"
-        data-bs-backdrop="false">
+        data-bs-backdrop="false" role="dialog" aria-labelledby="cookiesboxTitle" aria-modal="true">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title">{{ t.cookies_title }}</h5>
+            <h5 class="offcanvas-title" id="cookiesboxTitle">{{ t.cookies_title }}</h5>
         </div>
         <div class="offcanvas-body">
-            <div>
+            <div class="mb-2">
                 {{ t.cookies_body }}
-                <a href="#" class="text-secondary"><u>{{ t.cookies_learn_more }}</u></a>
+                <a href="{{ t.privacy_link }}" class="text-secondary"><u>{{ t.cookies_learn_more }}</u></a>
             </div>
+            <ul class="listview image-listview text inset no-line mb-2">
+                <li>
+                    <div class="item">
+                        <div class="in">
+                            <div>
+                                <strong>{{ t.cookies_necessary_label }}</strong>
+                                <div class="text-muted" style="font-size:0.82em">{{ t.cookies_necessary_desc }}</div>
+                            </div>
+                            <div class="form-check form-switch ms-2">
+                                <input class="form-check-input" type="checkbox" id="consentNecessary" checked disabled>
+                                <label class="form-check-label" for="consentNecessary"></label>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="item">
+                        <div class="in">
+                            <div>
+                                <strong>{{ t.cookies_analytics_label }}</strong>
+                                <div class="text-muted" style="font-size:0.82em">{{ t.cookies_analytics_desc }}</div>
+                            </div>
+                            <div class="form-check form-switch ms-2">
+                                <input class="form-check-input consent-analytics-toggle" type="checkbox" id="consentAnalytics">
+                                <label class="form-check-label" for="consentAnalytics"></label>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="item">
+                        <div class="in">
+                            <div>
+                                <strong>{{ t.cookies_marketing_label }}</strong>
+                                <div class="text-muted" style="font-size:0.82em">{{ t.cookies_marketing_desc }}</div>
+                            </div>
+                            <div class="form-check form-switch ms-2">
+                                <input class="form-check-input consent-marketing-toggle" type="checkbox" id="consentMarketing">
+                                <label class="form-check-label" for="consentMarketing"></label>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
             <div class="buttons">
-                <a href="#" class="btn btn-primary btn-block" data-bs-dismiss="offcanvas">{{ t.cookies_accept }}</a>
+                <a href="#" class="btn btn-primary btn-block accept-cookies accept-all-cookies mb-1" data-bs-dismiss="offcanvas">{{ t.cookies_accept }}</a>
+                <a href="#" class="btn btn-outline-primary btn-block accept-cookies accept-selected-cookies mb-1" data-bs-dismiss="offcanvas">{{ t.cookies_accept_selected }}</a>
+                <a href="#" class="btn btn-link btn-block accept-cookies decline-optional-cookies" data-bs-dismiss="offcanvas">{{ t.cookies_decline }}</a>
             </div>
         </div>
     </div>
@@ -264,23 +296,6 @@
         // Add to Home with 2 seconds delay.
         AddtoHome("2000", "once");
     </script>
-    <!-- Yandex.Metrika counter -->
-<script type="text/javascript" >
-   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-   m[i].l=1*new Date();
-   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-
-   ym(98019798, "init", {
-        clickmap:true,
-        trackLinks:true,
-        accurateTrackBounce:true,
-        webvisor:true
-   });
-</script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
 </body>
 
 </html>

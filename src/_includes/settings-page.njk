@@ -72,6 +72,23 @@
         </li>
     </ul>
 
+    <div class="listview-title mt-1">{{ t.settings_notifications_section }}</div>
+    <ul class="listview image-listview text inset no-line">
+        <li>
+            <div class="item">
+                <div class="in">
+                    <div>
+                        {{ t.settings_notifications_label }}
+                    </div>
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input" type="checkbox" id="notificationsSwitch" checked>
+                        <label class="form-check-label" for="notificationsSwitch"></label>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
 </div>
 
 <script>
@@ -85,6 +102,36 @@
             window.location.href = '{{ t.settings_lang_unchecked_goto }}';
         }
     });
+
+    // Notification opt-out — persisted via Telegram CloudStorage
+    (function () {
+        var tg = window.Telegram && window.Telegram.WebApp;
+        var STORAGE_KEY = 'notifications_opt_out';
+        var toggle = document.getElementById('notificationsSwitch');
+
+        // Load persisted preference
+        if (tg && tg.CloudStorage) {
+            tg.CloudStorage.getItem(STORAGE_KEY, function (err, value) {
+                if (!err && value === '1') {
+                    toggle.checked = false;
+                }
+            });
+        } else {
+            // Fallback to localStorage in non-Telegram environments
+            if (localStorage.getItem(STORAGE_KEY) === '1') {
+                toggle.checked = false;
+            }
+        }
+
+        toggle.addEventListener('change', function () {
+            var optOut = this.checked ? '0' : '1';
+            if (tg && tg.CloudStorage) {
+                tg.CloudStorage.setItem(STORAGE_KEY, optOut);
+            } else {
+                localStorage.setItem(STORAGE_KEY, optOut);
+            }
+        });
+    })();
 </script>
 
     <!-- * App Capsule -->

@@ -73,6 +73,9 @@
   "settings_lang_checked_goto": "app-settings-ru.html",
   "settings_lang_unchecked_goto": "app-settings.html",
 
+  "settings_notifications_section": "Notifications",
+  "settings_notifications_label": "Exchange status notifications",
+
   "intro_bridge_heading": "TON Bridge",
   "intro_bridge_p1": "Discover TON Bridge by TONBANKCARD – a reliable bridge between the TON and BSC blockchains.\n                        Learn how to quickly and securely carry out cryptocurrency transactions between these two\n                        popular blockchain platforms using TON Bridge.",
   "intro_bridge_p2_bold": "In addition, TON Bridge supports the exchange of cryptocurrencies in 200 blockchains, including TON, TRX, ETH, Arbitrum, Solana, NEAR, EOS, ALGO, KCS, Polygon, Polkadot, OP, KAVAFVM, OMNI, XTL, AVAX C and BSC. Users can now exchange over 1200+ cryptocurrencies between these popular networks with maximum convenience.",

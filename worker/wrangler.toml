@@ -1,0 +1,16 @@
+name = "ton-bridge-auth"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+# Rate limiter: 30 requests / minute / IP
+# See https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/
+[[unsafe.bindings]]
+name = "RATE_LIMITER"
+type = "ratelimit"
+namespace_id = "0"
+
+[vars]
+# Non-secret configuration can go here.
+# Secrets (BOT_TOKEN, JWT_SECRET) must be set via:
+#   wrangler secret put BOT_TOKEN
+#   wrangler secret put JWT_SECRET

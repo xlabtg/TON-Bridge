@@ -16,6 +16,45 @@
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="manifest" href="__manifest.json">
+    <style>
+        .social-proof-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(27, 178, 218, 0.12);
+            border: 1px solid rgba(27, 178, 218, 0.35);
+            border-radius: 999px;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #1bb2da;
+            margin: 0 auto 12px;
+            max-width: fit-content;
+        }
+        .social-proof-pill .sp-dot {
+            font-size: 8px;
+            color: #1bb2da;
+            animation: sp-pulse 2s ease-in-out infinite;
+        }
+        @keyframes sp-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .social-proof-pill .sp-dot { animation: none; }
+        }
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
 </head>
 
 <body>
@@ -115,6 +154,16 @@
                         <li>&nbsp;{% if activePage == 'bridge' %}{{ t.bridge_point2 }}{% else %}{{ t.exchange_point2 }}{% endif %}</li>
                         <li>&nbsp;{% if activePage == 'bridge' %}{{ t.bridge_point3 }}{% else %}{{ t.exchange_point3 }}{% endif %}</li>
                     </ul>
+{% if activePage == 'bridge' %}
+        <!-- Social-proof pill: "{N} bridges in the last 24 h · ${V} volume" -->
+        <div id="social-proof-pill" class="social-proof-pill" hidden
+             data-label-template="{{ t.social_proof_label }}">
+            <span class="sp-dot" aria-hidden="true">●</span>
+            <span class="sp-text"></span>
+        </div>
+        <!-- aria-live region: announces value to screen readers on first session render only -->
+        <div id="social-proof-region" aria-live="polite" aria-atomic="true" class="visually-hidden"></div>
+{% endif %}
 	    </br><iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount={{ iframeAmount }}&amountFiat&backgroundColor=f6fafd&darkMode=false&from={{ iframeFrom }}&horizontal=false&isFiat=false&lang={{ t.widget_lang }}&link_id=3cc0024a18fd9d&locales=true&logo=false&primaryColor=1bb2da&to={{ iframeTo }}&toTheMoon=false' style="height: 450px; width: 100%; border: none"></iframe>
 		<script defer type='text/javascript' src='https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js'></script>
         <!-- * App {{ sectionLabel }} -->
@@ -258,6 +307,8 @@
     <script src="assets/js/plugins/splide/splide.min.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Social-proof widget -->
+    <script src="assets/js/social-proof.js"></script>
 
     <script>
         // Add to Home with 2 seconds delay.

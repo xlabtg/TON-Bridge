@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "npm run build:css && eleventy --config=eleventy.config.js",
+    "build": "npm run build:css && npm run build:og && eleventy --config=eleventy.config.js",
     "build:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions",
+    "build:og": "node scripts/generate-og-images.js",
     "watch:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions --watch",
     "test": "playwright test"
   },

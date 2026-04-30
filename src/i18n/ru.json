@@ -103,5 +103,19 @@
   "intro_exchange_steps_s3_title": "Шаг 3 - Получите криптовалюту",
   "intro_exchange_steps_s3_desc": "Нашим пользователям не нужно беспокоиться о сохранности своих персональных данных. <strong>Мы обеспечиваем полную анонимность.</strong>",
   "intro_exchange_steps_btn": "Приступить к обмену",
-  "intro_exchange_steps_target": "index2-ru.html"
+  "intro_exchange_steps_target": "index2-ru.html",
+
+  "ab_section": "Адресная книга",
+  "ab_manage_title": "Управление адресами",
+  "ab_empty": "Нет сохранённых адресов",
+  "ab_edit": "Изменить",
+  "ab_remove": "Удалить",
+  "ab_edit_label_prompt": "Введите метку:",
+  "ab_pin": "Закрепить",
+  "ab_unpin": "Открепить",
+  "ab_action_edit": "Изменить метку",
+  "ab_action_pin": "Закрепить",
+  "ab_action_remove": "Удалить",
+  "ab_action_cancel": "Отмена",
+  "ab_chain": "ton"
 }

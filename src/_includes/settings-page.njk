@@ -72,6 +72,12 @@
         </li>
     </ul>
 
+
+    <div class="listview-title mt-1">{{ t.ab_section }}</div>
+    <ul class="listview image-listview text inset no-line" id="address-book-manage-list">
+        <li><div class="item"><div class="in">{{ t.ab_empty }}</div></div></li>
+    </ul>
+
 </div>
 
 <script>
@@ -137,6 +143,17 @@
     <!-- Telegram BackButton -->
     <script src="assets/js/back-button.js"></script>
     <script>wireBackButton();</script>
+    <!-- Address Book manage view -->
+    <script src="assets/js/address-book.js"></script>
+    <script>
+        AddressBook.initManage('{{ t.ab_chain }}', {
+            ab_edit_label_prompt: '{{ t.ab_edit_label_prompt }}',
+            ab_edit: '{{ t.ab_edit }}',
+            ab_remove: '{{ t.ab_remove }}',
+            ab_empty: '{{ t.ab_empty }}'
+        });
+    </script>
+    <!-- * Address Book manage view -->
 
 
 </body>

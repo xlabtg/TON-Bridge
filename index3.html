@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 
@@ -30,11 +31,41 @@
         });
 
         Telegram.WebApp.setHeaderColor('secondary_bg_color');
+
+        (function() {
+            var tg = Telegram.WebApp;
+            var mainButton = tg.MainButton;
+            mainButton.setText('Confirm exchange');
+
+            window.addEventListener('message', function(event) {
+                if (!event.data || typeof event.data !== 'object') return;
+                var type = event.data.type;
+                if (type === 'deeplink' || type === 'change-now-widget-step') {
+                    var step = event.data.step || event.data.value || '';
+                    if (step === 'initial' || step === 'success' || step === 'finish') {
+                        mainButton.hide();
+                    } else {
+                        mainButton.show();
+                    }
+                }
+            });
+
+            mainButton.onClick(function() {
+                var iframe = document.getElementById('iframe-widget');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({ type: 'submit' }, '*');
+                }
+            });
+
+            window.addEventListener('beforeunload', function() {
+                mainButton.hide();
+            });
+        })();
     </script>
-	<script 
-    async 
-    src="https://tganalytics.xyz/index.js" 
-    onload="initAnalytics()" 
+	<script
+    async
+    src="https://tganalytics.xyz/index.js"
+    onload="initAnalytics()"
     type="text/javascript"
 ></script>
 <script>
@@ -126,6 +157,12 @@
             <div class="col">
                 <ion-icon name="cash-outline"></ion-icon>
                 <strong>OTC</strong>
+            </div>
+        </a>
+        <a href="orders.html" class="item">
+            <div class="col">
+                <ion-icon name="receipt-outline"></ion-icon>
+                <strong>Orders</strong>
             </div>
         </a>
         <!-- <a href="index4.html" class="item">
@@ -254,3 +291,4 @@
 </body>
 
 </html>
+

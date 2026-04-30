@@ -7,6 +7,7 @@
     "build": "npm run build:css && eleventy --config=eleventy.config.js",
     "build:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions",
     "watch:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions --watch",
+    "check:i18n": "node scripts/check-i18n-keys.js",
     "test": "playwright test"
   },
   "devDependencies": {

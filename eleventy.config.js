@@ -9,10 +9,12 @@ const ru = JSON.parse(readFileSync(join(__dirname, 'src/i18n/ru.json'), 'utf8'))
 
 export default function(eleventyConfig) {
   eleventyConfig.addGlobalData('locales', { en, ru });
+  eleventyConfig.addGlobalData('ADMIN_TELEGRAM_IDS', process.env.ADMIN_TELEGRAM_IDS || '');
 
   eleventyConfig.addPassthroughCopy({ 'assets': 'assets' });
   eleventyConfig.addPassthroughCopy('__manifest.json');
   eleventyConfig.addPassthroughCopy('__service-worker.js');
+  eleventyConfig.addPassthroughCopy('robots.txt');
 
   return {
     dir: {

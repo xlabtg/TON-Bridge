@@ -1,0 +1,38 @@
+name = "ton-bridge-worker"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+
+# Cron trigger: accrual job runs every 60 s
+[triggers]
+crons = ["* * * * *"]
+
+# D1 database binding (created with: wrangler d1 create ton-bridge-affiliate)
+[[d1_databases]]
+binding       = "DB"
+database_name = "ton-bridge-affiliate"
+database_id   = "REPLACE_WITH_D1_DATABASE_ID"
+
+# KV namespace binding for the accrual cursor
+# Created with: wrangler kv:namespace create ton-bridge-accrual
+[[kv_namespaces]]
+binding = "KV"
+id      = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# ---------------------------------------------------------------------------
+# Environment variables
+# Secrets (TELEGRAM_BOT_TOKEN, TONBANKCARD_API_KEY, CHANGENOW_API_KEY,
+# ADMIN_SECRET) are set via: wrangler secret put <NAME>
+# ---------------------------------------------------------------------------
+[vars]
+DEV_MODE = "false"
+
+# Rate knobs (issue #55 — Phase 6.12)
+# All values are validated on boot; cashback_bps + referral_bps must <= service_bps.
+# Use POST /admin/config to change these at runtime without a redeploy.
+SERVICE_BPS            = "40"       # 0.40 % — house gross commission (set by ChangeNOW partnership)
+CASHBACK_BPS           = "10"       # 0.10 % — trader rebate
+REFERRAL_BPS           = "10"       # 0.10 % — inviter rebate
+POINT_USD_VALUE        = "0.00003"  # implied $/point
+POINTS_PER_TBC         = "10"       # redemption divisor: 10 points = 1 TBC
+MIN_REDEEM_POINTS      = "100"      # minimum redemption: 100 points = 10 TBC
+DAILY_TURNOVER_CAP_USD = "50000"    # anti-fraud: max daily swap turnover that earns points per user

@@ -32,6 +32,27 @@ jobs:
       - name: Build
         run: npm run build
 
+  schema-smoke-test:
+    name: Affiliate Schema Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read .nvmrc
+        id: nvmrc
+        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.nvmrc.outputs.version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run affiliate schema smoke tests
+        run: npm run test:schema
+
   html-validate:
     name: HTML Validate
     runs-on: ubuntu-latest

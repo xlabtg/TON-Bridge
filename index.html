@@ -15,6 +15,7 @@
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/tg-theme.css">
     <link rel="manifest" href="__manifest.json">
 </head>
 
@@ -30,6 +31,17 @@
         });
 
         Telegram.WebApp.setHeaderColor('secondary_bg_color');
+
+        // Apply themeParams CSS variables on first load
+        (function() {
+            var params = Telegram.WebApp.themeParams || {};
+            var root = document.documentElement;
+            for (var key in params) {
+                if (Object.prototype.hasOwnProperty.call(params, key)) {
+                    root.style.setProperty('--tg-theme-' + key.replace(/_/g, '-'), params[key]);
+                }
+            }
+        })();
     </script>
 	<script 
     async 
@@ -227,6 +239,8 @@
     <script src="assets/js/plugins/splide/splide.min.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Telegram Theme Integration -->
+    <script src="assets/js/tg-theme.js"></script>
 
     <script>
         // Add to Home with 2 seconds delay.

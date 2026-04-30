@@ -90,12 +90,34 @@
         </div>
         <div class="pageTitle">
             <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo">
+            <span id="tier-badge" class="tier-badge"></span>
         </div>
     </div>
     <!-- * App Header -->
 
+    <!-- Tier-up celebration modal -->
+    <div id="tier-celebration-modal" class="tier-celebration-overlay" role="dialog" aria-modal="true" aria-label="{{ t.tier_celebration_title | default('Tier unlocked') }}">
+        <div class="tier-celebration-card">
+            <span class="tier-celebration-icon" aria-hidden="true"></span>
+            <div class="tier-celebration-title"></div>
+            <div class="tier-celebration-sub"></div>
+            <button class="btn btn-primary tier-celebration-share">{{ t.tier_share_btn | default('Share') }}</button>
+            <button class="btn tier-celebration-close">{{ t.tier_close_btn | default('Close') }}</button>
+        </div>
+    </div>
+    <!-- * Tier-up celebration modal -->
+
     <!-- App Capsule -->
     <div id="appCapsule">
+
+        <!-- Tier progress bar -->
+        <div class="tier-progress-wrap">
+            <span id="tier-progress-label" class="tier-progress-label"></span>
+            <div class="progress">
+                <div id="tier-progress-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+            </div>
+        </div>
+        <!-- * Tier progress bar -->
         <!-- App Bridge -->
         <div class="text-center mb-4">
             <img src="assets/img/OTC.png" alt="Intro Image" style="width: 288px; height: 288px;">
@@ -259,6 +281,21 @@
     <script src="assets/js/plugins/splide/splide.min.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Achievements -->
+    <script src="assets/js/achievements.js"></script>
+    <script>
+        Achievements.init();
+        window.addEventListener('message', function(event) {
+            if (!event.data || typeof event.data !== 'object') return;
+            var type = event.data.type;
+            if (
+                (type === 'change-now-widget-step' && event.data.step === 'success') ||
+                (type === 'deeplink' && event.data.value === 'success')
+            ) {
+                Achievements.recordSwap(0);
+            }
+        });
+    </script>
 
     <script>
         // Add to Home with 2 seconds delay.

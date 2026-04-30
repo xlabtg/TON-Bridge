@@ -92,6 +92,12 @@
         <div class="pageTitle">
             <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo">
         </div>
+        <div class="right">
+            <button id="wallet-btn" class="headerButton btn btn-sm btn-outline-light rounded" onclick="WalletConnect.connect()" style="font-size:11px;height:28px;padding:0 8px;">
+                <ion-icon name="wallet-outline" style="font-size:16px;margin-right:4px;vertical-align:middle;"></ion-icon>
+                <span id="wallet-btn-label">{{ t.wallet_connect_btn }}</span>
+            </button>
+        </div>
     </div>
     <!-- * App Header -->
 
@@ -115,7 +121,18 @@
                         <li>&nbsp;{% if activePage == 'bridge' %}{{ t.bridge_point2 }}{% else %}{{ t.exchange_point2 }}{% endif %}</li>
                         <li>&nbsp;{% if activePage == 'bridge' %}{{ t.bridge_point3 }}{% else %}{{ t.exchange_point3 }}{% endif %}</li>
                     </ul>
-	    </br><iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount={{ iframeAmount }}&amountFiat&backgroundColor=f6fafd&darkMode=false&from={{ iframeFrom }}&horizontal=false&isFiat=false&lang={{ t.widget_lang }}&link_id=3cc0024a18fd9d&locales=true&logo=false&primaryColor=1bb2da&to={{ iframeTo }}&toTheMoon=false' style="height: 450px; width: 100%; border: none"></iframe>
+    <!-- Wallet prefill chips — shown only on Bridge tab when a wallet is connected -->
+    {% if activePage == 'bridge' %}
+    <div id="wallet-prefill-bar" style="display:none;padding:0 8px 8px;">
+        <span class="chip chip-primary chip-outline" id="wallet-prefill-half" style="cursor:pointer;margin-right:6px;" onclick="walletPrefillHalf()">
+            <span class="chip-label" id="wallet-prefill-half-label">{{ t.wallet_prefill_half }}</span>
+        </span>
+        <span class="chip chip-primary chip-outline" id="wallet-prefill-max" style="cursor:pointer;" onclick="walletPrefillMax()">
+            <span class="chip-label">{{ t.wallet_prefill_max }}</span>
+        </span>
+    </div>
+    {% endif %}
+    </br><iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount={{ iframeAmount }}&amountFiat&backgroundColor=f6fafd&darkMode=false&from={{ iframeFrom }}&horizontal=false&isFiat=false&lang={{ t.widget_lang }}&link_id=3cc0024a18fd9d&locales=true&logo=false&primaryColor=1bb2da&to={{ iframeTo }}&toTheMoon=false' style="height: 450px; width: 100%; border: none"></iframe>
 		<script defer type='text/javascript' src='https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js'></script>
         <!-- * App {{ sectionLabel }} -->
 <center><a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy"/></a></center></br></br>
@@ -258,10 +275,82 @@
     <script src="assets/js/plugins/splide/splide.min.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- TonConnect UI -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <!-- Wallet Connect -->
+    <script src="assets/js/wallet-connect.js"></script>
 
     <script>
         // Add to Home with 2 seconds delay.
         AddtoHome("2000", "once");
+    </script>
+
+    <script>
+        // i18n strings for wallet UI
+        var i18nWallet = {
+            connectBtn: '{{ t.wallet_connect_btn }}',
+            disconnectBtn: '{{ t.wallet_disconnect_btn }}',
+            prefillHalf: '{{ t.wallet_prefill_half }}',
+            prefillMax: '{{ t.wallet_prefill_max }}'
+        };
+
+        var _walletBalance = null;
+
+        function updateWalletUI(state) {
+            var btn = document.getElementById('wallet-btn');
+            var btnLabel = document.getElementById('wallet-btn-label');
+            var prefillBar = document.getElementById('wallet-prefill-bar');
+            var halfLabel = document.getElementById('wallet-prefill-half-label');
+
+            if (state && state.connected && state.address) {
+                // Show shortened address and balance on button
+                var short = WalletConnect.shortenAddress(state.address);
+                var balText = state.balance != null ? short + ' · ' + state.balance + ' TON' : short;
+                btnLabel.textContent = balText;
+                btn.onclick = function() { WalletConnect.disconnect(); };
+
+                // Keep balance for prefill chips
+                _walletBalance = state.balance ? parseFloat(state.balance) : null;
+
+                {% if activePage == 'bridge' %}
+                if (prefillBar) {
+                    prefillBar.style.display = '';
+                    if (halfLabel && _walletBalance != null) {
+                        var half = (_walletBalance / 2).toFixed(2);
+                        halfLabel.textContent = i18nWallet.prefillHalf.replace('{bal}', half);
+                    }
+                }
+                {% endif %}
+            } else {
+                btnLabel.textContent = i18nWallet.connectBtn;
+                btn.onclick = function() { WalletConnect.connect(); };
+                _walletBalance = null;
+                {% if activePage == 'bridge' %}
+                if (prefillBar) prefillBar.style.display = 'none';
+                {% endif %}
+            }
+        }
+
+        {% if activePage == 'bridge' %}
+        function walletPrefillHalf() {
+            if (_walletBalance == null) return;
+            var half = (_walletBalance / 2).toFixed(2);
+            prefillIframe(half);
+        }
+        function walletPrefillMax() {
+            if (_walletBalance == null) return;
+            prefillIframe(_walletBalance.toFixed(2));
+        }
+        function prefillIframe(amount) {
+            var iframe = document.getElementById('iframe-widget');
+            if (!iframe) return;
+            // Try postMessage first; fall back to reloading src with fromAmount param
+            iframe.contentWindow.postMessage({ type: 'set-amount', amount: amount }, '*');
+        }
+        {% endif %}
+
+        WalletConnect.onChange(updateWalletUI);
+        WalletConnect.init('tonconnect-manifest.json');
     </script>
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript" >

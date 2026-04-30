@@ -72,6 +72,21 @@
         </li>
     </ul>
 
+    <div class="listview-title mt-1">{{ t.wallet_section }}</div>
+    <ul class="listview image-listview text inset no-line" id="wallet-settings-list">
+        <li id="wallet-settings-connect-row">
+            <div class="item">
+                <div class="in">
+                    <div id="wallet-settings-status">{{ t.wallet_connect_btn }}</div>
+                    <button class="btn btn-primary btn-sm rounded" id="wallet-settings-btn" onclick="WalletConnect.connect()">
+                        <ion-icon name="wallet-outline" style="font-size:16px;margin-right:4px;vertical-align:middle;"></ion-icon>
+                        <span id="wallet-settings-btn-label">{{ t.wallet_connect_btn }}</span>
+                    </button>
+                </div>
+            </div>
+        </li>
+    </ul>
+
 </div>
 
 <script>
@@ -137,6 +152,42 @@
     <!-- Telegram BackButton -->
     <script src="assets/js/back-button.js"></script>
     <script>wireBackButton();</script>
+    <!-- TonConnect UI -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <!-- Wallet Connect -->
+    <script src="assets/js/wallet-connect.js"></script>
+
+    <script>
+        var i18nWallet = {
+            connectBtn: '{{ t.wallet_connect_btn }}',
+            disconnectBtn: '{{ t.wallet_disconnect_btn }}',
+            connectedLabel: '{{ t.wallet_connected_label }}',
+            balanceLabel: '{{ t.wallet_balance_label }}'
+        };
+
+        function updateSettingsWalletUI(state) {
+            var statusEl = document.getElementById('wallet-settings-status');
+            var btnEl = document.getElementById('wallet-settings-btn');
+            var btnLabelEl = document.getElementById('wallet-settings-btn-label');
+
+            if (state && state.connected && state.address) {
+                var short = WalletConnect.shortenAddress(state.address);
+                var balLine = state.balance != null ? ' · ' + state.balance + ' TON' : '';
+                statusEl.textContent = short + balLine;
+                btnLabelEl.textContent = i18nWallet.disconnectBtn;
+                btnEl.className = 'btn btn-danger btn-sm rounded';
+                btnEl.onclick = function() { WalletConnect.disconnect(); };
+            } else {
+                statusEl.textContent = i18nWallet.connectBtn;
+                btnLabelEl.textContent = i18nWallet.connectBtn;
+                btnEl.className = 'btn btn-primary btn-sm rounded';
+                btnEl.onclick = function() { WalletConnect.connect(); };
+            }
+        }
+
+        WalletConnect.onChange(updateSettingsWalletUI);
+        WalletConnect.init('tonconnect-manifest.json');
+    </script>
 
 
 </body>

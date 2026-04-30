@@ -64,6 +64,14 @@
   "otc_point2": "- Нулевое проскальзывание",
   "otc_point3": "- Агрегация CEX + DEX",
 
+  "wallet_connect_btn": "Подключить кошелёк",
+  "wallet_disconnect_btn": "Отключить",
+  "wallet_connected_label": "Подключённый кошелёк",
+  "wallet_balance_label": "Баланс",
+  "wallet_section": "Кошелёк",
+  "wallet_prefill_half": "Использовать {bal} TON",
+  "wallet_prefill_max": "Макс",
+
   "settings_title_label": "Настройки",
   "settings_back_link": "index-ru.html",
   "settings_theme_section": "Тема",

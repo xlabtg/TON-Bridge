@@ -64,6 +64,14 @@
   "otc_point2": "- Zero slippage",
   "otc_point3": "- CEX + DEX Aggregation",
 
+  "wallet_connect_btn": "Connect wallet",
+  "wallet_disconnect_btn": "Disconnect",
+  "wallet_connected_label": "Connected wallet",
+  "wallet_balance_label": "Balance",
+  "wallet_section": "Wallet",
+  "wallet_prefill_half": "Use {bal} TON",
+  "wallet_prefill_max": "Max",
+
   "settings_title_label": "Settings",
   "settings_back_link": "index.html",
   "settings_theme_section": "Theme",

@@ -180,16 +180,6 @@
 <div class="listview-title mt-1">{{ t.menu_title }}</div>
 <ul class="listview flush transparent no-line image-listview">
     <li>
-        <a href="app-settings{{ t.suffix }}.html" class="item">
-            <div class="icon-box bg-primary">
-                <ion-icon name="settings-outline"></ion-icon>
-            </div>
-            <div class="in">
-                {{ t.menu_settings }}
-            </div>
-        </a>
-    </li>
-    <li>
         <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_bot');" class="item">
             <div class="icon-box bg-primary">
                 <ion-icon name="chatbubble-outline"></ion-icon>
@@ -258,6 +248,9 @@
     <script src="assets/js/plugins/splide/splide.min.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Telegram SettingsButton -->
+    <script src="assets/js/settings-button.js"></script>
+    <script>wireSettingsButton('app-settings{{ t.suffix }}.html');</script>
 
     <script>
         // Add to Home with 2 seconds delay.

@@ -21,3 +21,6 @@ Thumbs.db
 # Playwright
 test-results/
 playwright-report/
+
+# Sentry — generated build artifact (token-replaced copy of sentry.js)
+assets/js/sentry.out.js

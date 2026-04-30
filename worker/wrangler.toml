@@ -1,0 +1,28 @@
+name = "ton-bridge-accrual"
+main = "src/accrualJob.js"
+compatibility_date = "2024-09-23"
+
+# Cron trigger: runs every 60 s (closest Cloudflare supports is "* * * * *" = every 1 min)
+[triggers]
+crons = ["* * * * *"]
+
+# D1 database binding (created with: wrangler d1 create ton-bridge-affiliate)
+[[d1_databases]]
+binding  = "DB"
+database_name = "ton-bridge-affiliate"
+database_id   = "REPLACE_WITH_D1_DATABASE_ID"
+
+# KV namespace binding for the accrual cursor
+# Created with: wrangler kv:namespace create ton-bridge-accrual
+[[kv_namespaces]]
+binding    = "KV"
+id         = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# Environment variables (set secrets with: wrangler secret put CHANGENOW_API_KEY)
+# CHANGENOW_API_KEY — ChangeNOW partner API key
+# CASHBACK_BPS      — trader cashback in basis points (default: 10)
+# REFERRAL_BPS      — referrer share in basis points  (default: 10)
+# ADMIN_SECRET      — Bearer token for POST /admin/replay
+[vars]
+CASHBACK_BPS = "10"
+REFERRAL_BPS = "10"

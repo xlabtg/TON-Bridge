@@ -72,6 +72,11 @@
         </li>
     </ul>
 
+    <!-- Invite Friends / Referral section -->
+    <div class="listview-title mt-1">{{ t.referral_section_title }}</div>
+    <div id="referral-section"></div>
+    <!-- * Invite Friends / Referral section -->
+
 </div>
 
 <script>
@@ -137,6 +142,19 @@
     <!-- Telegram BackButton -->
     <script src="assets/js/back-button.js"></script>
     <script>wireBackButton();</script>
+    <!-- Referral Module -->
+    <script src="assets/js/referral.js"></script>
+    <script>
+        window.__referralI18n = {
+            code_label:  '{{ t.referral_code_label }}',
+            url_label:   '{{ t.referral_url_label }}',
+            share_btn:   '{{ t.referral_share_btn }}',
+            copy_btn:    '{{ t.referral_copy_btn }}',
+            copied:      '{{ t.referral_copied }}',
+            share_text:  '{{ t.referral_share_text }}'
+        };
+        ReferralModule.init();
+    </script>
 
 
 </body>

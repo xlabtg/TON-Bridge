@@ -72,6 +72,24 @@
         </li>
     </ul>
 
+    <div class="listview-title mt-1">{{ t.settings_leaderboard_section }}</div>
+    <ul class="listview image-listview text inset no-line">
+        <li>
+            <div class="item">
+                <div class="in">
+                    <div>
+                        <div>{{ t.settings_leaderboard_label }}</div>
+                        <div class="text-muted" style="font-size:0.8em;">{{ t.settings_leaderboard_hint }}</div>
+                    </div>
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input leaderboard-optin-switch" type="checkbox" id="leaderboardOptinSwitch">
+                        <label class="form-check-label" for="leaderboardOptinSwitch"></label>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
 </div>
 
 <script>
@@ -85,6 +103,48 @@
             window.location.href = '{{ t.settings_lang_unchecked_goto }}';
         }
     });
+
+    // Leaderboard opt-in — persisted via CloudStorage and synced to the worker
+    (function () {
+        var OPTIN_KEY = 'leaderboard_optin';
+        var WORKER_URL = '{{ t.settings_leaderboard_worker_url }}';
+        var sw = document.getElementById('leaderboardOptinSwitch');
+
+        // Restore saved preference from Telegram CloudStorage
+        var tg = window.Telegram && window.Telegram.WebApp;
+        if (tg && tg.CloudStorage) {
+            tg.CloudStorage.getItem(OPTIN_KEY, function(err, val) {
+                if (!err && val === '1') {
+                    sw.checked = true;
+                }
+            });
+        }
+
+        sw.addEventListener('change', function () {
+            var optIn = sw.checked;
+            var value = optIn ? '1' : '0';
+
+            // Persist locally
+            if (tg && tg.CloudStorage) {
+                tg.CloudStorage.setItem(OPTIN_KEY, value);
+            }
+
+            // Sync to worker if configured and initData is available
+            if (WORKER_URL && tg && tg.initData && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                fetch(WORKER_URL + '/optin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Telegram-Init-Data': tg.initData,
+                    },
+                    body: JSON.stringify({
+                        userId: String(tg.initDataUnsafe.user.id),
+                        optIn: optIn,
+                    }),
+                }).catch(function() { /* ignore network errors */ });
+            }
+        });
+    })();
 </script>
 
     <!-- * App Capsule -->

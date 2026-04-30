@@ -37,7 +37,7 @@ jobs:
           SENTRY_ENVIRONMENT: production
 
       - name: Upload sourcemaps to Sentry
-        if: secrets.SENTRY_AUTH_TOKEN != ''
+        if: env.SENTRY_AUTH_TOKEN != ''
         run: |
           npx @sentry/cli releases new "${{ github.sha }}"
           npx @sentry/cli releases files "${{ github.sha }}" upload-sourcemaps dist/ --url-prefix '~/'

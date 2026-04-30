@@ -14,10 +14,13 @@
   "nav_otc": "OTC",
   "nav_statistics": "Статистика",
   "nav_settings": "Настройки",
+  "nav_aria_label": "Основная навигация",
 
   "menu_title": "Меню",
   "menu_settings": "Настройки",
   "menu_support": "Поддержка",
+  "menu_open_aria_label": "Открыть меню",
+  "menu_sidebar_aria_label": "Меню навигации",
   "community_title": "Сообщество",
   "community_group": "Группа в Telegram",
   "community_chat": "Чат в Telegram",
@@ -103,5 +106,12 @@
   "intro_exchange_steps_s3_title": "Шаг 3 - Получите криптовалюту",
   "intro_exchange_steps_s3_desc": "Нашим пользователям не нужно беспокоиться о сохранности своих персональных данных. <strong>Мы обеспечиваем полную анонимность.</strong>",
   "intro_exchange_steps_btn": "Приступить к обмену",
-  "intro_exchange_steps_target": "index2-ru.html"
+  "intro_exchange_steps_target": "index2-ru.html",
+
+  "logo_alt": "Логотип TON Bridge",
+  "loading_icon_alt": "",
+  "iframe_widget_title": "Виджет обмена валют",
+  "iframe_otc_title": "OTC виджет обмена",
+  "cede_badge_alt": "Cede.store — Лучший мост в Ton App",
+  "otc_img_alt": "Иллюстрация OTC обмена"
 }

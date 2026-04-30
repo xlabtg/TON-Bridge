@@ -65,3 +65,20 @@ body.animationGoBack {
         left: 0;
     }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    #loader .loading-icon {
+        animation: none;
+    }
+    body.animationGoBack {
+        .appHeader,
+        .appBottomMenu,
+        .extraHeader,
+        #appCapsule {
+            transition: none;
+        }
+        &:after {
+            animation: none;
+        }
+    }
+}

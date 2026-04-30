@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport"
-        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+        content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
@@ -20,8 +20,8 @@
 <body>
 
     <!-- loader -->
-    <div id="loader">
-        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+    <div id="loader" aria-hidden="true">
+        <img src="assets/img/loading-icon.png" alt="" role="presentation" class="loading-icon">
     </div>
     <!-- * loader -->
 
@@ -43,12 +43,13 @@
         <li>
             <div class="item">
                 <div class="in">
-                    <div>
+                    <div id="darkmode-label">
                         {{ t.settings_dark_mode_label }}
                     </div>
                     <div class="form-check form-switch ms-2">
-                        <input class="form-check-input dark-mode-switch" type="checkbox" id="darkmodeSwitch">
-                        <label class="form-check-label" for="darkmodeSwitch"></label>
+                        <input class="form-check-input dark-mode-switch" type="checkbox" id="darkmodeSwitch"
+                               aria-labelledby="darkmode-label">
+                        <label class="form-check-label" for="darkmodeSwitch" aria-hidden="true"></label>
                     </div>
                 </div>
             </div>
@@ -60,12 +61,13 @@
         <li>
             <div class="item">
                 <div class="in">
-                    <div>
+                    <div id="language-label">
                         {{ t.settings_lang_label }}
                     </div>
                     <div class="form-check form-switch ms-2">
-                        <input class="form-check-input language-switch" type="checkbox" id="languageSwitch">
-                        <label class="form-check-label" for="languageSwitch"></label>
+                        <input class="form-check-input language-switch" type="checkbox" id="languageSwitch"
+                               aria-labelledby="language-label">
+                        <label class="form-check-label" for="languageSwitch" aria-hidden="true"></label>
                     </div>
                 </div>
             </div>
@@ -91,38 +93,40 @@
 
 
     <!-- App Bottom Menu -->
-    <div class="appBottomMenu">
-        <a href="index{{ t.suffix }}.html" class="item">
+    <nav class="appBottomMenu" aria-label="{{ t.nav_aria_label }}">
+        <div role="tablist" aria-label="{{ t.nav_aria_label }}">
+        <a href="index{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="sync"></ion-icon>
+                <ion-icon name="sync" aria-hidden="true"></ion-icon>
                 <strong>{{ t.nav_bridge }}</strong>
             </div>
         </a>
-        <a href="index2{{ t.suffix }}.html" class="item">
+        <a href="index2{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="swap-horizontal-outline"></ion-icon>
+                <ion-icon name="swap-horizontal-outline" aria-hidden="true"></ion-icon>
                 <strong>{{ t.nav_exchange }}</strong>
             </div>
         </a>
-        <a href="index3{{ t.suffix }}.html" class="item">
+        <a href="index3{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="cash-outline"></ion-icon>
+                <ion-icon name="cash-outline" aria-hidden="true"></ion-icon>
                 <strong>{{ t.nav_otc }}</strong>
             </div>
         </a>
-        <!-- <a href="index4{{ t.suffix }}.html" class="item">
+        <!-- <a href="index4{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="stats-chart"></ion-icon>
+                <ion-icon name="stats-chart" aria-hidden="true"></ion-icon>
                 <strong>{{ t.nav_statistics }}</strong>
             </div>
         </a> -->
-        <a href="app-settings{{ t.suffix }}.html" class="item active">
+        <a href="app-settings{{ t.suffix }}.html" class="item active" role="tab" aria-selected="true">
             <div class="col">
-                <ion-icon name="settings-outline"></ion-icon>
+                <ion-icon name="settings-outline" aria-hidden="true"></ion-icon>
                 <strong>{{ t.nav_settings }}</strong>
             </div>
         </a>
-    </div>
+        </div>
+    </nav>
     <!-- * App Bottom Menu -->
 
     <!-- ========= JS Files =========  -->

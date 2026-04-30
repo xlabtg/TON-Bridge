@@ -14,10 +14,13 @@
   "nav_otc": "OTC",
   "nav_statistics": "Statistics",
   "nav_settings": "Settings",
+  "nav_aria_label": "Main navigation",
 
   "menu_title": "Menu",
   "menu_settings": "Settings",
   "menu_support": "Support",
+  "menu_open_aria_label": "Open menu",
+  "menu_sidebar_aria_label": "Navigation menu",
   "community_title": "Community",
   "community_group": "Telegram Group",
   "community_chat": "Telegram Chat",
@@ -103,5 +106,12 @@
   "intro_exchange_steps_s3_title": "Step 3 - Get Cryptocurrency",
   "intro_exchange_steps_s3_desc": "Our users do not need to worry about the safety of their personal data. We provide complete anonymity.",
   "intro_exchange_steps_btn": "Start Exchange",
-  "intro_exchange_steps_target": "index2.html"
+  "intro_exchange_steps_target": "index2.html",
+
+  "logo_alt": "TON Bridge logo",
+  "loading_icon_alt": "",
+  "iframe_widget_title": "Currency exchange widget",
+  "iframe_otc_title": "OTC exchange widget",
+  "cede_badge_alt": "Cede.store — Top Bridge in Ton App",
+  "otc_img_alt": "OTC exchange illustration"
 }

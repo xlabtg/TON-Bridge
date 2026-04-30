@@ -123,12 +123,8 @@ test.describe('Telegram MainButton — widget tabs', () => {
   test('MainButton onClick sends postMessage { type: "submit" } to iframe', async ({ page }) => {
     await mockTelegramWebApp(page);
 
-    // Track messages sent to the iframe by intercepting the stepper-connector script
-    // and listening at the top-level window for messages we relay from the handler
     await page.addInitScript(() => {
       window.__iframeMessages = [];
-      const origPostMessage = window.postMessage.bind(window);
-      // We monkey-patch the iframe element's contentWindow.postMessage after DOM is ready
       document.addEventListener('DOMContentLoaded', () => {
         const iframe = document.getElementById('iframe-widget');
         if (iframe) {
@@ -155,25 +151,138 @@ test.describe('Telegram MainButton — widget tabs', () => {
 
     expect(handlerCount).toBeGreaterThan(0);
   });
+});
 
-  test('Screenshot: Bridge tab — iframe widget is present', async ({ page }) => {
+test.describe('Lazy-load iframe', () => {
+  test('Bridge EN: placeholder shown, iframe absent on first paint', async ({ page }) => {
     await mockTelegramWebApp(page);
+    // Suppress idle injection by stubbing requestIdleCallback and setTimeout
+    await page.addInitScript(() => {
+      window.requestIdleCallback = function() {};
+      const origSetTimeout = window.setTimeout;
+      window.setTimeout = function(fn, delay, ...args) {
+        if (delay === 2000) return 0; // swallow the preload timer
+        return origSetTimeout(fn, delay, ...args);
+      };
+    });
     await page.goto(distUrl('index.html'));
-    await expect(page.locator('#iframe-widget')).toBeVisible();
-    await page.screenshot({ path: 'tests/screenshots/bridge-en.png', fullPage: false });
+    await expect(page.locator('#iframe-placeholder')).toBeVisible();
+    await expect(page.locator('#iframe-widget')).toHaveCount(0);
   });
 
-  test('Screenshot: Exchange tab — iframe widget is present', async ({ page }) => {
+  test('Bridge EN: "Open exchange" button injects iframe', async ({ page }) => {
     await mockTelegramWebApp(page);
+    await page.addInitScript(() => {
+      window.requestIdleCallback = function() {};
+      const origSetTimeout = window.setTimeout;
+      window.setTimeout = function(fn, delay, ...args) {
+        if (delay === 2000) return 0;
+        return origSetTimeout(fn, delay, ...args);
+      };
+    });
+    await page.goto(distUrl('index.html'));
+    await page.locator('#open-exchange-btn').click();
+    await expect(page.locator('#iframe-widget')).toHaveCount(1);
+    await expect(page.locator('#iframe-placeholder')).toHaveCount(0);
+  });
+
+  test('Exchange EN: placeholder shown, iframe absent on first paint', async ({ page }) => {
+    await mockTelegramWebApp(page);
+    await page.addInitScript(() => {
+      window.requestIdleCallback = function() {};
+      const origSetTimeout = window.setTimeout;
+      window.setTimeout = function(fn, delay, ...args) {
+        if (delay === 2000) return 0;
+        return origSetTimeout(fn, delay, ...args);
+      };
+    });
     await page.goto(distUrl('index2.html'));
-    await expect(page.locator('#iframe-widget')).toBeVisible();
-    await page.screenshot({ path: 'tests/screenshots/exchange-en.png', fullPage: false });
+    await expect(page.locator('#iframe-placeholder')).toBeVisible();
+    await expect(page.locator('#iframe-widget')).toHaveCount(0);
   });
 
-  test('Screenshot: OTC tab — iframe widget is present', async ({ page }) => {
+  test('OTC EN: placeholder shown, iframe absent on first paint', async ({ page }) => {
     await mockTelegramWebApp(page);
+    await page.addInitScript(() => {
+      window.requestIdleCallback = function() {};
+      const origSetTimeout = window.setTimeout;
+      window.setTimeout = function(fn, delay, ...args) {
+        if (delay === 2000) return 0;
+        return origSetTimeout(fn, delay, ...args);
+      };
+    });
     await page.goto(distUrl('index3.html'));
-    await expect(page.locator('#iframe-widget')).toBeVisible();
-    await page.screenshot({ path: 'tests/screenshots/otc-en.png', fullPage: false });
+    await expect(page.locator('#iframe-placeholder')).toBeVisible();
+    await expect(page.locator('#iframe-widget')).toHaveCount(0);
+  });
+
+  test('Idle preload: iframe injected after requestIdleCallback fires', async ({ page }) => {
+    await mockTelegramWebApp(page);
+    await page.addInitScript(() => {
+      // Capture the idle callback so we can trigger it manually
+      window.__idleCb = null;
+      window.requestIdleCallback = function(fn) { window.__idleCb = fn; };
+    });
+    await page.goto(distUrl('index.html'));
+
+    // No iframe yet
+    await expect(page.locator('#iframe-widget')).toHaveCount(0);
+
+    // Fire the idle callback manually
+    await page.evaluate(() => { if (window.__idleCb) window.__idleCb(); });
+
+    await expect(page.locator('#iframe-widget')).toHaveCount(1);
+  });
+
+  test('Idle preload: iframe injected after setTimeout 2000 fires (Safari fallback)', async ({ page }) => {
+    await mockTelegramWebApp(page);
+    await page.addInitScript(() => {
+      // Remove requestIdleCallback to test setTimeout fallback
+      delete window.requestIdleCallback;
+      window.__idleTimerFn = null;
+      const origSetTimeout = window.setTimeout;
+      window.setTimeout = function(fn, delay, ...args) {
+        if (delay === 2000) { window.__idleTimerFn = fn; return 0; }
+        return origSetTimeout(fn, delay, ...args);
+      };
+    });
+    await page.goto(distUrl('index.html'));
+
+    await expect(page.locator('#iframe-widget')).toHaveCount(0);
+
+    await page.evaluate(() => { if (window.__idleTimerFn) window.__idleTimerFn(); });
+
+    await expect(page.locator('#iframe-widget')).toHaveCount(1);
+  });
+
+  test('Screenshot: Bridge tab — placeholder visible before interaction', async ({ page }) => {
+    await mockTelegramWebApp(page);
+    await page.addInitScript(() => {
+      window.requestIdleCallback = function() {};
+      const origSetTimeout = window.setTimeout;
+      window.setTimeout = function(fn, delay, ...args) {
+        if (delay === 2000) return 0;
+        return origSetTimeout(fn, delay, ...args);
+      };
+    });
+    await page.goto(distUrl('index.html'));
+    await expect(page.locator('#iframe-placeholder')).toBeVisible();
+    await page.screenshot({ path: 'tests/screenshots/bridge-en-placeholder.png', fullPage: false });
+  });
+
+  test('Screenshot: Bridge tab — iframe visible after button click', async ({ page }) => {
+    await mockTelegramWebApp(page);
+    await page.addInitScript(() => {
+      window.requestIdleCallback = function() {};
+      const origSetTimeout = window.setTimeout;
+      window.setTimeout = function(fn, delay, ...args) {
+        if (delay === 2000) return 0;
+        return origSetTimeout(fn, delay, ...args);
+      };
+    });
+    await page.goto(distUrl('index.html'));
+    await page.locator('#open-exchange-btn').click();
+    await expect(page.locator('#iframe-widget')).toHaveCount(1);
+    await page.screenshot({ path: 'tests/screenshots/bridge-en-iframe.png', fullPage: false });
   });
 });

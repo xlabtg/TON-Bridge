@@ -109,8 +109,63 @@
                         <li>&nbsp;{{ t.otc_point2 }}</li>
                         <li>&nbsp;{{ t.otc_point3 }}</li>
                     </ul>
-        <iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=1000000&amountFiat&backgroundColor=f6fafd&darkMode=false&from=usdtton&horizontal=false&isFiat=false&lang={{ t.otc_widget_lang }}&link_id=3cc0024a18fd9d&locales=false&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false' style="height: 356px; width: 100%; border: none"></iframe>
-    <script defer type='text/javascript' src='https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js'></script></br></br>
+        <!-- Lazy-load placeholder — replaced by iframe on user interaction or idle -->
+        <div id="iframe-placeholder" style="height: 356px; width: 100%; aspect-ratio: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #f6fafd; border-radius: 8px;">
+            <img src="assets/img/loading-icon.png" alt="logo" style="width: 64px; height: 64px; opacity: 0.6;">
+            <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button">{{ t.open_exchange_btn }}</button>
+        </div>
+        <script>
+        (function() {
+            var IFRAME_SRC = 'https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=1000000&amountFiat&backgroundColor=f6fafd&darkMode=false&from=usdtton&horizontal=false&isFiat=false&lang={{ t.otc_widget_lang }}&link_id=3cc0024a18fd9d&locales=false&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false';
+            var STEPPER_SRC = 'https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js';
+            var injected = false;
+
+            function injectIframe() {
+                if (injected) return;
+                injected = true;
+
+                var placeholder = document.getElementById('iframe-placeholder');
+                if (!placeholder) return;
+
+                var iframe = document.createElement('iframe');
+                iframe.id = 'iframe-widget';
+                iframe.src = IFRAME_SRC;
+                iframe.loading = 'lazy';
+                iframe.importance = 'high';
+                iframe.style.cssText = 'height: 356px; width: 100%; border: none; display: block;';
+
+                placeholder.parentNode.replaceChild(iframe, placeholder);
+
+                var script = document.createElement('script');
+                script.defer = true;
+                script.src = STEPPER_SRC;
+                document.body.appendChild(script);
+            }
+
+            // Inject on button click
+            document.addEventListener('DOMContentLoaded', function() {
+                var btn = document.getElementById('open-exchange-btn');
+                if (btn) btn.addEventListener('click', injectIframe);
+            });
+
+            // Speculative preload after 2 s idle (requestIdleCallback with setTimeout fallback)
+            function schedulePreload() {
+                if (typeof requestIdleCallback === 'function') {
+                    requestIdleCallback(injectIframe, { timeout: 2000 });
+                } else {
+                    setTimeout(injectIframe, 2000);
+                }
+            }
+
+            // Destroy iframe on navigation to free memory and CPU
+            window.addEventListener('beforeunload', function() {
+                var iframe = document.getElementById('iframe-widget');
+                if (iframe) iframe.src = 'about:blank';
+            });
+
+            document.addEventListener('DOMContentLoaded', schedulePreload);
+        })();
+        </script></br></br>
         <!-- * App Bridge -->
         <center>
             <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy" /></a>

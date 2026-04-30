@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="{{ t.lang_attr }}">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>{{ t.program_title }}</title>
+    <meta name="description" content="{{ t.program_meta_description }}">
+    <meta name="keywords"
+        content="TON Bridge, affiliate program, points, TBC, TONBANKCARD, cashback, referral" />
+    <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="manifest" href="__manifest.json">
+    <style>
+        .program-section { margin-bottom: 1.5rem; }
+        .rate-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 1rem 0; }
+        .rate-table th, .rate-table td { border: 1px solid #ccc; padding: 0.4rem 0.5rem; text-align: right; }
+        .rate-table th:first-child, .rate-table td:first-child { text-align: left; }
+        .rate-table thead th { background: var(--bs-primary, #1bb2da); color: #fff; }
+        .points-pill {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            background: #e8f8fd; border: 1px solid #1bb2da; border-radius: 999px;
+            padding: 0.15rem 0.6rem; font-size: 0.85rem; font-weight: 600; color: #1bb2da;
+            cursor: help; position: relative;
+        }
+        .points-pill .pill-tooltip {
+            display: none; position: absolute; bottom: calc(100% + 6px); left: 50%;
+            transform: translateX(-50%); background: #333; color: #fff;
+            border-radius: 6px; padding: 0.5rem 0.7rem; font-size: 0.78rem;
+            white-space: nowrap; z-index: 100; font-weight: 400; pointer-events: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .points-pill .pill-tooltip::after {
+            content: ''; position: absolute; top: 100%; left: 50%;
+            transform: translateX(-50%); border: 6px solid transparent;
+            border-top-color: #333;
+        }
+        .points-pill:hover .pill-tooltip,
+        .points-pill.open .pill-tooltip { display: block; }
+        .pill-info-icon { font-size: 0.9rem; }
+        .changelog-entry { font-size: 0.85rem; color: #666; }
+        .program-formula { background: #f4f4f4; border-left: 3px solid #1bb2da;
+            padding: 0.5rem 0.8rem; font-family: monospace; font-size: 0.82rem;
+            border-radius: 0 4px 4px 0; margin: 0.5rem 0; }
+    </style>
+</head>
+
+<body>
+    <div id="viewport"></div>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+        Telegram.WebApp.onEvent('themeChanged', function() {
+            document.documentElement.className = Telegram.WebApp.colorScheme;
+        });
+        Telegram.WebApp.setHeaderColor('secondary_bg_color');
+        Telegram.WebApp.BackButton.show();
+        Telegram.WebApp.BackButton.onClick(function() {
+            window.history.length > 1 ? window.history.back()
+                : (window.location.href = 'index{{ t.suffix }}.html');
+        });
+    </script>
+
+    <!-- loader -->
+    <div id="loader">
+        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+    </div>
+    <!-- * loader -->
+
+    <!-- App Header -->
+    <div class="appHeader">
+        <div class="left">
+            <a href="index{{ t.suffix }}.html" class="headerButton goBack" aria-label="{{ t.program_back_label }}">
+                <ion-icon name="chevron-back-outline"></ion-icon>
+            </a>
+        </div>
+        <div class="pageTitle">{{ t.program_heading }}</div>
+    </div>
+    <!-- * App Header -->
+
+    <!-- App Capsule -->
+    <div id="appCapsule">
+        <div class="section mt-2">
+
+            <!-- Introduction -->
+            <div class="program-section">
+                <h4>{{ t.program_intro_heading }}</h4>
+                <p>{{ t.program_intro_p1 }}</p>
+                <p>{{ t.program_intro_p2 }}</p>
+            </div>
+
+            <!-- Economic Model -->
+            <div class="program-section">
+                <h4>{{ t.program_model_heading }}</h4>
+                <p>{{ t.program_model_desc }}</p>
+
+                <table class="rate-table">
+                    <thead>
+                        <tr>
+                            <th>{{ t.program_table_param }}</th>
+                            <th>{{ t.program_table_value }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>{{ t.program_param_service }}</td><td>0.40%</td></tr>
+                        <tr><td>{{ t.program_param_cashback }}</td><td>0.10%</td></tr>
+                        <tr><td>{{ t.program_param_referral }}</td><td>0.10%</td></tr>
+                        <tr><td>{{ t.program_param_conversion }}</td><td>10 {{ t.program_pts }} = 1 TBC</td></tr>
+                        <tr><td>{{ t.program_param_tbc_rate }}</td><td>$0.0003 / TBC</td></tr>
+                        <tr><td>{{ t.program_param_point_value }}</td><td>$0.00003 / {{ t.program_pt }}</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Point Formula -->
+            <div class="program-section">
+                <h4>{{ t.program_formula_heading }}</h4>
+                <p>{{ t.program_formula_desc }}</p>
+                <div class="program-formula">
+                    points = floor( turnover_usd &times; bps / 10000 / 0.00003 )
+                </div>
+                <p>{{ t.program_formula_rule }}</p>
+
+                <!-- Example pills with formula tooltips -->
+                <p>{{ t.program_pill_examples }}:</p>
+                <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin:0.5rem 0;">
+                    <span class="points-pill" role="button" tabindex="0" aria-label="{{ t.program_pill_aria_10 }}">
+                        +333 {{ t.program_pts }}
+                        <ion-icon name="information-circle-outline" class="pill-info-icon"></ion-icon>
+                        <span class="pill-tooltip">$10 &times; 0.10% &divide; $0.00003 = 333 {{ t.program_pts }}</span>
+                    </span>
+                    <span class="points-pill" role="button" tabindex="0" aria-label="{{ t.program_pill_aria_100 }}">
+                        +3&thinsp;333 {{ t.program_pts }}
+                        <ion-icon name="information-circle-outline" class="pill-info-icon"></ion-icon>
+                        <span class="pill-tooltip">$100 &times; 0.10% &divide; $0.00003 = 3&thinsp;333 {{ t.program_pts }}</span>
+                    </span>
+                    <span class="points-pill" role="button" tabindex="0" aria-label="{{ t.program_pill_aria_1000 }}">
+                        +33&thinsp;333 {{ t.program_pts }}
+                        <ion-icon name="information-circle-outline" class="pill-info-icon"></ion-icon>
+                        <span class="pill-tooltip">$1&thinsp;000 &times; 0.10% &divide; $0.00003 = 33&thinsp;333 {{ t.program_pts }}</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Worked Examples Table -->
+            <div class="program-section">
+                <h4>{{ t.program_examples_heading }}</h4>
+                <div style="overflow-x:auto;">
+                    <table class="rate-table">
+                        <thead>
+                            <tr>
+                                <th>{{ t.program_ex_turnover }}</th>
+                                <th>{{ t.program_ex_cashback_pts }}</th>
+                                <th>{{ t.program_ex_referrer_pts }}</th>
+                                <th>{{ t.program_ex_house }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>$10</td><td>333 {{ t.program_pts }}</td><td>333 {{ t.program_pts }}</td><td>$0.02</td></tr>
+                            <tr><td>$100</td><td>3&thinsp;333 {{ t.program_pts }}</td><td>3&thinsp;333 {{ t.program_pts }}</td><td>$0.20</td></tr>
+                            <tr><td>$1&thinsp;000</td><td>33&thinsp;333 {{ t.program_pts }}</td><td>33&thinsp;333 {{ t.program_pts }}</td><td>$2.00</td></tr>
+                            <tr><td>$10&thinsp;000</td><td>333&thinsp;333 {{ t.program_pts }}</td><td>333&thinsp;333 {{ t.program_pts }}</td><td>$20.00</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Redemption -->
+            <div class="program-section">
+                <h4>{{ t.program_redeem_heading }}</h4>
+                <p>{{ t.program_redeem_desc }}</p>
+                <ul>
+                    <li>{{ t.program_redeem_min }}</li>
+                    <li>{{ t.program_redeem_formula }}</li>
+                    <li>{{ t.program_redeem_variable }}</li>
+                </ul>
+            </div>
+
+            <!-- Caps, Vesting, Concentration -->
+            <div class="program-section">
+                <h4>{{ t.program_guardrails_heading }}</h4>
+                <ul>
+                    <li>{{ t.program_guardrail_daily }}</li>
+                    <li>{{ t.program_guardrail_age }}</li>
+                    <li>{{ t.program_guardrail_concentration }}</li>
+                    <li>{{ t.program_guardrail_self }}</li>
+                </ul>
+            </div>
+
+            <!-- Disclosure -->
+            <div class="program-section">
+                <h4>{{ t.program_disclosure_heading }}</h4>
+                <p>{{ t.program_disclosure_tbc }}</p>
+                <p>{{ t.program_disclosure_rates }}</p>
+            </div>
+
+            <!-- Contact & Legal -->
+            <div class="program-section">
+                <h4>{{ t.program_contact_heading }}</h4>
+                <p>{{ t.program_contact_disputes }}: <a href="mailto:support@tonbankcard.io">support@tonbankcard.io</a></p>
+            </div>
+
+            <!-- Changelog -->
+            <div class="program-section">
+                <h4>{{ t.program_changelog_heading }}</h4>
+                <p class="changelog-entry">{{ t.program_changelog_v1 }}</p>
+            </div>
+
+            <p style="font-size:0.75rem; color:#999; margin-top:1rem;">
+                {{ t.program_last_updated }}: 2026-04-30
+            </p>
+
+        </div>
+    </div>
+    <!-- * App Capsule -->
+
+    <!-- ========= JS Files ========= -->
+    <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <script src="assets/js/base.js"></script>
+
+    <script>
+        // Toggle tooltip on tap for mobile
+        document.querySelectorAll('.points-pill').forEach(function(pill) {
+            pill.addEventListener('click', function() {
+                pill.classList.toggle('open');
+            });
+            pill.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    pill.classList.toggle('open');
+                }
+            });
+        });
+        // Close open pill tooltips when tapping elsewhere
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.points-pill')) {
+                document.querySelectorAll('.points-pill.open').forEach(function(p) {
+                    p.classList.remove('open');
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

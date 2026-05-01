@@ -7,8 +7,10 @@
     function applyTheme() {
         var params = tg.themeParams || {};
         var root = document.documentElement;
+        var colorScheme = tg.colorScheme || 'light';
 
-        // Map themeParams keys to CSS custom properties
+        root.style.setProperty('--tg-color-scheme', colorScheme);
+
         for (var key in params) {
             if (Object.prototype.hasOwnProperty.call(params, key)) {
                 root.style.setProperty('--tg-theme-' + key.replace(/_/g, '-'), params[key]);
@@ -38,14 +40,25 @@
         var src = iframe.src;
         if (!src) return;
 
-        var url = new URL(src);
+        var url;
+        try {
+            url = new URL(src);
+        } catch (e) {
+            return;
+        }
+
         url.searchParams.set('primaryColor', primaryColor);
         url.searchParams.set('backgroundColor', backgroundColor);
         url.searchParams.set('darkMode', isDark ? 'true' : 'false');
 
-        iframe.src = url.toString();
+        var nextSrc = url.toString();
+        if (nextSrc !== iframe.src) {
+            iframe.src = nextSrc;
+        }
     }
 
-    tg.onEvent('themeChanged', applyTheme);
+    if (typeof tg.onEvent === 'function') {
+        tg.onEvent('themeChanged', applyTheme);
+    }
     applyTheme();
 })();

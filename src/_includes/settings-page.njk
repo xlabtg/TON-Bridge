@@ -137,7 +137,22 @@
     <!-- Telegram BackButton -->
     <script src="assets/js/back-button.js"></script>
     <script>wireBackButton();</script>
-    <!-- Telegram SettingsButton — hide on settings page to avoid recursion -->
+    <!-- Haptic Feedback -->
+    <script src="assets/js/haptic.js"></script>
+    <script>
+        // Tab-bar taps
+        document.querySelectorAll('.appBottomMenu .item').forEach(function (el) {
+            el.addEventListener('click', function () { haptic.impact('light'); });
+        });
+        // Settings toggles
+        document.getElementById('darkmodeSwitch').addEventListener('change', function () {
+            haptic.selection();
+        });
+        document.getElementById('languageSwitch').addEventListener('change', function () {
+            haptic.selection();
+        });
+    </script>
+    <!-- Telegram SettingsButton - hide on settings page to avoid recursion -->
     <script src="assets/js/settings-button.js"></script>
     <script>hideSettingsButton();</script>
 

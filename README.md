@@ -53,6 +53,12 @@ All environment-specific identifiers are injected at build time via
 Copy `.env.example` to `.env` and fill in your values — `.env` is git-ignored and
 must never be committed.
 
+Use the currently registered production values in `.env` locally and in GitHub
+Actions secrets for CI/deploy. This keeps the same working integrations without
+embedding those values in committed templates. If the analytics JWT is rotated,
+only update `TG_ANALYTICS_TOKEN` in `.env` and GitHub Secrets; no template edit is
+needed.
+
 | Variable | Description |
 |---|---|
 | `TG_ANALYTICS_TOKEN` | JWT for [tganalytics.xyz](https://tganalytics.xyz), issued by [@DataChief_bot](https://t.me/DataChief_bot). Rotate via the bot and invalidate the old token after each rotation. |

@@ -3,9 +3,16 @@ import { fileURLToPath } from 'url';
 import { resolve, dirname } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const testUrl = 'http://localhost/prefs-test';
 
-function distUrl(file) {
-  return 'file://' + resolve(__dirname, '..', 'dist', file);
+async function openPrefsTestPage(page) {
+  await page.route(testUrl, route => {
+    route.fulfill({
+      contentType: 'text/html',
+      body: '<!doctype html><meta charset="utf-8"><title>prefs test</title>',
+    });
+  });
+  await page.goto(testUrl);
 }
 
 // Injects window.prefs from prefs.js — CloudStorage mock must be set up first
@@ -31,24 +38,27 @@ async function loadPrefsModule(page, cloudStorageAvailable = true) {
     });
   }
   await page.addInitScript({ path: resolve(__dirname, '..', 'assets', 'js', 'prefs.js') });
+  await openPrefsTestPage(page);
 }
 
 test.describe('prefs module — CloudStorage available', () => {
   test('set and get a preference via CloudStorage', async ({ page }) => {
     await loadPrefsModule(page, true);
-    await page.goto(distUrl('index.html'), { waitUntil: 'domcontentloaded' });
 
     const result = await page.evaluate(async () => {
       await window.prefs.set('pref:lang', 'ru');
-      return await window.prefs.get('pref:lang');
+      return {
+        value: await window.prefs.get('pref:lang'),
+        localValue: localStorage.getItem('pref:lang'),
+      };
     });
 
-    expect(result).toBe('ru');
+    expect(result.value).toBe('ru');
+    expect(result.localValue).toBeNull();
   });
 
   test('set null removes the preference', async ({ page }) => {
     await loadPrefsModule(page, true);
-    await page.goto(distUrl('index.html'), { waitUntil: 'domcontentloaded' });
 
     const result = await page.evaluate(async () => {
       await window.prefs.set('pref:theme', 'dark');
@@ -61,7 +71,6 @@ test.describe('prefs module — CloudStorage available', () => {
 
   test('pref:theme stores and retrieves correctly', async ({ page }) => {
     await loadPrefsModule(page, true);
-    await page.goto(distUrl('index.html'), { waitUntil: 'domcontentloaded' });
 
     const result = await page.evaluate(async () => {
       await window.prefs.set('pref:theme', 'dark');
@@ -73,7 +82,6 @@ test.describe('prefs module — CloudStorage available', () => {
 
   test('pref:lastFromAmount stores and retrieves a numeric string', async ({ page }) => {
     await loadPrefsModule(page, true);
-    await page.goto(distUrl('index.html'), { waitUntil: 'domcontentloaded' });
 
     const result = await page.evaluate(async () => {
       await window.prefs.set('pref:lastFromAmount', '0.5');
@@ -105,7 +113,7 @@ test.describe('prefs module — CloudStorage available', () => {
     });
     await page.addInitScript({ path: resolve(__dirname, '..', 'assets', 'js', 'prefs.js') });
 
-    await page.goto(distUrl('index.html'), { waitUntil: 'domcontentloaded' });
+    await openPrefsTestPage(page);
 
     // Give migration callbacks time to run
     await page.waitForTimeout(300);
@@ -139,7 +147,7 @@ test.describe('prefs module — CloudStorage available', () => {
     });
     await page.addInitScript({ path: resolve(__dirname, '..', 'assets', 'js', 'prefs.js') });
 
-    await page.goto(distUrl('index.html'), { waitUntil: 'domcontentloaded' });
+    await openPrefsTestPage(page);
     await page.waitForTimeout(300);
 
     const { langInCloud, langInLS } = await page.evaluate(() => ({
@@ -157,7 +165,6 @@ test.describe('prefs module — CloudStorage available', () => {
 test.describe('prefs module — CloudStorage unavailable (fallback)', () => {
   test('falls back to localStorage when CloudStorage is absent', async ({ page }) => {
     await loadPrefsModule(page, false);
-    await page.goto(distUrl('index.html'), { waitUntil: 'domcontentloaded' });
 
     const result = await page.evaluate(async () => {
       await window.prefs.set('pref:lastPair', 'ton→ton-bsc');
@@ -169,7 +176,6 @@ test.describe('prefs module — CloudStorage unavailable (fallback)', () => {
 
   test('localStorage fallback: set null removes the key', async ({ page }) => {
     await loadPrefsModule(page, false);
-    await page.goto(distUrl('index.html'), { waitUntil: 'domcontentloaded' });
 
     const result = await page.evaluate(async () => {
       await window.prefs.set('pref:theme', 'dark');

@@ -53,6 +53,12 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
 
   html-validate:
     name: HTML Validate
@@ -75,6 +81,12 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
 
       - name: Validate HTML
         run: npx html-validate "dist/*.html"
@@ -103,6 +115,12 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
 
       - name: Run Playwright tests
         run: npm test
@@ -135,6 +153,12 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
 
       - name: Run Lighthouse CI
         run: npx lhci autorun
@@ -169,6 +193,12 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v4

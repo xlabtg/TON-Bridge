@@ -72,7 +72,84 @@
         </li>
     </ul>
 
+    <div class="listview-title mt-1" data-i18n="settings_security_section">{{ locales.en.settings_security_section }}</div>
+    <ul class="listview image-listview text inset no-line" id="biometric-section">
+        <li>
+            <div class="item">
+                <div class="in">
+                    <div id="biometric-label-wrapper">
+                        <span id="biometric-label" data-i18n="settings_biometric_label">{{ locales.en.settings_biometric_label }}</span>
+                        <span id="biometric-unavailable-hint" class="text-muted" style="display:none; font-size:0.82em; margin-left:4px;" data-bs-toggle="tooltip" title="{{ locales.en.settings_biometric_unavailable_hint }}" data-i18n-attr="title:settings_biometric_unavailable_hint">(?)</span>
+                    </div>
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input" type="checkbox" id="biometricSwitch" disabled>
+                        <label class="form-check-label" for="biometricSwitch"></label>
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li id="biometric-threshold-row" style="display:none;">
+            <div class="item">
+                <div class="in">
+                    <div data-i18n="settings_biometric_threshold_label">{{ locales.en.settings_biometric_threshold_label }}</div>
+                    <div style="display:flex;align-items:center;gap:4px;">
+                        <span>$</span>
+                        <input type="number" id="biometricThreshold" min="1" step="1"
+                            style="width:90px; border:1px solid #ccc; border-radius:6px; padding:2px 6px; text-align:right;"
+                            value="1000">
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
 </div>
+<script src="assets/js/biometric-manager.js"></script>
+<script>
+    (function () {
+        var sw = document.getElementById('biometricSwitch');
+        var thresholdRow = document.getElementById('biometric-threshold-row');
+        var thresholdInput = document.getElementById('biometricThreshold');
+        var unavailableHint = document.getElementById('biometric-unavailable-hint');
+
+        function applyAvailability(available) {
+            sw.disabled = !available;
+            if (!available) {
+                unavailableHint.style.display = 'inline';
+            }
+        }
+
+        function applyEnabled(enabled) {
+            sw.checked = enabled;
+            thresholdRow.style.display = enabled ? '' : 'none';
+        }
+
+        BiometricAuth.init(function () {
+            var available = BiometricAuth.isAvailable();
+            applyAvailability(available);
+
+            BiometricAuth.isEnabled(function (enabled) {
+                applyEnabled(enabled);
+            });
+
+            BiometricAuth.getThreshold(function (threshold) {
+                thresholdInput.value = threshold;
+            });
+        });
+
+        sw.addEventListener('change', function () {
+            BiometricAuth.setEnabled(this.checked);
+            thresholdRow.style.display = this.checked ? '' : 'none';
+        });
+
+        thresholdInput.addEventListener('change', function () {
+            var val = parseFloat(this.value);
+            if (!isNaN(val) && val > 0) {
+                BiometricAuth.setThreshold(val);
+            }
+        });
+    })();
+</script>
     <!-- * App Capsule -->
 
 
@@ -119,6 +196,7 @@
     <!-- Splide -->
     <script src="assets/js/plugins/splide/splide.min.js"></script>
     <!-- i18n inline data + loader -->
+    <script src="assets/js/prefs.js"></script>
     {% i18nDataScript %}
     <script src="assets/js/i18n.js"></script>
     <!-- Base Js File -->
@@ -139,6 +217,24 @@
 
         i18n.init();
     </script>
+    <!-- Haptic Feedback -->
+    <script src="assets/js/haptic.js"></script>
+    <script>
+        // Tab-bar taps
+        document.querySelectorAll('.appBottomMenu .item').forEach(function (el) {
+            el.addEventListener('click', function () { haptic.impact('light'); });
+        });
+        // Settings toggles
+        document.getElementById('darkmodeSwitch').addEventListener('change', function () {
+            haptic.selection();
+        });
+        document.getElementById('languageSwitch').addEventListener('change', function () {
+            haptic.selection();
+        });
+    </script>
+    <!-- Telegram SettingsButton - hide on settings page to avoid recursion -->
+    <script src="assets/js/settings-button.js"></script>
+    <script>hideSettingsButton();</script>
 
 
 </body>

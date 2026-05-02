@@ -1,32 +1,49 @@
 #!/usr/bin/env node
-// Fails if any key in en.json is missing from ru.json or vice versa.
-import { readFileSync } from 'fs';
+// Fails if any locale JSON file drifts from the en.json key set.
+import { readFileSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
+const i18nDir = join(root, 'src/i18n');
 
-const en = JSON.parse(readFileSync(join(root, 'src/i18n/en.json'), 'utf8'));
-const ru = JSON.parse(readFileSync(join(root, 'src/i18n/ru.json'), 'utf8'));
+const localeFiles = readdirSync(i18nDir)
+    .filter(file => file.endsWith('.json'))
+    .sort();
 
-const enKeys = new Set(Object.keys(en));
-const ruKeys = new Set(Object.keys(ru));
-
-const missingInRu = [...enKeys].filter(k => !ruKeys.has(k));
-const missingInEn = [...ruKeys].filter(k => !enKeys.has(k));
-
-if (missingInRu.length > 0) {
-    console.error('Keys present in en.json but missing in ru.json:');
-    missingInRu.forEach(k => console.error('  ' + k));
-}
-if (missingInEn.length > 0) {
-    console.error('Keys present in ru.json but missing in en.json:');
-    missingInEn.forEach(k => console.error('  ' + k));
-}
-
-if (missingInRu.length > 0 || missingInEn.length > 0) {
+if (!localeFiles.includes('en.json')) {
+    console.error('Missing source locale: src/i18n/en.json');
     process.exit(1);
 }
 
-console.log('i18n key check passed: all keys match between en.json and ru.json');
+const source = JSON.parse(readFileSync(join(i18nDir, 'en.json'), 'utf8'));
+const sourceKeys = new Set(Object.keys(source));
+let hasError = false;
+
+localeFiles.forEach(file => {
+    if (file === 'en.json') return;
+
+    const locale = JSON.parse(readFileSync(join(i18nDir, file), 'utf8'));
+    const localeKeys = new Set(Object.keys(locale));
+    const missing = [...sourceKeys].filter(k => !localeKeys.has(k));
+    const extra = [...localeKeys].filter(k => !sourceKeys.has(k));
+
+    if (missing.length > 0) {
+        hasError = true;
+        console.error(`Keys present in en.json but missing in ${file}:`);
+        missing.forEach(k => console.error('  ' + k));
+    }
+
+    if (extra.length > 0) {
+        hasError = true;
+        console.error(`Keys present in ${file} but missing in en.json:`);
+        extra.forEach(k => console.error('  ' + k));
+    }
+});
+
+if (hasError) {
+    process.exit(1);
+}
+
+console.log(`i18n key check passed: ${localeFiles.length} locale files match en.json`);

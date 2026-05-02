@@ -15,6 +15,7 @@
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/tg-theme.css">
     <link rel="manifest" href="__manifest.json">
 </head>
 
@@ -30,6 +31,17 @@
         });
 
         Telegram.WebApp.setHeaderColor('secondary_bg_color');
+
+        // Apply themeParams CSS variables on first load
+        (function() {
+            var params = Telegram.WebApp.themeParams || {};
+            var root = document.documentElement;
+            for (var key in params) {
+                if (Object.prototype.hasOwnProperty.call(params, key)) {
+                    root.style.setProperty('--tg-theme-' + key.replace(/_/g, '-'), params[key]);
+                }
+            }
+        })();
 
         (function() {
             var tg = Telegram.WebApp;
@@ -48,6 +60,12 @@
                     var step = event.data.step || event.data.value || '';
                     if (step === 'initial' || step === 'success' || step === 'finish') {
                         mainButton.hide();
+                        if (step === 'finish' || step === 'success') {
+                            haptic.notification('success');
+                        }
+                    } else if (step === 'failed' || step === 'error' || step === 'refunded') {
+                        haptic.notification('error');
+                        mainButton.show();
                     } else {
                         mainButton.show();
                     }
@@ -55,9 +73,25 @@
             });
 
             mainButton.onClick(function() {
+                haptic.impact('medium');
                 var iframe = document.getElementById('iframe-widget');
-                if (iframe && iframe.contentWindow) {
-                    iframe.contentWindow.postMessage({ type: 'submit' }, '*');
+                function submitToIframe() {
+                    if (iframe && iframe.contentWindow) {
+                        iframe.contentWindow.postMessage({ type: 'submit' }, '*');
+                    }
+                }
+                // A real USD oracle will be wired once #6.4 lands.
+                var amount = parseFloat(window.__otcAmount);
+                if (window.BiometricAuth) {
+                    BiometricAuth.guardTrade(
+                        amount,
+                        window.i18n && i18n.t('biometric_reason', 'Confirm exchange'),
+                        window.i18n && i18n.t('biometric_failure_toast', 'Biometric authentication failed. Trade cancelled.'),
+                        submitToIframe,
+                        null
+                    );
+                } else {
+                    submitToIframe();
                 }
             });
 
@@ -75,8 +109,8 @@
 <script>
     function initAnalytics() {
       window.telegramAnalytics.init({
-        token: 'eyJhcHBfbmFtZSI6IlRPTkJyaWRnZV9yb2JvdCIsImFwcF91cmwiOiJodHRwczovL3QubWUvVE9OQnJpZGdlX3JvYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vdG9uYmFua2NhcmQuY29tL2JyaWRnZS9UTUEvMDAuaHRtbCJ9!PQ40y7Tz3lZti6uDVlApq+BcGxi8tR9WEsH6Hyu+mD0=', // SDK Auth token received via @DataChief_bot
-        appName: 'TONBridge_robot', // The analytics identifier you entered in @DataChief_bot
+        token: '{{ env.TG_ANALYTICS_TOKEN }}', // SDK Auth token received via @DataChief_bot
+        appName: '{{ env.TG_ANALYTICS_APP_NAME }}', // The analytics identifier you entered in @DataChief_bot
       });
     }
 </script>
@@ -114,7 +148,7 @@
                         <li>&nbsp;<span data-i18n="otc_point2">{{ locales.en.otc_point2 }}</span></li>
                         <li>&nbsp;<span data-i18n="otc_point3">{{ locales.en.otc_point3 }}</span></li>
                     </ul>
-        <iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=1000000&amountFiat&backgroundColor=f6fafd&darkMode=false&from=usdtton&horizontal=false&isFiat=false&lang={{ locales.en.otc_widget_lang }}&link_id=3cc0024a18fd9d&locales=false&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false' style="height: 356px; width: 100%; border: none"></iframe>
+        <iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=1000000&amountFiat&backgroundColor=f6fafd&darkMode=false&from=usdtton&horizontal=false&isFiat=false&lang={{ locales.en.otc_widget_lang }}&link_id={{ env.CHANGENOW_LINK_ID }}&locales=false&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false' data-i18n-iframe-lang="otc_widget_lang" style="height: 356px; width: 100%; border: none"></iframe>
     <script defer type='text/javascript' src='https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js'></script></br></br>
         <!-- * App Bridge -->
         <center>
@@ -167,16 +201,6 @@
                     <!-- menu -->
                     <div class="listview-title mt-1" data-i18n="menu_title">{{ locales.en.menu_title }}</div>
                     <ul class="listview flush transparent no-line image-listview">
-                        <li>
-                            <a href="app-settings.html" class="item">
-                                <div class="icon-box bg-primary">
-                                    <ion-icon name="settings-outline"></ion-icon>
-                                </div>
-                                <div class="in" data-i18n="menu_settings">
-                                    {{ locales.en.menu_settings }}
-                                </div>
-                            </a>
-                        </li>
                         <li>
                             <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_bot');" class="item">
                                 <div class="icon-box bg-primary">
@@ -244,10 +268,29 @@
     <!-- Splide -->
     <script src="assets/js/plugins/splide/splide.min.js"></script>
     <!-- i18n inline data + loader -->
+    <script src="assets/js/prefs.js"></script>
     {% i18nDataScript %}
     <script src="assets/js/i18n.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- BiometricManager -->
+    <script src="assets/js/biometric-manager.js"></script>
+    <script>
+        BiometricAuth.init(function () {});
+    </script>
+    <!-- Haptic Feedback -->
+    <script src="assets/js/haptic.js"></script>
+    <script>
+        // Tab-bar taps
+        document.querySelectorAll('.appBottomMenu .item').forEach(function (el) {
+            el.addEventListener('click', function () { haptic.impact('light'); });
+        });
+    </script>
+    <!-- Telegram Theme Integration -->
+    <script src="assets/js/tg-theme.js"></script>
+    <!-- Telegram SettingsButton -->
+    <script src="assets/js/settings-button.js"></script>
+    <script>wireSettingsButton('app-settings.html');</script>
 
     <script>
         // Wire community links after translations are applied
@@ -276,14 +319,14 @@
    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-   ym(98019798, "init", {
+   ym({{ env.YANDEX_METRIKA_ID }}, "init", {
         clickmap:true,
         trackLinks:true,
         accurateTrackBounce:true,
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/{{ env.YANDEX_METRIKA_ID }}" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
 </body>
 

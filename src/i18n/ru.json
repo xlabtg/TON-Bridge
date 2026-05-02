@@ -63,6 +63,12 @@
   "settings_dark_mode_label": "Темный режим",
   "settings_lang_section": "Язык",
   "settings_lang_label": "Язык (RU/EN)",
+  "settings_security_section": "Безопасность",
+  "settings_biometric_label": "Требовать биометрию для сделок выше порога",
+  "settings_biometric_unavailable_hint": "Биометрическая аутентификация недоступна на этом устройстве",
+  "settings_biometric_threshold_label": "Порог (USD)",
+  "biometric_reason": "Подтвердить обмен",
+  "biometric_failure_toast": "Биометрическая аутентификация не пройдена. Сделка отменена.",
 
   "intro_bridge_heading": "TON Bridge",
   "intro_bridge_p1": "Откройте для себя TON Bridge от TONBANKCARD – надежный мост между блокчейнами TON и BSC.\n                        Узнайте, как быстро и безопасно проводить криптовалютные транзакции между двумя популярными\n                        блокчейн-платформами с помощью TON Bridge.",

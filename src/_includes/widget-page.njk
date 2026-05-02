@@ -218,6 +218,9 @@
             </span>
         </div>
         {% endif %}
+        <!-- Address Book chips -->
+        <div id="address-book-chips" class="address-book-chips-wrap" data-max="10" style="display:none; padding: 0 4px 8px;"></div>
+        <!-- * Address Book chips -->
         </br>
         <!-- Lazy-load placeholder — replaced by iframe on user interaction or idle -->
         <div id="iframe-placeholder" style="height: 450px; width: 100%; aspect-ratio: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #f6fafd; border-radius: 8px;">
@@ -477,6 +480,40 @@
     </div>
     <!-- * App Sidebar -->
 
+    <!-- Address Book Action Sheet -->
+    <div class="offcanvas offcanvas-bottom" id="address-book-action-sheet" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" data-i18n="ab_section">{{ locales.en.ab_section }}</h5>
+            <small class="text-muted ab-sheet-address"></small>
+        </div>
+        <div class="offcanvas-body">
+            <ul class="listview flush transparent no-line image-listview">
+                <li>
+                    <a href="#" class="item" data-ab-action="edit">
+                        <div class="icon-box bg-primary"><ion-icon name="pencil-outline"></ion-icon></div>
+                        <div class="in" data-i18n="ab_action_edit">{{ locales.en.ab_action_edit }}</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="item" data-ab-action="pin">
+                        <div class="icon-box bg-secondary"><ion-icon name="pin-outline"></ion-icon></div>
+                        <div class="in" data-i18n="ab_action_pin">{{ locales.en.ab_action_pin }}</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="item" data-ab-action="remove">
+                        <div class="icon-box bg-danger"><ion-icon name="trash-outline"></ion-icon></div>
+                        <div class="in" data-i18n="ab_action_remove">{{ locales.en.ab_action_remove }}</div>
+                    </a>
+                </li>
+            </ul>
+            <div class="mt-2">
+                <button type="button" class="btn btn-block btn-secondary" data-bs-dismiss="offcanvas" data-i18n="ab_action_cancel">{{ locales.en.ab_action_cancel }}</button>
+            </div>
+        </div>
+    </div>
+    <!-- * Address Book Action Sheet -->
+
     <div id="cookiesbox" class="offcanvas offcanvas-bottom cookies-box" tabindex="-1" data-bs-scroll="true"
         data-bs-backdrop="false">
         <div class="offcanvas-header">
@@ -626,6 +663,17 @@
             lazy: true
         });
     </script>
+    <!-- Address Book -->
+    <script src="assets/js/address-book.js"></script>
+    <script>
+        AddressBook.init('{{ locales.en.ab_chain }}', {
+            ab_edit_label_prompt: '{{ locales.en.ab_edit_label_prompt }}',
+            ab_pin: '{{ locales.en.ab_pin }}',
+            ab_unpin: '{{ locales.en.ab_unpin }}',
+            ab_empty: '{{ locales.en.ab_empty }}'
+        });
+    </script>
+    <!-- * Address Book -->
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript" >
    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};

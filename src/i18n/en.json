@@ -127,5 +127,17 @@
   "stats_last_updated": "Last updated",
   "stats_loading": "Loading…",
   "stats_error": "Could not load data",
-  "stats_never": "never"
+  "stats_never": "never",
+  "ab_section": "Address Book",
+  "ab_empty": "No saved addresses",
+  "ab_action_edit": "Edit label",
+  "ab_action_pin": "Pin",
+  "ab_action_remove": "Remove",
+  "ab_action_cancel": "Cancel",
+  "ab_edit_label_prompt": "Enter label:",
+  "ab_pin": "Pin",
+  "ab_unpin": "Unpin",
+  "ab_edit": "Edit",
+  "ab_remove": "Remove",
+  "ab_chain": "ton"
 }

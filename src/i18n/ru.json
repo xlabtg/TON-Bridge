@@ -127,5 +127,17 @@
   "stats_last_updated": "Обновлено",
   "stats_loading": "Загрузка…",
   "stats_error": "Не удалось загрузить данные",
-  "stats_never": "никогда"
+  "stats_never": "никогда",
+  "ab_section": "Адресная книга",
+  "ab_empty": "Нет сохранённых адресов",
+  "ab_action_edit": "Изменить метку",
+  "ab_action_pin": "Закрепить",
+  "ab_action_remove": "Удалить",
+  "ab_action_cancel": "Отмена",
+  "ab_edit_label_prompt": "Введите метку:",
+  "ab_pin": "Закрепить",
+  "ab_unpin": "Открепить",
+  "ab_edit": "Изменить",
+  "ab_remove": "Удалить",
+  "ab_chain": "ton"
 }

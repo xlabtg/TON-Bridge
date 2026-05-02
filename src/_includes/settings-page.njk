@@ -105,6 +105,11 @@
         </li>
     </ul>
 
+    <div class="listview-title mt-1" data-i18n="ab_section">{{ locales.en.ab_section }}</div>
+    <ul class="listview image-listview text inset no-line" id="address-book-manage-list">
+        <li><div class="item"><div class="in" data-i18n="ab_empty">{{ locales.en.ab_empty }}</div></div></li>
+    </ul>
+
     <div class="listview-title mt-1" data-i18n="settings_security_section">{{ locales.en.settings_security_section }}</div>
     <ul class="listview image-listview text inset no-line" id="biometric-section">
         <li>
@@ -343,6 +348,17 @@
             lazy: true
         });
     </script>
+    <!-- Address Book -->
+    <script src="assets/js/address-book.js"></script>
+    <script>
+        AddressBook.initManage('{{ locales.en.ab_chain }}', {
+            ab_empty: '{{ locales.en.ab_empty }}',
+            ab_edit: '{{ locales.en.ab_edit }}',
+            ab_remove: '{{ locales.en.ab_remove }}',
+            ab_edit_label_prompt: '{{ locales.en.ab_edit_label_prompt }}'
+        });
+    </script>
+    <!-- * Address Book -->
     <!-- Telegram SettingsButton - hide on settings page to avoid recursion -->
     <script src="assets/js/settings-button.js"></script>
     <script>hideSettingsButton();</script>

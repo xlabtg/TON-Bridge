@@ -13,21 +13,43 @@ function distPath(file) {
   return resolve(__dirname, '..', 'dist', file);
 }
 
-async function mockTelegramWebApp(page) {
+const LIGHT_SCREENSHOT_THEME = {
+  bg_color: '#ffffff',
+  text_color: '#000000',
+  hint_color: '#999999',
+  link_color: '#6236ff',
+  button_color: '#1bb2da',
+  button_text_color: '#ffffff',
+  secondary_bg_color: '#ededf5',
+  header_bg_color: '#ffffff',
+  accent_text_color: '#6236ff',
+  section_bg_color: '#ffffff',
+  section_header_text_color: '#999999',
+  section_separator_color: 'rgba(0, 0, 0, 0.12)',
+  subtitle_text_color: '#999999',
+  destructive_text_color: '#ff396f',
+  bottom_bar_bg_color: '#ffffff',
+};
+
+async function mockTelegramWebApp(page, {
+  colorScheme = 'light',
+  themeParams = LIGHT_SCREENSHOT_THEME,
+} = {}) {
   await page.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({
     status: 200,
     contentType: 'application/javascript',
     body: '/* mocked */',
   }));
 
-  await page.addInitScript(() => {
+  await page.addInitScript(({ colorScheme, themeParams }) => {
     window.Telegram = {
       WebApp: {
+        themeParams: { ...themeParams },
         ready() {},
         expand() {},
         onEvent() {},
         setHeaderColor() {},
-        colorScheme: 'dark',
+        colorScheme,
         MainButton: {
           setText() {}, show() {}, hide() {}, onClick() {}, offClick() {},
         },
@@ -36,6 +58,21 @@ async function mockTelegramWebApp(page) {
         },
       },
     };
+  }, { colorScheme, themeParams });
+}
+
+async function expectLightScreenshotTheme(page) {
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).backgroundColor))
+    .toBe('rgb(255, 255, 255)');
+  await expect.poll(() => page.locator('#iframe-widget').evaluate(iframe => {
+    const url = new URL(iframe.src);
+    return {
+      backgroundColor: url.searchParams.get('backgroundColor'),
+      darkMode: url.searchParams.get('darkMode'),
+    };
+  })).toEqual({
+    backgroundColor: 'ffffff',
+    darkMode: 'false',
   });
 }
 
@@ -93,6 +130,7 @@ test.describe('PWA Screenshots — mobile (1080×1920)', () => {
   test('Bridge tab screenshot', async ({ page }) => {
     await mockTelegramWebApp(page);
     await page.goto(distUrl('index.html'));
+    await expectLightScreenshotTheme(page);
     await page.screenshot({
       path: resolve(__dirname, '..', 'assets/img/screenshots/bridge-mobile.png'),
       fullPage: false,
@@ -102,6 +140,7 @@ test.describe('PWA Screenshots — mobile (1080×1920)', () => {
   test('Exchange tab screenshot', async ({ page }) => {
     await mockTelegramWebApp(page);
     await page.goto(distUrl('index2.html'));
+    await expectLightScreenshotTheme(page);
     await page.screenshot({
       path: resolve(__dirname, '..', 'assets/img/screenshots/exchange-mobile.png'),
       fullPage: false,
@@ -111,6 +150,7 @@ test.describe('PWA Screenshots — mobile (1080×1920)', () => {
   test('OTC tab screenshot', async ({ page }) => {
     await mockTelegramWebApp(page);
     await page.goto(distUrl('index3.html'));
+    await expectLightScreenshotTheme(page);
     await page.screenshot({
       path: resolve(__dirname, '..', 'assets/img/screenshots/otc-mobile.png'),
       fullPage: false,
@@ -124,6 +164,7 @@ test.describe('PWA Screenshots — desktop (1280×800)', () => {
   test('Bridge tab desktop screenshot', async ({ page }) => {
     await mockTelegramWebApp(page);
     await page.goto(distUrl('index.html'));
+    await expectLightScreenshotTheme(page);
     await page.screenshot({
       path: resolve(__dirname, '..', 'assets/img/screenshots/bridge-desktop.png'),
       fullPage: false,
@@ -133,6 +174,7 @@ test.describe('PWA Screenshots — desktop (1280×800)', () => {
   test('Exchange tab desktop screenshot', async ({ page }) => {
     await mockTelegramWebApp(page);
     await page.goto(distUrl('index2.html'));
+    await expectLightScreenshotTheme(page);
     await page.screenshot({
       path: resolve(__dirname, '..', 'assets/img/screenshots/exchange-desktop.png'),
       fullPage: false,
@@ -142,6 +184,7 @@ test.describe('PWA Screenshots — desktop (1280×800)', () => {
   test('OTC tab desktop screenshot', async ({ page }) => {
     await mockTelegramWebApp(page);
     await page.goto(distUrl('index3.html'));
+    await expectLightScreenshotTheme(page);
     await page.screenshot({
       path: resolve(__dirname, '..', 'assets/img/screenshots/otc-desktop.png'),
       fullPage: false,

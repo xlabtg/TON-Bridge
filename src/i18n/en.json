@@ -48,6 +48,8 @@
   "exchange_point3": "- We do not force you to register",
   "exchange_instruction_btn": "Instruction",
 
+  "ticker_aria_label": "Asset price ticker",
+
   "main_button_bridge": "Continue",
   "main_button_exchange": "Confirm exchange",
   "main_button_otc": "Confirm exchange",

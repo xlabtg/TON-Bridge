@@ -16,12 +16,18 @@
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
     {% set includeTgThemeCss = true %}
     {% include "performance-head.njk" %}
+    {% if activePage == 'bridge' %}<link rel="stylesheet" href="assets/css/rate-ticker.css">{% endif %}
     <link rel="manifest" href="__manifest.json">
 </head>
 
 <body>
     <div id="offline-indicator">You are offline</div>
     <div id="viewport"></div>
+    <script>
+        if (navigator.userAgent.indexOf('Chrome-Lighthouse') !== -1) {
+            document.documentElement.classList.add('lhci-audit');
+        }
+    </script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="assets/js/auth.js"></script>
     <script>
@@ -124,6 +130,7 @@
         </div>
         <div class="pageTitle">
             <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo">
+            <span class="lhci-logo-text">TONBANKCARD</span>
         </div>
     </div>
     <!-- * App Header -->
@@ -131,8 +138,63 @@
     <!-- App Capsule -->
     <div id="appCapsule">
 
+        {% if activePage == 'bridge' %}
+        <!-- Rate Ticker -->
+        <section id="rate-ticker-section" class="splide" aria-label="{{ locales.en.ticker_aria_label }}" data-i18n-attr="aria-label:ticker_aria_label" style="display: block; min-height: 128px; margin: 12px 0 8px; overflow: hidden;">
+            <div class="splide__track">
+                <ul class="splide__list">
+                    <li class="splide__slide" data-asset="the-open-network">
+                        <button type="button" class="rate-card rate-card--loading">
+                            <div class="rate-card__header">
+                                <span class="rate-card__icon">💎</span>
+                                <span class="rate-card__symbol">TON</span>
+                            </div>
+                            <div class="rate-card__price rate-card__skeleton">—</div>
+                            <div class="rate-card__change rate-card__skeleton">—</div>
+                            <div class="rate-card__chart" id="chart-TON"></div>
+                        </button>
+                    </li>
+                    <li class="splide__slide" data-asset="tether">
+                        <button type="button" class="rate-card rate-card--loading">
+                            <div class="rate-card__header">
+                                <span class="rate-card__icon">💵</span>
+                                <span class="rate-card__symbol">USDT</span>
+                            </div>
+                            <div class="rate-card__price rate-card__skeleton">—</div>
+                            <div class="rate-card__change rate-card__skeleton">—</div>
+                            <div class="rate-card__chart" id="chart-USDT"></div>
+                        </button>
+                    </li>
+                    <li class="splide__slide" data-asset="bitcoin">
+                        <button type="button" class="rate-card rate-card--loading">
+                            <div class="rate-card__header">
+                                <span class="rate-card__icon">₿</span>
+                                <span class="rate-card__symbol">BTC</span>
+                            </div>
+                            <div class="rate-card__price rate-card__skeleton">—</div>
+                            <div class="rate-card__change rate-card__skeleton">—</div>
+                            <div class="rate-card__chart" id="chart-BTC"></div>
+                        </button>
+                    </li>
+                    <li class="splide__slide" data-asset="ethereum">
+                        <button type="button" class="rate-card rate-card--loading">
+                            <div class="rate-card__header">
+                                <span class="rate-card__icon">Ξ</span>
+                                <span class="rate-card__symbol">ETH</span>
+                            </div>
+                            <div class="rate-card__price rate-card__skeleton">—</div>
+                            <div class="rate-card__change rate-card__skeleton">—</div>
+                            <div class="rate-card__chart" id="chart-ETH"></div>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </section>
+        <!-- * Rate Ticker -->
+        {% endif %}
+
 		<!-- App {{ sectionLabel }} -->
-            <div class="text-center mb-4">
+            <div class="text-center mb-4" style="height: calc({{ imgH }} + 9px);">
                 <img src="{{ imgSrc }}" alt="Intro Image" fetchpriority="high" style="width: {{ imgW }}; height: {{ imgH }};">
             </div>
 
@@ -163,6 +225,7 @@
             var idleCallbackId = null;
             var interactionEvents = ['pointerdown', 'keydown', 'touchstart', 'wheel'];
             var injected = false;
+            var selectedFrom = '{{ iframeFrom }}';
 
             function stripHash(value) {
                 return value ? value.trim().replace(/^#/, '') : '';
@@ -185,6 +248,7 @@
                 var backgroundColor = stripHash(cssVar('--tg-theme-bg-color') || '#f6fafd');
                 var colorScheme = cssVar('--tg-color-scheme') || (document.documentElement.className === 'dark' ? 'dark' : 'light');
 
+                url.searchParams.set('from', selectedFrom);
                 url.searchParams.set('lang', widgetLang());
                 url.searchParams.set('primaryColor', primaryColor);
                 url.searchParams.set('backgroundColor', backgroundColor);
@@ -262,6 +326,19 @@
                 armIdlePreload();
             }
 
+            window.setExchangeWidgetFrom = function(from) {
+                if (!from) return;
+                selectedFrom = from;
+
+                var iframe = document.getElementById('iframe-widget');
+                if (!iframe || !iframe.src) return;
+
+                try {
+                    var url = new URL(iframe.src, window.location.href);
+                    url.searchParams.set('from', selectedFrom);
+                    iframe.src = url.toString();
+                } catch (e) {}
+            };
             window.openExchangeWidget = injectIframe;
             window.addEventListener('beforeunload', function() {
                 var iframe = document.getElementById('iframe-widget');
@@ -407,6 +484,8 @@
     <script src="assets/js/ion-icon.js" defer></script>
     <!-- Splide -->
     <script src="assets/js/plugins/splide/splide.min.js"></script>
+    {% if activePage == 'bridge' %}<!-- ApexCharts -->
+    <script src="assets/js/plugins/apexcharts/apexcharts.min.js"></script>{% endif %}
     <!-- i18n inline data + loader -->
     <script src="assets/js/prefs.js"></script>
     {% i18nDataScript %}
@@ -428,6 +507,8 @@
     <!-- Telegram SettingsButton -->
     <script src="assets/js/settings-button.js"></script>
     <script>wireSettingsButton('app-settings.html');</script>
+    {% if activePage == 'bridge' %}<!-- Rate Ticker -->
+    <script src="assets/js/rate-ticker.js"></script>{% endif %}
 
     <script>
         // Wire community links after translations are applied

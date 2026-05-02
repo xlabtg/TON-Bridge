@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport"
-        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+        content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
@@ -111,14 +111,14 @@
 </script>
     <!-- loader -->
     <div id="loader">
-        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+        <img src="assets/img/loading-icon.webp" alt="icon" class="loading-icon">
     </div>
     <!-- * loader -->
 
     <!-- App Header -->
     <div class="appHeader bg-primary text-light">
         <div class="left">
-            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel">
+            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel" aria-label="{{ locales.en.menu_title }}" data-i18n-attr="aria-label:menu_title">
                 <ion-icon name="menu-outline"></ion-icon>
             </a>
         </div>
@@ -133,7 +133,7 @@
 
 		<!-- App {{ sectionLabel }} -->
             <div class="text-center mb-4">
-                <img src="{{ imgSrc }}" alt="Intro Image" style="width: {{ imgW }}; height: {{ imgH }};">
+                <img src="{{ imgSrc }}" alt="Intro Image" fetchpriority="high" style="width: {{ imgW }}; height: {{ imgH }};">
             </div>
 
                     <h3>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_heading{% else %}exchange_heading{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_heading }}{% else %}{{ locales.en.exchange_heading }}{% endif %}</span></h3>
@@ -149,7 +149,7 @@
         </br>
         <!-- Lazy-load placeholder — replaced by iframe on user interaction or idle -->
         <div id="iframe-placeholder" style="height: 450px; width: 100%; aspect-ratio: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #f6fafd; border-radius: 8px;">
-            <img src="assets/img/loading-icon.png" alt="logo" style="width: 64px; height: 64px; opacity: 0.6;">
+            <img src="assets/img/loading-icon.webp" alt="logo" style="width: 64px; height: 64px; opacity: 0.6;">
             <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button" data-i18n="open_exchange_btn">{{ locales.en.open_exchange_btn }}</button>
         </div>
         <script>
@@ -220,6 +220,7 @@
 
                 var iframe = document.createElement('iframe');
                 iframe.id = 'iframe-widget';
+                iframe.title = 'ChangeNOW exchange widget';
                 iframe.src = buildIframeSrc();
                 iframe.loading = 'lazy';
                 iframe.setAttribute('importance', 'high');

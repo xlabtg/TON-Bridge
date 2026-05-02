@@ -16,6 +16,8 @@ All assertions are measured by LHCI against the generated `dist/` app shell unde
 
 The LHCI Puppeteer hook in `lhci/block-third-party.cjs` blocks cross-origin requests and provides a minimal Telegram WebApp stub. This keeps the budgets focused on assets owned by this repository and avoids third-party network variance masking app-shell regressions.
 
+Assertions use LHCI's `pessimistic` aggregation, so the worst collected run for each URL is evaluated. A single run exceeding a hard limit fails the CI job.
+
 URLs tested on every PR:
 - `/index.html` — Bridge tab
 - `/index2.html` — Exchange tab

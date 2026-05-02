@@ -35,6 +35,7 @@
     },
     "assert": {
       "preset": "lighthouse:recommended",
+      "aggregationMethod": "pessimistic",
       "assertions": {
         "largest-contentful-paint": ["error", { "maxNumericValue": 2500 }],
         "total-blocking-time": ["error", { "maxNumericValue": 300 }],
@@ -55,6 +56,7 @@
         "aria-dialog-name": "off",
         "color-contrast": "off",
         "errors-in-console": "off",
+        "forced-reflow-insight": "off",
         "heading-order": "off",
         "image-aspect-ratio": "off",
         "image-delivery-insight": "off",

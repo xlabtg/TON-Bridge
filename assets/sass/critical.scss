@@ -1,0 +1,135 @@
+// Critical above-the-fold CSS — inlined into <head> at build time.
+// Covers: body baseline, loader overlay, app header, bottom nav, content shell.
+// Keep this file lean; the full stylesheet loads asynchronously.
+
+////////////////////////////////////////////////////
+// Variables (duplicated subset — no @import to keep this self-contained)
+////////////////////////////////////////////////////
+$bodyBackground: #EDEDF5;
+$colorPrimary:   #6236FF;
+$colorHeading:   #27173E;
+$colorLine:      #DCDCE9;
+$safeBottom:     env(safe-area-inset-bottom);
+$safeTop:        env(safe-area-inset-top);
+
+////////////////////////////////////////////////////
+// Body baseline
+////////////////////////////////////////////////////
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:'Poppins',sans-serif;
+  font-size:15px;
+  line-height:1.6rem;
+  letter-spacing:.004em;
+  color:rgb(149,141,158);
+  background:$bodyBackground;
+  width:100%;
+  height:100%;
+  overflow-x:hidden;
+  margin:0;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+a{color:$colorPrimary;outline:0 !important;text-decoration:none}
+::-webkit-scrollbar{width:0}
+
+////////////////////////////////////////////////////
+// Loader overlay — shown immediately, hides after JS
+////////////////////////////////////////////////////
+#loader{
+  position:fixed;
+  left:0;top:0;right:0;bottom:0;
+  z-index:99999;
+  background:$colorPrimary;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  user-select:none;
+  .loading-icon{width:42px;height:auto}
+  &.hidden{display:none}
+}
+
+////////////////////////////////////////////////////
+// App Header
+////////////////////////////////////////////////////
+.appHeader{
+  height:56px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  position:fixed;
+  top:$safeTop;
+  left:0;right:0;
+  z-index:999;
+  background:#fff;
+  color:$colorHeading;
+  border-bottom:1px solid $colorLine;
+  &::before{
+    content:'';
+    height:$safeTop;
+    position:fixed;
+    top:0;left:0;right:0;
+    width:100%;
+    z-index:99999;
+    background:#fff;
+  }
+  &.bg-primary{border:0}
+  &.bg-primary::before{background:$colorPrimary !important}
+  &.text-light{color:#fff}
+  .left,.right{
+    height:56px;display:flex;align-items:center;position:absolute;
+  }
+  .left{left:10px;top:0}
+  .right{right:10px;top:0}
+  .pageTitle{font-size:17px;font-weight:500;padding:0 10px}
+  .logo{max-height:24px}
+  .headerButton{
+    min-width:36px;height:56px;display:flex;align-items:center;
+    justify-content:center;padding:10px;color:$colorPrimary;
+    &.text-light{color:#fff}
+  }
+}
+
+////////////////////////////////////////////////////
+// App Capsule (content area)
+////////////////////////////////////////////////////
+#appCapsule{
+  padding:56px 0;
+  margin-bottom:$safeBottom;
+  margin-top:$safeTop;
+}
+
+////////////////////////////////////////////////////
+// App Bottom Menu
+////////////////////////////////////////////////////
+.appBottomMenu{
+  min-height:56px;
+  position:fixed;
+  z-index:999;
+  width:100%;bottom:0;left:0;right:0;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-top:1px solid $colorLine;
+  padding-left:4px;padding-right:4px;
+  padding-bottom:$safeBottom;
+  .item{
+    font-size:9px;letter-spacing:0;text-align:center;
+    width:100%;height:56px;line-height:1.2em;
+    display:flex;align-items:center;justify-content:center;
+    position:relative;color:$colorHeading;
+    &::before{
+      content:'';display:block;height:2px;
+      border-radius:0 0 10px 10px;
+      background:transparent;
+      position:absolute;left:4px;right:4px;top:0;
+    }
+    &.active::before{background:$colorPrimary}
+    &.active ion-icon,&.active strong{color:$colorPrimary !important;font-weight:500}
+    .col{width:100%;padding:0 4px;text-align:center}
+    ion-icon{display:block;font-size:24px;line-height:1em;color:$colorHeading;margin:1px auto 3px}
+    strong{margin-top:4px;display:block;color:$colorHeading;font-weight:400}
+  }
+}

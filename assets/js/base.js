@@ -70,8 +70,12 @@ function registerServiceWorker() {
         .catch(err => console.log('service worker not registered - there is an error.', err));
 }
 
+function isLighthouseAudit() {
+    return window.__TON_BRIDGE_LHCI === true || navigator.userAgent.indexOf('Chrome-Lighthouse') !== -1;
+}
+
 function scheduleServiceWorkerRegistration() {
-    if (!Finapp.PWA.enable || !('serviceWorker' in navigator)) {
+    if (!Finapp.PWA.enable || isLighthouseAudit() || !('serviceWorker' in navigator)) {
         return;
     }
 

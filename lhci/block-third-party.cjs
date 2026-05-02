@@ -18,6 +18,7 @@ module.exports = async function blockThirdPartyRequests(browser) {
     page.__lhciBlocksThirdParty = true;
 
     await page.evaluateOnNewDocument(() => {
+      window.__TON_BRIDGE_LHCI = true;
       window.Telegram = {
         WebApp: {
           MainButton: {

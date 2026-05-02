@@ -96,4 +96,17 @@ test.describe('service worker registration', () => {
     expect(await page.evaluate(() => window.__swRegisterCalls)).toBe(1);
     expect(await page.evaluate(() => window.__swRegisterUrl)).toBe('__service-worker.js');
   });
+
+  test('is skipped during Lighthouse CI audits', async ({ page }) => {
+    await mockTelegramWebApp(page);
+    await captureServiceWorkerSchedule(page);
+    await page.addInitScript(() => {
+      window.__TON_BRIDGE_LHCI = true;
+    });
+
+    await page.goto(distUrl('index.html'));
+
+    expect(await page.evaluate(() => window.__swRegisterCalls)).toBe(0);
+    expect(await page.evaluate(() => window.__swDelayFn)).toBeNull();
+  });
 });

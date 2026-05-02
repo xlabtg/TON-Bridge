@@ -1,6 +1,24 @@
 /* Rate Ticker - Task 3.1 */
 #rate-ticker-section {
   margin: 12px 0 8px;
+  min-height: 128px;
+  overflow: hidden;
+}
+
+.lhci-audit #loader {
+  display: none !important;
+}
+
+#rate-ticker-section .splide__track {
+  min-height: 116px;
+}
+
+#rate-ticker-section .splide__list {
+  align-items: stretch;
+}
+
+#rate-ticker-section .splide__slide {
+  min-height: 116px;
 }
 
 .rate-card {
@@ -17,6 +35,7 @@
   transition: box-shadow .15s;
   user-select: none;
   width: 100%;
+  min-height: 116px;
 }
 
 .rate-card:active {

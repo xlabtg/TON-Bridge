@@ -95,7 +95,7 @@
       li.className = 'splide__slide';
       li.dataset.asset = asset.id;
       li.innerHTML = `
-        <button type="button" class="rate-card rate-card--loading" aria-label="${asset.label}">
+        <button type="button" class="rate-card rate-card--loading">
           <div class="rate-card__header">
             <span class="rate-card__icon">${asset.icon}</span>
             <span class="rate-card__symbol">${asset.label}</span>
@@ -162,6 +162,10 @@
       },
     });
     splideInstance.mount();
+
+    el.querySelectorAll('.splide__sr').forEach(label => {
+      label.setAttribute('aria-hidden', 'true');
+    });
   }
 
   // ApexCharts sparkline
@@ -195,7 +199,13 @@
       colors: [color],
       tooltip: { enabled: false },
     });
-    chartInstances[symbol].render();
+    chartInstances[symbol].render().then(() => {
+      el.setAttribute('aria-hidden', 'true');
+      el.querySelectorAll('svg').forEach(svg => {
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('focusable', 'false');
+      });
+    });
   }
 
   // Card update

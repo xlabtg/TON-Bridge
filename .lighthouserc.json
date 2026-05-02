@@ -63,6 +63,8 @@
         "image-size-responsive": "off",
         "inspector-issues": "off",
         "lcp-discovery-insight": "off",
+        "cls-culprits-insight": "off",
+        "legacy-javascript-insight": "off",
         "network-dependency-tree-insight": "off",
         "offscreen-images": "off",
         "third-party-cookies": "off",

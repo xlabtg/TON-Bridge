@@ -72,6 +72,37 @@
         </li>
     </ul>
 
+    <div class="listview-title mt-1">{{ t.settings_security_section }}</div>
+    <ul class="listview image-listview text inset no-line" id="biometric-section">
+        <li>
+            <div class="item">
+                <div class="in">
+                    <div id="biometric-label-wrapper">
+                        <span id="biometric-label">{{ t.settings_biometric_label }}</span>
+                        <span id="biometric-unavailable-hint" class="text-muted" style="display:none; font-size:0.82em; margin-left:4px;" data-bs-toggle="tooltip" title="{{ t.settings_biometric_unavailable_hint }}">(?)</span>
+                    </div>
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input" type="checkbox" id="biometricSwitch" disabled>
+                        <label class="form-check-label" for="biometricSwitch"></label>
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li id="biometric-threshold-row" style="display:none;">
+            <div class="item">
+                <div class="in">
+                    <div>{{ t.settings_biometric_threshold_label }}</div>
+                    <div style="display:flex;align-items:center;gap:4px;">
+                        <span>$</span>
+                        <input type="number" id="biometricThreshold" min="1" step="1"
+                            style="width:90px; border:1px solid #ccc; border-radius:6px; padding:2px 6px; text-align:right;"
+                            value="1000">
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
 </div>
 
 <script>
@@ -85,6 +116,52 @@
             window.location.href = '{{ t.settings_lang_unchecked_goto }}';
         }
     });
+</script>
+<script src="assets/js/biometric-manager.js"></script>
+<script>
+    (function () {
+        var sw = document.getElementById('biometricSwitch');
+        var thresholdRow = document.getElementById('biometric-threshold-row');
+        var thresholdInput = document.getElementById('biometricThreshold');
+        var unavailableHint = document.getElementById('biometric-unavailable-hint');
+
+        function applyAvailability(available) {
+            sw.disabled = !available;
+            if (!available) {
+                unavailableHint.style.display = 'inline';
+            }
+        }
+
+        function applyEnabled(enabled) {
+            sw.checked = enabled;
+            thresholdRow.style.display = enabled ? '' : 'none';
+        }
+
+        BiometricAuth.init(function () {
+            var available = BiometricAuth.isAvailable();
+            applyAvailability(available);
+
+            BiometricAuth.isEnabled(function (enabled) {
+                applyEnabled(enabled);
+            });
+
+            BiometricAuth.getThreshold(function (threshold) {
+                thresholdInput.value = threshold;
+            });
+        });
+
+        sw.addEventListener('change', function () {
+            BiometricAuth.setEnabled(this.checked);
+            thresholdRow.style.display = this.checked ? '' : 'none';
+        });
+
+        thresholdInput.addEventListener('change', function () {
+            var val = parseFloat(this.value);
+            if (!isNaN(val) && val > 0) {
+                BiometricAuth.setThreshold(val);
+            }
+        });
+    })();
 </script>
 
     <!-- * App Capsule -->

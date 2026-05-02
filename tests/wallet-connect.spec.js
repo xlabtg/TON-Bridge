@@ -93,10 +93,10 @@ async function setupMocks(page) {
 
 /** Simulate a wallet connecting and wait for the UI to update. */
 async function simulateConnect(page, address) {
+    await page.evaluate(() => { window.WalletConnect.connect(); });
+    await page.waitForFunction(() => typeof window.__tcStatusChange === 'function');
     await page.evaluate((addr) => {
-        if (window.__tcStatusChange) {
-            window.__tcStatusChange({ account: { address: addr } });
-        }
+        window.__tcStatusChange({ account: { address: addr } });
     }, address);
     // Wait for the async fetchBalance → notifyListeners → DOM update to settle
     await page.waitForFunction(
@@ -111,10 +111,10 @@ async function simulateConnect(page, address) {
 
 /** Simulate a wallet connecting on settings page. */
 async function simulateConnectSettings(page, address) {
+    await page.evaluate(() => { window.WalletConnect.connect(); });
+    await page.waitForFunction(() => typeof window.__tcStatusChange === 'function');
     await page.evaluate((addr) => {
-        if (window.__tcStatusChange) {
-            window.__tcStatusChange({ account: { address: addr } });
-        }
+        window.__tcStatusChange({ account: { address: addr } });
     }, address);
     await page.waitForFunction(
         () => {
@@ -214,8 +214,7 @@ test.describe('Wallet Connect — widget pages', () => {
         await page.goto(distUrl('index.html'));
 
         await page.evaluate(() => { window.WalletConnect.connect(); });
-        const called = await page.evaluate(() => window.__tcOpenModalCalled);
-        expect(called).toBe(true);
+        await page.waitForFunction(() => window.__tcOpenModalCalled === true);
     });
 
     test('WalletConnect.shortenAddress trims long addresses to 6+4 chars', async ({ page }) => {

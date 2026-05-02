@@ -1,13 +1,15 @@
-// TonConnect 2 wallet integration using @tonconnect/ui CDN build.
-// Relies on window.TON_CONNECT_UI being set by the CDN script loaded before this file.
+// TonConnect 2 wallet integration using the self-hosted @tonconnect/ui build.
 // Exposes window.WalletConnect for use in page templates.
 
 (function () {
     var STORAGE_KEY = 'tc_ton_address';
     var TONCENTER_BASE = 'https://toncenter.com/api/v2/getAddressInformation?address=';
 
-    var _ui = null;          // TonConnectUI instance
-    var _listeners = [];     // callbacks registered by page code
+    var _ui = null;              // TonConnectUI instance
+    var _manifestUrl = null;
+    var _sdkUrl = null;
+    var _sdkLoading = null;
+    var _listeners = [];         // callbacks registered by page code
 
     // ---------- helpers ----------
 
@@ -63,13 +65,45 @@
         }
     }
 
-    // ---------- public API ----------
+    function loadSdk(cb) {
+        if (window.TON_CONNECT_UI && window.TON_CONNECT_UI.TonConnectUI) {
+            cb();
+            return;
+        }
 
-    var WalletConnect = {
-        /** Call once per page after the DOM is ready. */
-        init: function (manifestUrl) {
-            if (_ui) return;
+        if (!_sdkUrl) {
+            console.warn('TonConnectUI SDK URL is not configured');
+            return;
+        }
 
+        if (_sdkLoading) {
+            _sdkLoading.push(cb);
+            return;
+        }
+
+        _sdkLoading = [cb];
+        var script = document.createElement('script');
+        script.src = _sdkUrl;
+        script.async = true;
+        script.onload = function () {
+            var callbacks = _sdkLoading || [];
+            _sdkLoading = null;
+            for (var i = 0; i < callbacks.length; i++) callbacks[i]();
+        };
+        script.onerror = function () {
+            _sdkLoading = null;
+            console.warn('TonConnectUI failed to load');
+        };
+        document.head.appendChild(script);
+    }
+
+    function ensureUi(cb) {
+        if (_ui) {
+            if (cb) cb();
+            return;
+        }
+
+        loadSdk(function () {
             var UI = window.TON_CONNECT_UI && window.TON_CONNECT_UI.TonConnectUI;
             if (!UI) {
                 console.warn('TonConnectUI not loaded');
@@ -77,7 +111,7 @@
             }
 
             _ui = new UI({
-                manifestUrl: manifestUrl,
+                manifestUrl: _manifestUrl,
                 // No buttonRootId — we manage our own button UI
             });
 
@@ -98,6 +132,23 @@
                 }
             });
 
+            if (cb) cb();
+        });
+    }
+
+    // ---------- public API ----------
+
+    var WalletConnect = {
+        /** Call once per page after the DOM is ready. */
+        init: function (manifestUrl, options) {
+            options = options || {};
+            _manifestUrl = manifestUrl;
+            _sdkUrl = options.sdkUrl || _sdkUrl;
+
+            if (!options.lazy) {
+                ensureUi();
+            }
+
             // Restore previously stored address while waiting for the SDK to reconnect
             loadAddress(function (addr) {
                 if (addr) {
@@ -110,14 +161,16 @@
 
         /** Open the TonConnect modal. */
         connect: function () {
-            if (!_ui) return;
-            _ui.openModal();
+            ensureUi(function () {
+                if (_ui) _ui.openModal();
+            });
         },
 
         /** Disconnect the current wallet. */
         disconnect: function () {
-            if (!_ui) return;
-            _ui.disconnect();
+            ensureUi(function () {
+                if (_ui) _ui.disconnect();
+            });
         },
 
         /** Register a callback: fn({ connected, address, balance, restoring? }) */

@@ -119,7 +119,12 @@
             if (!enabled) { proceed(); return; }
 
             getThreshold(function (threshold) {
-                if (amount < threshold) { proceed(); return; }
+                var normalizedAmount = parseFloat(amount);
+                if (isNaN(normalizedAmount) || normalizedAmount <= 0) {
+                    normalizedAmount = 0;
+                }
+
+                if (normalizedAmount < threshold) { proceed(); return; }
 
                 if (!isAvailable()) { proceed(); return; }
 

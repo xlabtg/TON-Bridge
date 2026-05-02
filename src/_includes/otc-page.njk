@@ -56,9 +56,8 @@
                         iframe.contentWindow.postMessage({ type: 'submit' }, '*');
                     }
                 }
-                // Read user-entered amount from the OTC widget iframe URL default (1 000 000)
-                // as a fallback; a real USD oracle will be wired once #6.4 lands.
-                var amount = window.__otcAmount || 1000000;
+                // A real USD oracle will be wired once #6.4 lands.
+                var amount = parseFloat(window.__otcAmount);
                 if (window.BiometricAuth) {
                     BiometricAuth.guardTrade(
                         amount,

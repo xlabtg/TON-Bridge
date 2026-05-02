@@ -278,6 +278,31 @@ test.describe('OTC page — biometric guard on MainButton', () => {
     expect(authenticateCalled).toBe(true);
   });
 
+  test('MainButton click: missing amount does not trigger biometric prompt', async ({ page }) => {
+    await mockTelegramWithBiometric(page, { bmAvailable: true, bmAccessGranted: true, authenticateOk: true });
+    await page.goto(distUrl('index3.html'));
+
+    await page.evaluate(() => {
+      window.Telegram.WebApp.CloudStorage._store['biometricEnabled'] = '1';
+      window.Telegram.WebApp.CloudStorage._store['biometricThreshold'] = '500';
+      delete window.__otcAmount;
+      window.__authenticateCalled = false;
+      window.__tgBiometricManager.authenticate = function (params, cb) {
+        window.__authenticateCalled = true;
+        cb(true);
+      };
+    });
+
+    await page.evaluate(() => {
+      window.__tgMainButton._handlers.forEach(fn => fn());
+    });
+
+    await page.waitForTimeout(100);
+
+    const authenticateCalled = await page.evaluate(() => !!window.__authenticateCalled);
+    expect(authenticateCalled).toBe(false);
+  });
+
   test('MainButton click: trade aborted and toast shown when biometric fails', async ({ page }) => {
     await mockTelegramWithBiometric(page, { bmAvailable: true, bmAccessGranted: true, authenticateOk: false });
     await page.goto(distUrl('index3.html'));

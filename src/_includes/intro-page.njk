@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>{{ t.title_intro_bridge }}</title>
+    <title data-i18n="title_intro_bridge">{{ locales.en.title_intro_bridge }}</title>
     <meta name="description" content="TON Bridge HTML Mobile Template">
     <meta name="keywords" content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
@@ -17,8 +17,10 @@
 </head>
 
 <body>
+    <div id="offline-indicator">You are offline</div>
     <div id="viewport"></div>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="assets/js/auth.js"></script>
     <script>
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
@@ -38,8 +40,8 @@
 <script>
     function initAnalytics() {
       window.telegramAnalytics.init({
-        token: 'eyJhcHBfbmFtZSI6IlRPTkJyaWRnZV9yb2JvdCIsImFwcF91cmwiOiJodHRwczovL3QubWUvVE9OQnJpZGdlX3JvYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vdG9uYmFua2NhcmQuY29tL2JyaWRnZS9UTUEvMDAuaHRtbCJ9!PQ40y7Tz3lZti6uDVlApq+BcGxi8tR9WEsH6Hyu+mD0=', // SDK Auth token received via @DataChief_bot
-        appName: 'TONBridge_robot', // The analytics identifier you entered in @DataChief_bot
+        token: '{{ env.TG_ANALYTICS_TOKEN }}', // SDK Auth token received via @DataChief_bot
+        appName: '{{ env.TG_ANALYTICS_APP_NAME }}', // The analytics identifier you entered in @DataChief_bot
       });
     }
 </script>
@@ -66,17 +68,17 @@
         <section id="introSection" class="section mt-5">
             <div class="container">
                 <div class="section-head text">
-                    <h2 class="title title-lg">{{ t.intro_bridge_heading }}</h2>
-                    <p>
-                        {{ t.intro_bridge_p1 }}
+                    <h2 class="title title-lg" data-i18n="intro_bridge_heading">{{ locales.en.intro_bridge_heading }}</h2>
+                    <p data-i18n="intro_bridge_p1">
+                        {{ locales.en.intro_bridge_p1 }}
                     </p>
                     <p>
-                        <b>{{ t.intro_bridge_p2_bold }}</b>
+                        <b data-i18n="intro_bridge_p2_bold">{{ locales.en.intro_bridge_p2_bold }}</b>
                     </p>
                 </div>
                 <!-- "Start Exchange" Button -->
                 <div class="text-center mt-4">
-                    <a href="{{ t.intro_bridge_target }}" class="btn btn-primary btn-lg">{{ t.intro_bridge_btn }}</a>
+                    <a href="index.html" class="btn btn-primary btn-lg" data-i18n="intro_bridge_btn">{{ locales.en.intro_bridge_btn }}</a>
                 </div>
             </div>
         </section>
@@ -87,11 +89,23 @@
     <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
     <!-- Ionicons -->
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <!-- i18n inline data + loader -->
+    <script src="assets/js/prefs.js"></script>
+    {% i18nDataScript %}
+    <script src="assets/js/i18n.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Offline Indicator -->
+    <script src="assets/js/offline.js"></script>
     <!-- Telegram BackButton -->
     <script src="assets/js/back-button.js"></script>
-    <script>wireBackButton();</script>
+    <script>
+        wireBackButton();
+        i18n.init();
+    </script>
+    <!-- Telegram SettingsButton -->
+    <script src="assets/js/settings-button.js"></script>
+    <script>wireSettingsButton('app-settings.html');</script>
 
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript" >
@@ -101,14 +115,14 @@
    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-   ym(98019798, "init", {
+   ym({{ env.YANDEX_METRIKA_ID }}, "init", {
         clickmap:true,
         trackLinks:true,
         accurateTrackBounce:true,
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/{{ env.YANDEX_METRIKA_ID }}" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
 
 </body>

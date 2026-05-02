@@ -9,7 +9,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
  * - intercept the real telegram-web-app.js so it is never loaded
  * - inject our mock before any page scripts run
  */
-async function mockTelegramWebApp(page) {
+async function mockTelegramWebApp(page, options = {}) {
   // Block the real Telegram SDK so our mock is not overwritten
   await page.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({
     status: 200,
@@ -17,7 +17,7 @@ async function mockTelegramWebApp(page) {
     body: '/* mocked */',
   }));
 
-  await page.addInitScript(() => {
+  await page.addInitScript(({ languageCode, cloudStorage }) => {
     const mainButton = {
       _text: '',
       _visible: false,
@@ -28,7 +28,9 @@ async function mockTelegramWebApp(page) {
       onClick(fn) { this._handlers.push(fn); },
       offClick(fn) { this._handlers = this._handlers.filter(h => h !== fn); },
     };
+    const cloudStore = cloudStorage ? { ...cloudStorage } : null;
     window.__tgMainButton = mainButton;
+    window.__tgCloudStorageStore = cloudStore;
     window.Telegram = {
       WebApp: {
         ready() {},
@@ -37,61 +39,97 @@ async function mockTelegramWebApp(page) {
         setHeaderColor() {},
         colorScheme: 'light',
         MainButton: mainButton,
+        initDataUnsafe: languageCode ? { user: { language_code: languageCode } } : {},
       },
     };
-  });
+    if (cloudStore) {
+      window.Telegram.WebApp.CloudStorage = {
+        setItem(key, value, cb) { cloudStore[key] = value; cb && cb(null); },
+        getItem(key, cb) { cb && cb(null, cloudStore[key] || ''); },
+        removeItems(keys, cb) { keys.forEach(key => delete cloudStore[key]); cb && cb(null); },
+      };
+    }
+  }, options);
+}
+
+/**
+ * Set a language preference in localStorage before navigation.
+ */
+async function setLangPref(page, lang) {
+  await page.addInitScript((l) => {
+    localStorage.setItem('pref:lang', l);
+  }, lang);
+}
+
+/**
+ * Wait until the MainButton has a non-empty text (i18n load complete).
+ */
+async function waitForMainButtonText(page) {
+  await page.waitForFunction(() => window.__tgMainButton._text !== '');
+  return page.evaluate(() => window.__tgMainButton._text);
 }
 
 function distUrl(file) {
   return 'file://' + resolve(__dirname, '..', 'dist', file);
 }
 
+function iframeParam(page, name) {
+  return page.locator('#iframe-widget').evaluate((iframe, paramName) => {
+    return new URL(iframe.src).searchParams.get(paramName);
+  }, name);
+}
+
 test.describe('Telegram MainButton — widget tabs', () => {
   test('Bridge EN: MainButton text is "Continue"', async ({ page }) => {
     await mockTelegramWebApp(page);
     await page.goto(distUrl('index.html'));
-    const text = await page.evaluate(() => window.__tgMainButton._text);
+    const text = await waitForMainButtonText(page);
     expect(text).toBe('Continue');
   });
 
   test('Bridge RU: MainButton text is "Продолжить"', async ({ page }) => {
     await mockTelegramWebApp(page);
-    await page.goto(distUrl('index-ru.html'));
-    const text = await page.evaluate(() => window.__tgMainButton._text);
+    await setLangPref(page, 'ru');
+    await page.goto(distUrl('index.html'));
+    const text = await waitForMainButtonText(page);
     expect(text).toBe('Продолжить');
   });
 
   test('Exchange EN: MainButton text is "Confirm exchange"', async ({ page }) => {
     await mockTelegramWebApp(page);
     await page.goto(distUrl('index2.html'));
-    const text = await page.evaluate(() => window.__tgMainButton._text);
+    const text = await waitForMainButtonText(page);
     expect(text).toBe('Confirm exchange');
   });
 
   test('Exchange RU: MainButton text is "Подтвердить обмен"', async ({ page }) => {
     await mockTelegramWebApp(page);
-    await page.goto(distUrl('index2-ru.html'));
-    const text = await page.evaluate(() => window.__tgMainButton._text);
+    await setLangPref(page, 'ru');
+    await page.goto(distUrl('index2.html'));
+    const text = await waitForMainButtonText(page);
     expect(text).toBe('Подтвердить обмен');
   });
 
   test('OTC EN: MainButton text is "Confirm exchange"', async ({ page }) => {
     await mockTelegramWebApp(page);
     await page.goto(distUrl('index3.html'));
-    const text = await page.evaluate(() => window.__tgMainButton._text);
+    const text = await waitForMainButtonText(page);
     expect(text).toBe('Confirm exchange');
   });
 
   test('OTC RU: MainButton text is "Подтвердить обмен"', async ({ page }) => {
     await mockTelegramWebApp(page);
-    await page.goto(distUrl('index3-ru.html'));
-    const text = await page.evaluate(() => window.__tgMainButton._text);
+    await setLangPref(page, 'ru');
+    await page.goto(distUrl('index3.html'));
+    const text = await waitForMainButtonText(page);
     expect(text).toBe('Подтвердить обмен');
   });
 
   test('MainButton shows on postMessage widget step (not initial/success)', async ({ page }) => {
     await mockTelegramWebApp(page);
     await page.goto(distUrl('index.html'));
+    // Wait for i18n to load so the page is fully initialised
+    await page.waitForFunction(() => window.__tgMainButton._text !== '');
 
     await page.evaluate(() => {
       window.dispatchEvent(new MessageEvent('message', {
@@ -106,6 +144,7 @@ test.describe('Telegram MainButton — widget tabs', () => {
   test('MainButton hides on postMessage success step', async ({ page }) => {
     await mockTelegramWebApp(page);
     await page.goto(distUrl('index.html'));
+    await page.waitForFunction(() => window.__tgMainButton._text !== '');
 
     await page.evaluate(() => {
       window.dispatchEvent(new MessageEvent('message', {
@@ -154,6 +193,53 @@ test.describe('Telegram MainButton — widget tabs', () => {
     });
 
     expect(handlerCount).toBeGreaterThan(0);
+  });
+
+  test('i18n: language switcher re-renders text in-place', async ({ page }) => {
+    await mockTelegramWebApp(page);
+    await page.goto(distUrl('app-settings.html'));
+    // Wait for i18n to load
+    await page.waitForFunction(() => document.documentElement.lang === 'en');
+
+    // Switch to RU via the runtime API
+    await page.evaluate(() => i18n.setLang('ru'));
+    await page.waitForFunction(() => document.documentElement.lang === 'ru');
+
+    const navText = await page.locator('[data-i18n="nav_bridge"]').first().textContent();
+    expect(navText).toBe('Мост');
+
+    // Switch back to EN
+    await page.evaluate(() => i18n.setLang('en'));
+    await page.waitForFunction(() => document.documentElement.lang === 'en');
+
+    const navTextEn = await page.locator('[data-i18n="nav_bridge"]').first().textContent();
+    expect(navTextEn).toBe('Bridge');
+  });
+
+  test('i18n: CloudStorage pref:lang wins over Telegram language', async ({ page }) => {
+    await mockTelegramWebApp(page, {
+      languageCode: 'en',
+      cloudStorage: { 'pref:migrated': '1', 'pref:lang': 'ru' },
+    });
+
+    await page.goto(distUrl('app-settings.html'));
+    await page.waitForFunction(() => document.documentElement.lang === 'ru');
+
+    const navText = await page.locator('[data-i18n="nav_bridge"]').first().textContent();
+    expect(navText).toBe('Мост');
+  });
+
+  test('i18n: language switch updates ChangeNOW iframe lang parameter', async ({ page }) => {
+    await mockTelegramWebApp(page);
+    await page.goto(distUrl('index.html'));
+    await page.waitForFunction(() => document.documentElement.lang === 'en');
+
+    await expect.poll(() => iframeParam(page, 'lang')).toBe('en-EN');
+
+    await page.evaluate(() => i18n.setLang('ru'));
+    await page.waitForFunction(() => document.documentElement.lang === 'ru');
+
+    await expect.poll(() => iframeParam(page, 'lang')).toBe('ru-RU');
   });
 
   test('Screenshot: Bridge tab — iframe widget is present', async ({ page }) => {

@@ -2,6 +2,7 @@
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import validateWebAppManifest from 'web-app-manifest-validator';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const manifestPath = resolve(__dirname, '..', 'dist', '__manifest.json');
@@ -15,6 +16,26 @@ try {
 }
 
 const errors = [];
+
+const standardsManifest = {
+  background_color: manifest.background_color,
+  description: manifest.description,
+  dir: manifest.dir,
+  display: manifest.display,
+  icons: manifest.icons,
+  lang: manifest.lang,
+  name: manifest.name,
+  orientation: manifest.orientation,
+  scope: manifest.scope,
+  screenshots: (manifest.screenshots || []).map(({ src, sizes, type }) => ({ src, sizes, type })),
+  short_name: manifest.short_name,
+  start_url: manifest.start_url,
+  theme_color: manifest.theme_color,
+};
+
+for (const error of validateWebAppManifest(standardsManifest)) {
+  errors.push(`web-app-manifest-validator: ${error}`);
+}
 
 function require_field(field, expectedValue) {
   if (manifest[field] === undefined || manifest[field] === null) {

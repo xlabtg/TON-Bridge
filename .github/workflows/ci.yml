@@ -11,9 +11,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  i18n-check:
+    name: i18n Key Parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read .nvmrc
+        id: nvmrc
+        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.nvmrc.outputs.version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check i18n key parity
+        run: npm run check:i18n
+
   build:
     name: Build
     runs-on: ubuntu-latest
+    needs: i18n-check
     steps:
       - uses: actions/checkout@v4
 
@@ -31,6 +53,12 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
 
   validate-manifest:
     name: Validate PWA Manifest
@@ -53,6 +81,12 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
 
       - name: Validate PWA manifest
         run: npm run validate:manifest
@@ -78,6 +112,12 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
 
       - name: Validate HTML
         run: npx html-validate "dist/*.html"
@@ -106,6 +146,12 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
 
       - name: Run Playwright tests
         run: npm test
@@ -138,6 +184,12 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
 
       - name: Run Lighthouse CI
         run: npx lhci autorun
@@ -172,6 +224,12 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v4

@@ -8,6 +8,12 @@ function distUrl(file) {
   return 'file://' + resolve(__dirname, '..', 'dist', file);
 }
 
+async function setLangPref(page, lang) {
+  await page.addInitScript((l) => {
+    localStorage.setItem('pref:lang', l);
+  }, lang);
+}
+
 /**
  * Mock Telegram.WebApp with configurable BiometricManager behaviour.
  *
@@ -85,7 +91,8 @@ test.describe('Settings — biometric toggle', () => {
 
   test('Security section is rendered on settings page (RU)', async ({ page }) => {
     await mockTelegramWithBiometric(page);
-    await page.goto(distUrl('app-settings-ru.html'));
+    await setLangPref(page, 'ru');
+    await page.goto(distUrl('app-settings.html'));
     await expect(page.locator('#biometric-section')).toBeVisible();
   });
 
@@ -340,7 +347,8 @@ test.describe('OTC page — biometric guard on MainButton', () => {
 
   test('OTC RU page also has BiometricAuth', async ({ page }) => {
     await mockTelegramWithBiometric(page);
-    await page.goto(distUrl('index3-ru.html'));
+    await setLangPref(page, 'ru');
+    await page.goto(distUrl('index3.html'));
 
     const available = await page.evaluate(() => typeof window.BiometricAuth !== 'undefined');
     expect(available).toBe(true);

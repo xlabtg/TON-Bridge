@@ -50,6 +50,12 @@ function distUrl(file) {
   return 'file://' + resolve(__dirname, '..', 'dist', file);
 }
 
+async function setLangPref(page, lang) {
+  await page.addInitScript((l) => {
+    localStorage.setItem('pref:lang', l);
+  }, lang);
+}
+
 test.describe('Telegram SettingsButton', () => {
   test('Bridge EN: SettingsButton is shown', async ({ page }) => {
     await mockTelegramWebApp(page);
@@ -60,7 +66,8 @@ test.describe('Telegram SettingsButton', () => {
 
   test('Bridge RU: SettingsButton is shown', async ({ page }) => {
     await mockTelegramWebApp(page);
-    await page.goto(distUrl('index-ru.html'));
+    await setLangPref(page, 'ru');
+    await page.goto(distUrl('index.html'));
     const visible = await page.evaluate(() => window.__tgSettingsButton._visible);
     expect(visible).toBe(true);
   });
@@ -88,7 +95,8 @@ test.describe('Telegram SettingsButton', () => {
 
   test('Settings RU: SettingsButton is hidden', async ({ page }) => {
     await mockTelegramWebApp(page);
-    await page.goto(distUrl('app-settings-ru.html'));
+    await setLangPref(page, 'ru');
+    await page.goto(distUrl('app-settings.html'));
     const visible = await page.evaluate(() => window.__tgSettingsButton._visible);
     expect(visible).toBe(false);
   });

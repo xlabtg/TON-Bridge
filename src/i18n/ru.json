@@ -1,12 +1,12 @@
 {
   "lang_attr": "ru",
-  "suffix": "-ru",
+
   "title_bridge": "TON Bridge RU",
   "title_exchange": "TON Bridge RU",
   "title_otc": "TON Bridge - OTC",
-  "title_intro_bridge": "TON Bridge - Welcome RU",
-  "title_intro_bridge_steps": "TON Bridge - Welcome 2 RU",
-  "title_intro_exchange_steps": "TON Bridge - Welcome 2 RU",
+  "title_intro_bridge": "TON Bridge - Welcome",
+  "title_intro_bridge_steps": "TON Bridge - Welcome 2",
+  "title_intro_exchange_steps": "TON Bridge - Welcome 2",
   "title_settings": "TON Bridge",
 
   "nav_bridge": "Мост",
@@ -32,26 +32,20 @@
   "widget_lang": "ru-RU",
   "otc_widget_lang": "ru-RU",
 
-  "bridge_img_comment": "Изображение",
-  "bridge_section_comment": "Безопасность и конфиденциальность",
   "bridge_heading": "Безопасность и конфиденциальность",
   "bridge_intro_line1": "TONBANKCARD сохраняет вашу  конфиденциальность и гарантирует безопасность.",
   "bridge_intro_line2": "Мы не являемся службой кастодиального обмена:",
   "bridge_point1": "- Мы не сохраняем ваши данные",
   "bridge_point2": "- Мы не контролируем ваши средства",
   "bridge_point3": "- Мы не заставляем вас регистрироваться",
-  "bridge_instruction_link": "1-ru.html",
   "bridge_instruction_btn": "Инструкция",
 
-  "exchange_img_comment": "Изображение",
-  "exchange_section_comment": "Безопасность и конфиденциальность",
   "exchange_heading": "Безопасность и конфиденциальность",
   "exchange_intro_line1": "TONBANKCARD сохраняет вашу  конфиденциальность и гарантирует безопасность.",
   "exchange_intro_line2": "Мы не являемся службой кастодиального обмена:",
   "exchange_point1": "- Мы не сохраняем ваши данные",
   "exchange_point2": "- Мы не контролируем ваши средства",
   "exchange_point3": "- Мы не заставляем вас регистрироваться",
-  "exchange_instruction_link": "2-ru.html",
   "exchange_instruction_btn": "Инструкция",
 
   "main_button_bridge": "Продолжить",
@@ -65,13 +59,10 @@
   "otc_point3": "- Агрегация CEX + DEX",
 
   "settings_title_label": "Настройки",
-  "settings_back_link": "index-ru.html",
   "settings_theme_section": "Тема",
   "settings_dark_mode_label": "Темный режим",
   "settings_lang_section": "Язык",
   "settings_lang_label": "Язык (RU/EN)",
-  "settings_lang_checked_goto": "app-settings.html",
-  "settings_lang_unchecked_goto": "app-settings-ru.html",
   "settings_security_section": "Безопасность",
   "settings_biometric_label": "Требовать биометрию для сделок выше порога",
   "settings_biometric_unavailable_hint": "Биометрическая аутентификация недоступна на этом устройстве",
@@ -83,7 +74,6 @@
   "intro_bridge_p1": "Откройте для себя TON Bridge от TONBANKCARD – надежный мост между блокчейнами TON и BSC.\n                        Узнайте, как быстро и безопасно проводить криптовалютные транзакции между двумя популярными\n                        блокчейн-платформами с помощью TON Bridge.",
   "intro_bridge_p2_bold": "Кроме того, TON Bridge поддерживает обмен криптовалют  в 200 блокчейнах, включая TON, TRX, ETH, Arbitrum, Solana, NEAR, EOS, ALGO, KCS, Polygon, Polkadot, OP, KAVAFVM, OMNI, XTL, AVAX C и BSC. Теперь пользователи могут проводить обмены более 1200+ криптовалют между этими популярными сетями с максимальной удобностью.",
   "intro_bridge_btn": "Начать обмен",
-  "intro_bridge_target": "index-ru.html",
 
   "intro_bridge_steps_title": "Инструкция по использованию",
   "intro_bridge_steps_subtitle": "Обменяйте TON между разными блокчейнами всего за 3 простых шага!",
@@ -96,18 +86,16 @@
   "intro_bridge_steps_s3_title": "Шаг 3 - Получите TON (1000+ криптовалют)",
   "intro_bridge_steps_s3_desc": "Ваши средства будут обработаны, и вы получите TON (1000+ криптовалют) на другой блокчейн из 200.",
   "intro_bridge_steps_btn": "Приступить к обмену",
-  "intro_bridge_steps_target": "index-ru.html",
 
   "intro_exchange_steps_title": "Инструкция по использованию",
   "intro_exchange_steps_subtitle": "Обменяйте криптовалюту между разными блокчейнами всего за 3 простых шага!",
   "intro_exchange_steps_heading": "Простые 3 шага",
   "intro_exchange_steps_lead": "Обменяйте любую монету на любую другую. Начните с менее чем 10 долларов и торгуйте столько криптовалютой, сколько захотите - верхнего предела нет.",
   "intro_exchange_steps_s1_title": "Шаг 1 - Выберите валюту",
-  "intro_exchange_steps_s1_desc": "В списке из <strong>более чем 1000+ криптовалют</strong>, поддерживаем <strong>200 блокчейнов</strong>, вы обязательно найдете то, что вам нужно.",
+  "intro_exchange_steps_s1_desc": "В списке из более чем 1000+ криптовалют, поддерживаем 200 блокчейнов, вы обязательно найдете то, что вам нужно.",
   "intro_exchange_steps_s2_title": "Шаг 2 - Внесите депозит",
   "intro_exchange_steps_s2_desc": "Проверьте все детали обмена, узнайте приблизительное время транзакции и отправьте свои средства на адрес для единовременного пополнения.",
   "intro_exchange_steps_s3_title": "Шаг 3 - Получите криптовалюту",
-  "intro_exchange_steps_s3_desc": "Нашим пользователям не нужно беспокоиться о сохранности своих персональных данных. <strong>Мы обеспечиваем полную анонимность.</strong>",
-  "intro_exchange_steps_btn": "Приступить к обмену",
-  "intro_exchange_steps_target": "index2-ru.html"
+  "intro_exchange_steps_s3_desc": "Нашим пользователям не нужно беспокоиться о сохранности своих персональных данных. Мы обеспечиваем полную анонимность.",
+  "intro_exchange_steps_btn": "Приступить к обмену"
 }

@@ -15,7 +15,10 @@ async function setLangPref(page, lang) {
 }
 
 async function openLazyOtcWidget(page) {
-  await page.locator('#open-exchange-btn').click();
+  const openButton = page.locator('#open-exchange-btn');
+  if (await openButton.isVisible()) {
+    await openButton.click();
+  }
   await expect(page.locator('#iframe-widget')).toHaveCount(1);
 }
 

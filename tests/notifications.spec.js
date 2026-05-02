@@ -1,5 +1,5 @@
 /**
- * Unit tests for push-notification logic in worker/index.js
+ * Unit tests for push-notification logic in worker/src/index.js
  * Covers: status-transition detection, idempotency, message text, deep-link.
  */
 
@@ -10,7 +10,7 @@ import {
   buildDeepLink,
   POLLING_STATES,
   TERMINAL_STATES,
-} from '../worker/index.js';
+} from '../worker/src/index.js';
 
 // ─── shouldNotify ─────────────────────────────────────────────────────────────
 

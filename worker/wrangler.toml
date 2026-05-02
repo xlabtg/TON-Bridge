@@ -1,5 +1,5 @@
-name = "ton-bridge-notifications"
-main = "index.js"
+name = "ton-bridge-auth"
+main = "src/index.js"
 compatibility_date = "2024-01-01"
 
 # Cron trigger — runs every 60 seconds
@@ -11,6 +11,19 @@ crons = ["* * * * *"]
 binding = "BRIDGE_KV"
 id = "REPLACE_WITH_KV_NAMESPACE_ID"
 
-# Secrets (set with: wrangler secret put TELEGRAM_BOT_TOKEN)
-# TELEGRAM_BOT_TOKEN
-# CHANGENOW_API_KEY
+# Rate limiter: 30 requests / minute / IP
+# See https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1401"
+
+  [ratelimits.simple]
+  limit = 30
+  period = 60
+
+[vars]
+# Non-secret configuration can go here.
+# Secrets (BOT_TOKEN, JWT_SECRET, CHANGENOW_API_KEY) must be set via:
+#   wrangler secret put BOT_TOKEN
+#   wrangler secret put JWT_SECRET
+#   wrangler secret put CHANGENOW_API_KEY

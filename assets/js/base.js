@@ -64,13 +64,39 @@ var loader = document.getElementById('loader');
 //-----------------------------------------------------------------------
 // Service Workers
 //-----------------------------------------------------------------------
-if (Finapp.PWA.enable) {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('__service-worker.js')
-            .then(reg => console.log('service worker registered'))
-            .catch(err => console.log('service worker not registered - there is an error.', err));
+function registerServiceWorker() {
+    navigator.serviceWorker.register('__service-worker.js')
+        .then(reg => console.log('service worker registered'))
+        .catch(err => console.log('service worker not registered - there is an error.', err));
+}
+
+function scheduleServiceWorkerRegistration() {
+    if (!Finapp.PWA.enable || !('serviceWorker' in navigator)) {
+        return;
+    }
+
+    var registerWhenIdle = function () {
+        if (typeof window.requestIdleCallback === 'function') {
+            window.requestIdleCallback(registerServiceWorker, { timeout: 2000 });
+        }
+        else {
+            window.setTimeout(registerServiceWorker, 0);
+        }
+    };
+
+    var deferUntilSettled = function () {
+        window.setTimeout(registerWhenIdle, 3000);
+    };
+
+    if (document.readyState === 'complete') {
+        deferUntilSettled();
+    }
+    else {
+        window.addEventListener('load', deferUntilSettled, { once: true });
     }
 }
+
+scheduleServiceWorkerRegistration();
 //-----------------------------------------------------------------------
 
 

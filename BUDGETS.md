@@ -18,6 +18,8 @@ The LHCI Puppeteer hook in `lhci/block-third-party.cjs` blocks cross-origin requ
 
 Assertions use LHCI's `pessimistic` aggregation, so the worst collected run for each URL is evaluated. A single run exceeding a hard limit fails the CI job.
 
+The PWA service worker still precaches the app shell, but registration is deferred until after the page `load` event and an idle callback. That keeps cold-cache install work off the initial interactive path while preserving offline support for real users.
+
 URLs tested on every PR:
 - `/index.html` — Bridge tab
 - `/index2.html` — Exchange tab

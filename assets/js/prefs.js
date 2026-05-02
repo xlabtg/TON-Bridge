@@ -1,9 +1,9 @@
 // User preference keys stored in CloudStorage (with localStorage fallback).
-// Keys: pref:lastPair, pref:lang, pref:theme, pref:lastFromAmount
+// Keys: pref:lastPair, pref:lang, pref:theme, pref:lastFromAmount, pref:notificationsOptOut
 
 (function () {
     var MIGRATION_FLAG = 'pref:migrated';
-    var PREF_KEYS = ['pref:lastPair', 'pref:lang', 'pref:theme', 'pref:lastFromAmount'];
+    var PREF_KEYS = ['pref:lastPair', 'pref:lang', 'pref:theme', 'pref:lastFromAmount', 'pref:notificationsOptOut'];
 
     function cs() {
         return window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage;

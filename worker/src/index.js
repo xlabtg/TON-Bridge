@@ -14,6 +14,11 @@
 
 const MAX_AUTH_DATE_AGE_S = 24 * 60 * 60; // 24 h
 const TOKEN_TTL_S = 60 * 60;              // 1 h
+const MAX_LAST_SEEN_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+const NOTIFICATION_BATCH_SIZE = 10;
+
+export const POLLING_STATES = new Set(['confirming', 'exchanging', 'sending']);
+export const TERMINAL_STATES = new Set(['finished', 'failed', 'refunded']);
 
 const ALLOWED_ORIGINS = [
   'https://tonbankcard.com',
@@ -21,6 +26,21 @@ const ALLOWED_ORIGINS = [
   'http://localhost:8080',
   'http://127.0.0.1',
 ];
+
+const MESSAGES = {
+  finished: {
+    en: '✅ Your TON has arrived. View order →',
+    ru: '✅ TON получены. Открыть заказ →',
+  },
+  failed: {
+    en: '⚠️ Exchange refunded — tap to see details',
+    ru: '⚠️ Обмен отменён — нажмите, чтобы увидеть детали',
+  },
+  refunded: {
+    en: '⚠️ Exchange refunded — tap to see details',
+    ru: '⚠️ Обмен отменён — нажмите, чтобы увидеть детали',
+  },
+};
 
 // ──────────────────────────────────────────────────────────────────────────────
 // HMAC helpers (Web Crypto API, available in the Workers runtime)
@@ -126,6 +146,113 @@ async function signJWT(payload, secret) {
   return `${unsigned}.${b64url(sig)}`;
 }
 
+export function getNotificationText(state, lang = 'en') {
+  const bucket = MESSAGES[state];
+  if (!bucket) return null;
+  return lang === 'ru' ? bucket.ru : bucket.en;
+}
+
+export function buildDeepLink(orderId) {
+  return `https://t.me/TONBridge_robot/app?startapp=order_${orderId}`;
+}
+
+export function shouldNotify(previousState, currentState, alreadyNotified) {
+  if (alreadyNotified) return false;
+  if (!TERMINAL_STATES.has(currentState)) return false;
+  if (previousState && TERMINAL_STATES.has(previousState)) return false;
+  return true;
+}
+
+export async function sendTelegramMessage(botToken, chatId, text, url) {
+  const payload = {
+    chat_id: chatId,
+    text,
+    reply_markup: {
+      inline_keyboard: [[{ text: '→ Open', url }]],
+    },
+  };
+
+  const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Telegram API error ${res.status}: ${body}`);
+  }
+
+  return res.json();
+}
+
+export async function fetchOrderStatus(apiKey, orderId) {
+  const res = await fetch(`https://api.changenow.io/v1/transactions/${orderId}/${apiKey}`);
+  if (!res.ok) {
+    throw new Error(`ChangeNOW API error ${res.status} for order ${orderId}`);
+  }
+  const data = await res.json();
+  return data.status;
+}
+
+async function processOrder(kvKey, kv, botToken, apiKey) {
+  const raw = await kv.get(kvKey, 'json');
+  if (!raw) return { kvKey, action: 'missing' };
+  if (raw.notificationsOptOut) return { kvKey, action: 'opted-out' };
+
+  const lastSeen = raw.lastSeen ? new Date(raw.lastSeen) : null;
+  if (!lastSeen || lastSeen.getTime() < Date.now() - MAX_LAST_SEEN_AGE_MS) {
+    return { kvKey, action: 'stale-user' };
+  }
+
+  const { orderId, telegramUserId, lang, lastState, notified } = raw;
+  let currentState;
+  try {
+    currentState = await fetchOrderStatus(apiKey, orderId);
+  } catch (err) {
+    return { kvKey, action: 'fetch-error', error: err.message };
+  }
+
+  if (shouldNotify(lastState, currentState, notified)) {
+    const text = getNotificationText(currentState, lang);
+    try {
+      await sendTelegramMessage(botToken, telegramUserId, text, buildDeepLink(orderId));
+    } catch (err) {
+      await kv.put(kvKey, JSON.stringify({ ...raw, lastState: currentState }));
+      return { kvKey, action: 'notify-error', error: err.message };
+    }
+
+    await kv.put(kvKey, JSON.stringify({ ...raw, lastState: currentState, notified: true }));
+    return { kvKey, action: 'notified', state: currentState };
+  }
+
+  if (currentState !== lastState) {
+    await kv.put(kvKey, JSON.stringify({ ...raw, lastState: currentState }));
+  }
+
+  if (TERMINAL_STATES.has(currentState) && notified) {
+    await kv.delete(kvKey);
+    return { kvKey, action: 'cleaned-up' };
+  }
+
+  return { kvKey, action: 'polled', state: currentState };
+}
+
+export async function runNotificationCron(kv, botToken, apiKey) {
+  const { keys } = await kv.list({ prefix: 'order:' });
+  const results = [];
+
+  for (let i = 0; i < keys.length; i += NOTIFICATION_BATCH_SIZE) {
+    const batch = keys.slice(i, i + NOTIFICATION_BATCH_SIZE);
+    const batchResults = await Promise.all(
+      batch.map(({ name }) => processOrder(name, kv, botToken, apiKey)),
+    );
+    results.push(...batchResults);
+  }
+
+  return results;
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // CORS helpers
 // ──────────────────────────────────────────────────────────────────────────────
@@ -183,7 +310,7 @@ export default {
         return new Response(null, { status: 400, headers: cors });
       }
 
-      const { initData } = body || {};
+      const { initData, orderId, notificationsOptOut } = body || {};
       if (!initData || typeof initData !== 'string') {
         return new Response(null, { status: 400, headers: cors });
       }
@@ -209,6 +336,18 @@ export default {
 
       const token = await signJWT(payload, env.JWT_SECRET);
 
+      if (orderId && env.BRIDGE_KV) {
+        await env.BRIDGE_KV.put(`order:${orderId}`, JSON.stringify({
+          orderId,
+          telegramUserId: String(id || ''),
+          lang: language_code === 'ru' ? 'ru' : 'en',
+          notificationsOptOut: Boolean(notificationsOptOut),
+          lastSeen: new Date().toISOString(),
+          lastState: null,
+          notified: false,
+        }));
+      }
+
       const responseBody = JSON.stringify({
         token,
         expiresAt,
@@ -225,5 +364,10 @@ export default {
     }
 
     return new Response(null, { status: 404, headers: cors });
+  },
+
+  async scheduled(_event, env, ctx) {
+    if (!env.BRIDGE_KV || !env.BOT_TOKEN || !env.CHANGENOW_API_KEY) return;
+    ctx.waitUntil(runNotificationCron(env.BRIDGE_KV, env.BOT_TOKEN, env.CHANGENOW_API_KEY));
   },
 };

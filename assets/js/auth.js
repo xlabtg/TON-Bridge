@@ -25,6 +25,28 @@
   var _user = null;
   var _pending = null; // single in-flight promise
 
+  function getNotificationsOptOut() {
+    if (window.prefs && window.prefs.get) {
+      return window.prefs.get('pref:notificationsOptOut').then(function (value) {
+        return value === '1';
+      }).catch(function () {
+        return localStorage.getItem('pref:notificationsOptOut') === '1';
+      });
+    }
+
+    return Promise.resolve(localStorage.getItem('pref:notificationsOptOut') === '1');
+  }
+
+  function getOrderId() {
+    var params = new URLSearchParams(window.location.search || '');
+    var queryOrder = params.get('order_id') || params.get('orderId');
+    if (queryOrder) return queryOrder;
+
+    var hash = window.location.hash || '';
+    var match = hash.match(/order_([^&/?#]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
   function verify() {
     if (_pending) return _pending;
 
@@ -37,11 +59,18 @@
       return _pending;
     }
 
-    _pending = fetch(WORKER_URL + '/auth/verify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ initData: initData }),
-    })
+    _pending = getNotificationsOptOut()
+      .then(function (notificationsOptOut) {
+        return fetch(WORKER_URL + '/auth/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            initData: initData,
+            orderId: getOrderId(),
+            notificationsOptOut: notificationsOptOut,
+          }),
+        });
+      })
       .then(function (res) {
         if (!res.ok) return null;
         return res.json();

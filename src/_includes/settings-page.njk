@@ -73,6 +73,23 @@
         </li>
     </ul>
 
+    <div class="listview-title mt-1" data-i18n="settings_notifications_section">{{ locales.en.settings_notifications_section }}</div>
+    <ul class="listview image-listview text inset no-line">
+        <li>
+            <div class="item">
+                <div class="in">
+                    <div data-i18n="settings_notifications_label">
+                        {{ locales.en.settings_notifications_label }}
+                    </div>
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input" type="checkbox" id="notificationsSwitch" checked>
+                        <label class="form-check-label" for="notificationsSwitch"></label>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
     <div class="listview-title mt-1" data-i18n="settings_security_section">{{ locales.en.settings_security_section }}</div>
     <ul class="listview image-listview text inset no-line" id="biometric-section">
         <li>
@@ -107,6 +124,32 @@
 </div>
 <script src="assets/js/biometric-manager.js"></script>
 <script>
+    (function () {
+        var STORAGE_KEY = 'pref:notificationsOptOut';
+        var toggle = document.getElementById('notificationsSwitch');
+
+        if (!toggle) return;
+
+        function getPref(key) {
+            if (window.prefs && window.prefs.get) return window.prefs.get(key);
+            return Promise.resolve(localStorage.getItem(key));
+        }
+
+        function setPref(key, value) {
+            if (window.prefs && window.prefs.set) return window.prefs.set(key, value);
+            localStorage.setItem(key, value);
+            return Promise.resolve();
+        }
+
+        getPref(STORAGE_KEY).then(function (value) {
+            toggle.checked = value !== '1';
+        });
+
+        toggle.addEventListener('change', function () {
+            setPref(STORAGE_KEY, this.checked ? '0' : '1');
+        });
+    })();
+
     (function () {
         var sw = document.getElementById('biometricSwitch');
         var thresholdRow = document.getElementById('biometric-threshold-row');
@@ -238,6 +281,9 @@
             haptic.selection();
         });
         document.getElementById('languageSwitch').addEventListener('change', function () {
+            haptic.selection();
+        });
+        document.getElementById('notificationsSwitch').addEventListener('change', function () {
             haptic.selection();
         });
     </script>

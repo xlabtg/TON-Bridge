@@ -89,6 +89,15 @@
     const list = section.querySelector('.splide__list');
     if (!list) return;
 
+    const existingSlides = Array.from(list.querySelectorAll('.splide__slide[data-asset]'));
+    if (existingSlides.length === ASSETS.length) {
+      ASSETS.forEach(asset => {
+        const slide = existingSlides.find(item => item.dataset.asset === asset.id);
+        if (slide) bindCardTap(slide.querySelector('.rate-card'), asset);
+      });
+      return;
+    }
+
     list.innerHTML = '';
     ASSETS.forEach(asset => {
       const li = document.createElement('li');

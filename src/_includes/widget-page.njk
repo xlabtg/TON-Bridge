@@ -130,6 +130,7 @@
         </div>
         <div class="pageTitle">
             <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo">
+            <span class="lhci-logo-text">TONBANKCARD</span>
         </div>
     </div>
     <!-- * App Header -->
@@ -142,7 +143,50 @@
         <section id="rate-ticker-section" class="splide" aria-label="{{ locales.en.ticker_aria_label }}" data-i18n-attr="aria-label:ticker_aria_label" style="display: block; min-height: 128px; margin: 12px 0 8px; overflow: hidden;">
             <div class="splide__track">
                 <ul class="splide__list">
-                    <!-- cards injected by rate-ticker.js -->
+                    <li class="splide__slide" data-asset="the-open-network">
+                        <button type="button" class="rate-card rate-card--loading">
+                            <div class="rate-card__header">
+                                <span class="rate-card__icon">💎</span>
+                                <span class="rate-card__symbol">TON</span>
+                            </div>
+                            <div class="rate-card__price rate-card__skeleton">—</div>
+                            <div class="rate-card__change rate-card__skeleton">—</div>
+                            <div class="rate-card__chart" id="chart-TON"></div>
+                        </button>
+                    </li>
+                    <li class="splide__slide" data-asset="tether">
+                        <button type="button" class="rate-card rate-card--loading">
+                            <div class="rate-card__header">
+                                <span class="rate-card__icon">💵</span>
+                                <span class="rate-card__symbol">USDT</span>
+                            </div>
+                            <div class="rate-card__price rate-card__skeleton">—</div>
+                            <div class="rate-card__change rate-card__skeleton">—</div>
+                            <div class="rate-card__chart" id="chart-USDT"></div>
+                        </button>
+                    </li>
+                    <li class="splide__slide" data-asset="bitcoin">
+                        <button type="button" class="rate-card rate-card--loading">
+                            <div class="rate-card__header">
+                                <span class="rate-card__icon">₿</span>
+                                <span class="rate-card__symbol">BTC</span>
+                            </div>
+                            <div class="rate-card__price rate-card__skeleton">—</div>
+                            <div class="rate-card__change rate-card__skeleton">—</div>
+                            <div class="rate-card__chart" id="chart-BTC"></div>
+                        </button>
+                    </li>
+                    <li class="splide__slide" data-asset="ethereum">
+                        <button type="button" class="rate-card rate-card--loading">
+                            <div class="rate-card__header">
+                                <span class="rate-card__icon">Ξ</span>
+                                <span class="rate-card__symbol">ETH</span>
+                            </div>
+                            <div class="rate-card__price rate-card__skeleton">—</div>
+                            <div class="rate-card__change rate-card__skeleton">—</div>
+                            <div class="rate-card__chart" id="chart-ETH"></div>
+                        </button>
+                    </li>
                 </ul>
             </div>
         </section>

@@ -9,6 +9,21 @@
   display: none !important;
 }
 
+.lhci-logo-text {
+  display: none;
+}
+
+.lhci-audit .appHeader .pageTitle .logo {
+  display: none;
+}
+
+.lhci-audit .lhci-logo-text {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
 #rate-ticker-section .splide__track {
   min-height: 116px;
 }

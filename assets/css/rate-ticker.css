@@ -1,17 +1,22 @@
-/* ── Rate Ticker — Task 3.1 ─────────────────────────────────────────────── */
+/* Rate Ticker - Task 3.1 */
 #rate-ticker-section {
   margin: 12px 0 8px;
 }
 
 .rate-card {
   background: #fff;
-  border-radius: 12px;
+  border: 0;
+  border-radius: 10px;
   padding: 12px 14px 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .08);
   cursor: pointer;
+  display: block;
+  font: inherit;
   position: relative;
+  text-align: left;
   transition: box-shadow .15s;
   user-select: none;
+  width: 100%;
 }
 
 .rate-card:active {
@@ -57,7 +62,6 @@
   overflow: hidden;
 }
 
-/* Skeleton shimmer */
 .rate-card__skeleton {
   background: linear-gradient(90deg, #e8e8f0 25%, #d4d4e0 50%, #e8e8f0 75%);
   background-size: 200% 100%;
@@ -72,19 +76,19 @@
   100% { background-position: -200% 0; }
 }
 
-/* Stale indicator */
-.rate-card--stale .rate-card__symbol::after {
-  content: ' ·';
-  color: #ff9800;
-  font-size: 16px;
-  line-height: 1;
-  vertical-align: middle;
+.rate-card__stale {
+  background: #ff9800;
+  border-radius: 999px;
+  height: 6px;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 6px;
 }
 
-/* Dark mode */
 .dark-mode .rate-card {
   background: #1e1e2e;
-  box-shadow: 0 1px 4px rgba(0,0,0,.3);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
 }
 
 .dark-mode .rate-card__symbol,

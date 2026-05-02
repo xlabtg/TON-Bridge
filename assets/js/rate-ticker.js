@@ -1,5 +1,5 @@
 /**
- * Rate Ticker — Task 3.1
+ * Rate Ticker - Task 3.1
  * Shows live spot prices for TON, USDT, BTC, ETH with 24h sparklines.
  * Data source: CoinGecko public API (no key required at low volume).
  * Cache: sessionStorage (60 s TTL) so tab switches don't re-fetch.
@@ -22,9 +22,9 @@
   let splideInstance = null;
   let chartInstances = {};
   let refreshTimer = null;
-  let lastData = null; // keeps stale data on error
+  let lastData = null;
 
-  // ── sessionStorage cache ────────────────────────────────────────────────────
+  // sessionStorage cache
 
   function cacheKey(name) { return 'rateTicker_' + name; }
 
@@ -44,7 +44,7 @@
     } catch (_) {}
   }
 
-  // ── CoinGecko fetch helpers ─────────────────────────────────────────────────
+  // CoinGecko fetch helpers
 
   async function fetchPrices() {
     const cached = cacheGet('prices');
@@ -79,7 +79,7 @@
     return points;
   }
 
-  // ── DOM skeleton ────────────────────────────────────────────────────────────
+  // DOM skeleton
 
   function buildSkeleton() {
     const section = document.getElementById('rate-ticker-section');
@@ -94,7 +94,7 @@
       li.className = 'splide__slide';
       li.dataset.asset = asset.id;
       li.innerHTML = `
-        <div class="rate-card rate-card--loading">
+        <button type="button" class="rate-card rate-card--loading" aria-label="${asset.label}">
           <div class="rate-card__header">
             <span class="rate-card__icon">${asset.icon}</span>
             <span class="rate-card__symbol">${asset.label}</span>
@@ -102,13 +102,22 @@
           <div class="rate-card__price rate-card__skeleton">—</div>
           <div class="rate-card__change rate-card__skeleton">—</div>
           <div class="rate-card__chart" id="chart-${asset.symbol}"></div>
-        </div>`;
-      li.addEventListener('click', () => prefillBridge(asset));
+        </button>`;
       list.appendChild(li);
     });
+
+    if (!section.dataset.rateTickerWired) {
+      section.dataset.rateTickerWired = 'true';
+      section.addEventListener('click', event => {
+        const slide = event.target.closest('.splide__slide[data-asset]');
+        if (!slide) return;
+        const asset = ASSETS.find(item => item.id === slide.dataset.asset);
+        if (asset) prefillBridge(asset);
+      });
+    }
   }
 
-  // ── Splide init ─────────────────────────────────────────────────────────────
+  // Splide init
 
   function initCarousel() {
     const el = document.getElementById('rate-ticker-section');
@@ -116,7 +125,7 @@
     if (splideInstance) { splideInstance.destroy(); splideInstance = null; }
 
     splideInstance = new Splide(el, {
-      type: 'loop',
+      type: 'slide',
       perPage: 2,
       gap: 12,
       padding: 16,
@@ -130,7 +139,7 @@
     splideInstance.mount();
   }
 
-  // ── ApexCharts sparkline ────────────────────────────────────────────────────
+  // ApexCharts sparkline
 
   function renderSparkline(symbol, points, positive) {
     const el = document.getElementById('chart-' + symbol);
@@ -139,6 +148,7 @@
     const color = positive ? '#1DCC70' : '#FF396F';
 
     if (chartInstances[symbol]) {
+      chartInstances[symbol].updateOptions({ colors: [color] });
       chartInstances[symbol].updateSeries([{ data: points }]);
       return;
     }
@@ -163,11 +173,10 @@
     chartInstances[symbol].render();
   }
 
-  // ── Card update ─────────────────────────────────────────────────────────────
+  // Card update
 
   function updateCard(asset, priceInfo, sparkPoints, stale) {
-    // Avoid Splide clone slides (aria-hidden="true") by targeting the real slide only
-    const slide = document.querySelector('.splide__slide:not(.splide__slide--clone)[data-asset="' + asset.id + '"]');
+    const slide = document.querySelector('.splide__slide[data-asset="' + asset.id + '"]');
     if (!slide) return;
 
     const card = slide.querySelector('.rate-card');
@@ -210,14 +219,17 @@
   }
 
   function formatPrice(price) {
-    if (price >= 1000) return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    if (price >= 1) return price.toFixed(2);
-    return price.toPrecision(4);
+    return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  // ── Bridge pre-fill ─────────────────────────────────────────────────────────
+  // Bridge pre-fill
 
   function prefillBridge(asset) {
+    if (typeof window.setExchangeWidgetFrom === 'function') {
+      window.setExchangeWidgetFrom(asset.bridgeFrom);
+      return;
+    }
+
     const iframe = document.getElementById('iframe-widget');
     if (!iframe) return;
     try {
@@ -227,36 +239,54 @@
     } catch (_) {}
   }
 
-  // ── Data refresh ────────────────────────────────────────────────────────────
+  // Data refresh
 
   async function refresh() {
     let stale = false;
     let prices;
+    const sparklines = {};
 
     try {
       prices = await fetchPrices();
-      lastData = { prices };
     } catch (_) {
       stale = true;
       if (lastData) {
         prices = lastData.prices;
       } else {
-        return; // no data at all yet — stay on skeleton
+        return; // no data at all yet; stay on skeleton
       }
     }
 
+    const updates = [];
     for (const asset of ASSETS) {
       let sparkPoints = null;
       try {
         sparkPoints = await fetchSparkline(asset.id);
+        sparklines[asset.id] = sparkPoints;
       } catch (_) {
-        // chart stays blank on error
+        stale = true;
+        if (lastData && lastData.sparklines) {
+          sparkPoints = lastData.sparklines[asset.id] || null;
+        }
       }
-      updateCard(asset, prices[asset.id], sparkPoints, stale);
+      updates.push({ asset, priceInfo: prices[asset.id], sparkPoints });
+    }
+
+    updates.forEach(update => {
+      updateCard(update.asset, update.priceInfo, update.sparkPoints, stale);
+    });
+
+    if (!stale || !lastData) {
+      lastData = { prices, sparklines };
+    } else {
+      lastData = {
+        prices,
+        sparklines: Object.assign({}, lastData.sparklines || {}, sparklines),
+      };
     }
   }
 
-  // ── Visibility-aware scheduler ──────────────────────────────────────────────
+  // Visibility-aware scheduler
 
   function startRefreshLoop() {
     stopRefreshLoop();
@@ -270,7 +300,7 @@
     if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
   }
 
-  // ── Bootstrap ───────────────────────────────────────────────────────────────
+  // Bootstrap
 
   document.addEventListener('DOMContentLoaded', function () {
     buildSkeleton();

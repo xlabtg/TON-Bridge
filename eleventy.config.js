@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'fs';
+import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -18,8 +18,14 @@ function loadLocales() {
 
 const locales = loadLocales();
 
+const criticalCssPath = join(__dirname, 'assets/css/critical.css');
+const criticalCss = existsSync(criticalCssPath)
+  ? readFileSync(criticalCssPath, 'utf8').replace(/\/\*#\s*sourceMappingURL=[^\*]*\*\//g, '').trim()
+  : '';
+
 export default function(eleventyConfig) {
   eleventyConfig.addGlobalData('locales', locales);
+  eleventyConfig.addGlobalData('criticalCss', criticalCss);
 
   // Shortcode that embeds all locale data inline so the runtime loader
   // doesn't need a fetch() (works with file:// and avoids CORS issues).

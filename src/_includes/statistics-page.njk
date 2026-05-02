@@ -129,7 +129,7 @@
 
     <!-- loader -->
     <div id="loader">
-        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+        <img src="assets/img/loading-icon.webp" alt="icon" class="loading-icon">
     </div>
 
     <!-- App Header -->
@@ -217,6 +217,12 @@
                 <strong>{{ t.nav_otc }}</strong>
             </div>
         </a>
+        <a href="orders{{ t.suffix }}.html" class="item">
+            <div class="col">
+                <ion-icon name="receipt-outline"></ion-icon>
+                <strong>{{ t.nav_orders }}</strong>
+            </div>
+        </a>
         <a href="index4{{ t.suffix }}.html" class="item active">
             <div class="col">
                 <ion-icon name="stats-chart"></ion-icon>
@@ -282,7 +288,8 @@
     <!-- Bootstrap -->
     <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
     <!-- Ionicons -->
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <!-- Ionicons (self-hosted sprite) -->
+    <script src="assets/js/ion-icon.js" defer></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
 

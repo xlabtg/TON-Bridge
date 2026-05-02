@@ -14,7 +14,6 @@ var NETWORK_ONLY_ORIGINS = [
   'changenow.io',
   'tganalytics.xyz',
   'mc.yandex.ru',
-  'unpkg.com',
   'telegram.org',
 ];
 

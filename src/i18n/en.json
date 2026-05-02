@@ -72,6 +72,12 @@
   "settings_lang_label": "Language (EN/RU)",
   "settings_lang_checked_goto": "app-settings-ru.html",
   "settings_lang_unchecked_goto": "app-settings.html",
+  "settings_security_section": "Security",
+  "settings_biometric_label": "Require biometrics for trades above threshold",
+  "settings_biometric_unavailable_hint": "Biometric authentication is not available on this device",
+  "settings_biometric_threshold_label": "Threshold (USD)",
+  "biometric_reason": "Confirm exchange",
+  "biometric_failure_toast": "Biometric authentication failed. Trade cancelled.",
 
   "intro_bridge_heading": "TON Bridge",
   "intro_bridge_p1": "Discover TON Bridge by TONBANKCARD – a reliable bridge between the TON and BSC blockchains.\n                        Learn how to quickly and securely carry out cryptocurrency transactions between these two\n                        popular blockchain platforms using TON Bridge.",

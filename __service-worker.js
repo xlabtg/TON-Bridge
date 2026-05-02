@@ -4,57 +4,10 @@ var SW_VERSION = self.__SW_VERSION || 'dev';
 
 var PRECACHE_NAME = 'precache-' + SW_VERSION;
 var RUNTIME_NAME = 'runtime-' + SW_VERSION;
+var ASSET_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 
-// All first-party assets to cache on install.
-// This list is kept in sync manually; a build script may replace it.
-var PRECACHE_URLS = [
-  // HTML pages
-  'index.html',
-  'index-ru.html',
-  'index2.html',
-  'index2-ru.html',
-  'index3.html',
-  'index3-ru.html',
-  'index4.html',
-  '0.html',
-  '0-ru.html',
-  '1.html',
-  '1-ru.html',
-  '2.html',
-  '2-ru.html',
-  'app-settings.html',
-  'app-settings-ru.html',
-  // Manifest
-  '__manifest.json',
-  // CSS
-  'assets/css/style.css',
-  'assets/css/keyboard-styles.css',
-  'assets/css/src/bootstrap/bootstrap.min.css',
-  'assets/css/src/splide/splide.min.css',
-  // JS
-  'assets/js/base.js',
-  'assets/js/back-button.js',
-  'assets/js/keyboard-handler.js',
-  'assets/js/offline.js',
-  'assets/js/lib/bootstrap.bundle.min.js',
-  'assets/js/plugins/apexcharts/apexcharts.min.js',
-  'assets/js/plugins/splide/splide.min.js',
-  // Icons
-  'assets/img/icon/72x72.png',
-  'assets/img/icon/96x96.png',
-  'assets/img/icon/128x128.png',
-  'assets/img/icon/144x144.png',
-  'assets/img/icon/152x152.png',
-  'assets/img/icon/192x192.png',
-  'assets/img/icon/384x384.png',
-  'assets/img/icon/512x512.png',
-  // Images
-  'assets/img/favicon.png',
-  'assets/img/ton-logo.png',
-  'assets/img/loading-icon.png',
-  'assets/img/gfx-a-1.png',
-  'assets/img/OTC.png',
-];
+// Injected at build time from dist/ so the install step never references stale files.
+var PRECACHE_URLS = self.__PRECACHE_URLS || [];
 
 // Third-party origins to never cache.
 var NETWORK_ONLY_ORIGINS = [
@@ -67,7 +20,7 @@ var NETWORK_ONLY_ORIGINS = [
 
 function isNetworkOnly(url) {
   return NETWORK_ONLY_ORIGINS.some(function (origin) {
-    return url.hostname.endsWith(origin);
+    return url.hostname === origin || url.hostname.endsWith('.' + origin);
   });
 }
 
@@ -182,15 +135,37 @@ function staleWhileRevalidate(request) {
 // Cache-first: return from cache; only go to network if not cached.
 function cacheFirst(request) {
   return caches.match(request).then(function (cached) {
-    if (cached) return cached;
+    if (cached && isFresh(cached)) return cached;
     return fetch(request).then(function (networkResponse) {
       if (networkResponse && networkResponse.status === 200) {
-        var responseToCache = networkResponse.clone();
-        caches.open(RUNTIME_NAME).then(function (cache) {
-          cache.put(request, responseToCache);
-        });
+        cacheResponse(request, networkResponse.clone());
       }
       return networkResponse;
+    }).catch(function () {
+      if (cached) return cached;
+      throw new Error('Network request failed and no cached response is available.');
+    });
+  });
+}
+
+function isFresh(response) {
+  var cachedAt = Number(response.headers.get('sw-cache-time'));
+  return !cachedAt || Date.now() - cachedAt < ASSET_MAX_AGE_MS;
+}
+
+function cacheResponse(request, response) {
+  return response.blob().then(function (body) {
+    var headers = new Headers(response.headers);
+    headers.set('sw-cache-time', Date.now().toString());
+
+    var timestampedResponse = new Response(body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: headers,
+    });
+
+    return caches.open(RUNTIME_NAME).then(function (cache) {
+      return cache.put(request, timestampedResponse);
     });
   });
 }

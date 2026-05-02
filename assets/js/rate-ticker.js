@@ -18,6 +18,7 @@
   const CACHE_TTL = 60 * 1000; // 60 s
   const REFRESH_INTERVAL = 60 * 1000;
   const COINGECKO_BASE = 'https://api.coingecko.com/api/v3';
+  const TAP_MOVE_LIMIT = 8;
 
   let splideInstance = null;
   let chartInstances = {};
@@ -103,18 +104,42 @@
           <div class="rate-card__change rate-card__skeleton">—</div>
           <div class="rate-card__chart" id="chart-${asset.symbol}"></div>
         </button>`;
+      bindCardTap(li.querySelector('.rate-card'), asset);
       list.appendChild(li);
     });
+  }
 
-    if (!section.dataset.rateTickerWired) {
-      section.dataset.rateTickerWired = 'true';
-      section.addEventListener('click', event => {
-        const slide = event.target.closest('.splide__slide[data-asset]');
-        if (!slide) return;
-        const asset = ASSETS.find(item => item.id === slide.dataset.asset);
-        if (asset) prefillBridge(asset);
-      });
-    }
+  function bindCardTap(card, asset) {
+    if (!card) return;
+
+    let pointerStart = null;
+
+    card.addEventListener('pointerdown', event => {
+      if (event.button && event.button !== 0) return;
+      pointerStart = { x: event.clientX, y: event.clientY, id: event.pointerId };
+    });
+
+    card.addEventListener('pointerup', event => {
+      if (!pointerStart || pointerStart.id !== event.pointerId) return;
+
+      const movedX = Math.abs(event.clientX - pointerStart.x);
+      const movedY = Math.abs(event.clientY - pointerStart.y);
+      pointerStart = null;
+
+      if (movedX <= TAP_MOVE_LIMIT && movedY <= TAP_MOVE_LIMIT) {
+        prefillBridge(asset);
+      }
+    });
+
+    card.addEventListener('pointercancel', () => {
+      pointerStart = null;
+    });
+
+    card.addEventListener('click', event => {
+      if (!window.PointerEvent || event.detail === 0) {
+        prefillBridge(asset);
+      }
+    });
   }
 
   // Splide init

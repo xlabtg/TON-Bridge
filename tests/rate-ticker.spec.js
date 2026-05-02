@@ -200,7 +200,10 @@ test.describe('Rate Ticker - Task 3.1', () => {
     await page.locator('#open-exchange-btn').click();
     await expect.poll(() => iframeParam(page, 'from')).toBe('ton');
 
-    await page.locator('.splide__slide:not(.splide__slide--clone)[data-asset="tether"] .rate-card').click();
+    const usdtCard = page.locator('.splide__slide:not(.splide__slide--clone)[data-asset="tether"] .rate-card');
+    await usdtCard.scrollIntoViewIfNeeded();
+    await expect(usdtCard).toBeVisible();
+    await usdtCard.click();
     await expect.poll(() => iframeParam(page, 'from')).toBe('usdton');
   });
 

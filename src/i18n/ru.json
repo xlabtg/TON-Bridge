@@ -1,6 +1,5 @@
 {
   "lang_attr": "ru",
-
   "title_bridge": "TON Bridge RU",
   "title_exchange": "TON Bridge RU",
   "title_otc": "TON Bridge - OTC",
@@ -8,14 +7,12 @@
   "title_intro_bridge_steps": "TON Bridge - Welcome 2",
   "title_intro_exchange_steps": "TON Bridge - Welcome 2",
   "title_settings": "TON Bridge",
-
   "nav_bridge": "Мост",
   "nav_exchange": "Обмен",
   "nav_otc": "OTC",
   "nav_orders": "Заказы",
   "nav_statistics": "Статистика",
   "nav_settings": "Настройки",
-
   "menu_title": "Меню",
   "menu_settings": "Настройки",
   "menu_support": "Поддержка",
@@ -24,15 +21,12 @@
   "community_chat": "Чат в Telegram",
   "community_group_link": "https://t.me/tonbankcard_ru",
   "community_chat_link": "https://t.me/tonbankcard_chat_ru",
-
   "cookies_title": "Мы используем файлы cookie",
   "cookies_body": "Закон, который должен соблюдать каждый, - это закон, который объединяет элиту. Ничего не значит для лацинии. Ничего не значит для облегчения.",
   "cookies_learn_more": "Учить больше",
   "cookies_accept": "Я понимаю",
-
   "widget_lang": "ru-RU",
   "otc_widget_lang": "ru-RU",
-
   "bridge_heading": "Безопасность и конфиденциальность",
   "bridge_intro_line1": "TONBANKCARD сохраняет вашу  конфиденциальность и гарантирует безопасность.",
   "bridge_intro_line2": "Мы не являемся службой кастодиального обмена:",
@@ -40,7 +34,6 @@
   "bridge_point2": "- Мы не контролируем ваши средства",
   "bridge_point3": "- Мы не заставляем вас регистрироваться",
   "bridge_instruction_btn": "Инструкция",
-
   "exchange_heading": "Безопасность и конфиденциальность",
   "exchange_intro_line1": "TONBANKCARD сохраняет вашу  конфиденциальность и гарантирует безопасность.",
   "exchange_intro_line2": "Мы не являемся службой кастодиального обмена:",
@@ -48,21 +41,16 @@
   "exchange_point2": "- Мы не контролируем ваши средства",
   "exchange_point3": "- Мы не заставляем вас регистрироваться",
   "exchange_instruction_btn": "Инструкция",
-
   "ticker_aria_label": "Тикер курсов активов",
-
   "main_button_bridge": "Продолжить",
   "main_button_exchange": "Подтвердить обмен",
   "main_button_otc": "Подтвердить обмен",
-
   "open_exchange_btn": "Открыть обмен",
-
   "otc_heading": "PrimeFlow OTC",
   "otc_buy_text": "Купите TON от 1 миллиона долларов без потерь:",
   "otc_point1": "- Фиксированная ставка",
   "otc_point2": "- Нулевое проскальзывание",
   "otc_point3": "- Агрегация CEX + DEX",
-
   "title_orders": "TON Bridge - Заказы",
   "orders_page_title": "Заказы",
   "orders_loading": "Загрузка…",
@@ -77,7 +65,6 @@
   "status_finished": "Завершён",
   "status_failed": "Ошибка",
   "status_refunded": "Возврат",
-
   "settings_title_label": "Настройки",
   "settings_theme_section": "Тема",
   "settings_dark_mode_label": "Темный режим",
@@ -89,15 +76,12 @@
   "settings_biometric_threshold_label": "Порог (USD)",
   "biometric_reason": "Подтвердить обмен",
   "biometric_failure_toast": "Биометрическая аутентификация не пройдена. Сделка отменена.",
-
   "settings_notifications_section": "Уведомления",
   "settings_notifications_label": "Уведомления о статусе обмена",
-
   "intro_bridge_heading": "TON Bridge",
   "intro_bridge_p1": "Откройте для себя TON Bridge от TONBANKCARD – надежный мост между блокчейнами TON и BSC.\n                        Узнайте, как быстро и безопасно проводить криптовалютные транзакции между двумя популярными\n                        блокчейн-платформами с помощью TON Bridge.",
   "intro_bridge_p2_bold": "Кроме того, TON Bridge поддерживает обмен криптовалют  в 200 блокчейнах, включая TON, TRX, ETH, Arbitrum, Solana, NEAR, EOS, ALGO, KCS, Polygon, Polkadot, OP, KAVAFVM, OMNI, XTL, AVAX C и BSC. Теперь пользователи могут проводить обмены более 1200+ криптовалют между этими популярными сетями с максимальной удобностью.",
   "intro_bridge_btn": "Начать обмен",
-
   "intro_bridge_steps_title": "Инструкция по использованию",
   "intro_bridge_steps_subtitle": "Обменяйте TON между разными блокчейнами всего за 3 простых шага!",
   "intro_bridge_steps_heading": "Простые 3 шага",
@@ -109,7 +93,6 @@
   "intro_bridge_steps_s3_title": "Шаг 3 - Получите TON (1000+ криптовалют)",
   "intro_bridge_steps_s3_desc": "Ваши средства будут обработаны, и вы получите TON (1000+ криптовалют) на другой блокчейн из 200.",
   "intro_bridge_steps_btn": "Приступить к обмену",
-
   "intro_exchange_steps_title": "Инструкция по использованию",
   "intro_exchange_steps_subtitle": "Обменяйте криптовалюту между разными блокчейнами всего за 3 простых шага!",
   "intro_exchange_steps_heading": "Простые 3 шага",
@@ -120,5 +103,22 @@
   "intro_exchange_steps_s2_desc": "Проверьте все детали обмена, узнайте приблизительное время транзакции и отправьте свои средства на адрес для единовременного пополнения.",
   "intro_exchange_steps_s3_title": "Шаг 3 - Получите криптовалюту",
   "intro_exchange_steps_s3_desc": "Нашим пользователям не нужно беспокоиться о сохранности своих персональных данных. Мы обеспечиваем полную анонимность.",
-  "intro_exchange_steps_btn": "Приступить к обмену"
+  "intro_exchange_steps_btn": "Приступить к обмену",
+  "title_statistics": "TON Bridge - Статистика",
+  "intro_exchange_steps_target": "index2-ru.html",
+  "stats_title": "Статистика",
+  "stats_total_volume": "Общий объём переводов",
+  "stats_24h": "24ч",
+  "stats_7d": "7д",
+  "stats_30d": "30д",
+  "stats_top_pairs": "Топ пар (24ч по объёму)",
+  "stats_pair": "Пара",
+  "stats_volume": "Объём",
+  "stats_avg_completion": "Среднее время завершения",
+  "stats_avg_completion_unit": "мин",
+  "stats_bridges_per_hour": "Переводов в час (последние 24ч)",
+  "stats_last_updated": "Обновлено",
+  "stats_loading": "Загрузка…",
+  "stats_error": "Не удалось загрузить данные",
+  "stats_never": "никогда"
 }

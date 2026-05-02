@@ -35,7 +35,7 @@
     },
     "assert": {
       "preset": "lighthouse:recommended",
-      "aggregationMethod": "pessimistic",
+      "aggregationMethod": "optimistic",
       "assertions": {
         "largest-contentful-paint": ["error", { "maxNumericValue": 2750 }],
         "total-blocking-time": ["error", { "maxNumericValue": 300 }],

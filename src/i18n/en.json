@@ -1,6 +1,5 @@
 {
   "lang_attr": "en",
-
   "title_bridge": "TON Bridge",
   "title_exchange": "TON Bridge",
   "title_otc": "TON Bridge - OTC",
@@ -8,14 +7,12 @@
   "title_intro_bridge_steps": "TON Bridge - Welcome 2",
   "title_intro_exchange_steps": "TON Bridge - Welcome 2",
   "title_settings": "TON Bridge",
-
   "nav_bridge": "Bridge",
   "nav_exchange": "Exchange",
   "nav_otc": "OTC",
   "nav_orders": "Orders",
   "nav_statistics": "Statistics",
   "nav_settings": "Settings",
-
   "menu_title": "Menu",
   "menu_settings": "Settings",
   "menu_support": "Support",
@@ -24,15 +21,12 @@
   "community_chat": "Telegram Chat",
   "community_group_link": "https://t.me/tonbankcard",
   "community_chat_link": "https://t.me/tonbankcard_chat",
-
   "cookies_title": "We use cookies",
   "cookies_body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla non lacinia quam. Nulla facilisi.",
   "cookies_learn_more": "Learn more",
   "cookies_accept": "I understand",
-
   "widget_lang": "en-EN",
   "otc_widget_lang": "en-US",
-
   "bridge_heading": "Security and privacy",
   "bridge_intro_line1": "TONBANKCARD preserves your privacy and  guarantees security.",
   "bridge_intro_line2": "We are not a custodial  exchange service:",
@@ -40,7 +34,6 @@
   "bridge_point2": "- We do not control your funds",
   "bridge_point3": "- We do not force you to register",
   "bridge_instruction_btn": "Instruction",
-
   "exchange_heading": "Security and privacy",
   "exchange_intro_line1": "TONBANKCARD preserves your privacy and  guarantees security.",
   "exchange_intro_line2": "We are not a custodial  exchange service:",
@@ -48,21 +41,16 @@
   "exchange_point2": "- We do not control your funds",
   "exchange_point3": "- We do not force you to register",
   "exchange_instruction_btn": "Instruction",
-
   "ticker_aria_label": "Asset price ticker",
-
   "main_button_bridge": "Continue",
   "main_button_exchange": "Confirm exchange",
   "main_button_otc": "Confirm exchange",
-
   "open_exchange_btn": "Open exchange",
-
   "otc_heading": "PrimeFlow OTC",
   "otc_buy_text": "Buy TON from $1 million Without Losses:",
   "otc_point1": "- Fixed rate",
   "otc_point2": "- Zero slippage",
   "otc_point3": "- CEX + DEX Aggregation",
-
   "title_orders": "TON Bridge - Orders",
   "orders_page_title": "Orders",
   "orders_loading": "Loading…",
@@ -77,7 +65,6 @@
   "status_finished": "Finished",
   "status_failed": "Failed",
   "status_refunded": "Refunded",
-
   "settings_title_label": "Settings",
   "settings_theme_section": "Theme",
   "settings_dark_mode_label": "Dark Mode",
@@ -89,15 +76,12 @@
   "settings_biometric_threshold_label": "Threshold (USD)",
   "biometric_reason": "Confirm exchange",
   "biometric_failure_toast": "Biometric authentication failed. Trade cancelled.",
-
   "settings_notifications_section": "Notifications",
   "settings_notifications_label": "Exchange status notifications",
-
   "intro_bridge_heading": "TON Bridge",
   "intro_bridge_p1": "Discover TON Bridge by TONBANKCARD – a reliable bridge between the TON and BSC blockchains.\n                        Learn how to quickly and securely carry out cryptocurrency transactions between these two\n                        popular blockchain platforms using TON Bridge.",
   "intro_bridge_p2_bold": "In addition, TON Bridge supports the exchange of cryptocurrencies in 200 blockchains, including TON, TRX, ETH, Arbitrum, Solana, NEAR, EOS, ALGO, KCS, Polygon, Polkadot, OP, KAVAFVM, OMNI, XTL, AVAX C and BSC. Users can now exchange over 1200+ cryptocurrencies between these popular networks with maximum convenience.",
   "intro_bridge_btn": "Start Exchange",
-
   "intro_bridge_steps_title": "Welcome",
   "intro_bridge_steps_subtitle": "Exchange TON between different blockchains in just 3 simple steps!",
   "intro_bridge_steps_heading": "3 Easy Steps",
@@ -109,7 +93,6 @@
   "intro_bridge_steps_s3_title": "Step 3 - Receive TON (1000+ cryptocurrencies)",
   "intro_bridge_steps_s3_desc": "Your funds will be processed, and you will receive TON (1000+ cryptocurrencies) on another blockchain from 200 available networks.",
   "intro_bridge_steps_btn": "Start Exchange",
-
   "intro_exchange_steps_title": "Instructions for use",
   "intro_exchange_steps_subtitle": "Exchange cryptocurrency between different blockchains in just 3 simple steps!",
   "intro_exchange_steps_heading": "3 Easy Steps",
@@ -120,5 +103,22 @@
   "intro_exchange_steps_s2_desc": "Check all the details of the exchange, find out the approximate time of the transaction and send your funds to our address for a one-time deposit.",
   "intro_exchange_steps_s3_title": "Step 3 - Get Cryptocurrency",
   "intro_exchange_steps_s3_desc": "Our users do not need to worry about the safety of their personal data. We provide complete anonymity.",
-  "intro_exchange_steps_btn": "Start Exchange"
+  "intro_exchange_steps_btn": "Start Exchange",
+  "title_statistics": "TON Bridge - Statistics",
+  "intro_exchange_steps_target": "index2.html",
+  "stats_title": "Statistics",
+  "stats_total_volume": "Total Volume Bridged",
+  "stats_24h": "24h",
+  "stats_7d": "7d",
+  "stats_30d": "30d",
+  "stats_top_pairs": "Top Pairs (24h by volume)",
+  "stats_pair": "Pair",
+  "stats_volume": "Volume",
+  "stats_avg_completion": "Average Completion Time",
+  "stats_avg_completion_unit": "min",
+  "stats_bridges_per_hour": "Bridges per Hour (last 24h)",
+  "stats_last_updated": "Last updated",
+  "stats_loading": "Loading…",
+  "stats_error": "Could not load data",
+  "stats_never": "never"
 }

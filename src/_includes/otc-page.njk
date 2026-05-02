@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport"
-        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+        content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
@@ -77,14 +77,14 @@
 </script>
     <!-- loader -->
     <div id="loader">
-        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+        <img src="assets/img/loading-icon.webp" alt="icon" class="loading-icon">
     </div>
     <!-- * loader -->
 
     <!-- App Header -->
     <div class="appHeader bg-primary text-light">
         <div class="left">
-            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel">
+            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel" aria-label="{{ t.menu_title }}">
                 <ion-icon name="menu-outline"></ion-icon>
             </a>
         </div>
@@ -98,7 +98,7 @@
     <div id="appCapsule">
         <!-- App Bridge -->
         <div class="text-center mb-4">
-            <img src="assets/img/OTC.png" alt="Intro Image" style="width: 288px; height: 288px;">
+            <img src="assets/img/OTC.webp" alt="Intro Image" fetchpriority="high" style="width: 288px; height: 288px;">
         </div>
                     <center><h3>&nbsp;{{ t.otc_heading }}</h3></center>
                     <p>
@@ -109,7 +109,7 @@
                         <li>&nbsp;{{ t.otc_point2 }}</li>
                         <li>&nbsp;{{ t.otc_point3 }}</li>
                     </ul>
-        <iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=1000000&amountFiat&backgroundColor=f6fafd&darkMode=false&from=usdtton&horizontal=false&isFiat=false&lang={{ t.otc_widget_lang }}&link_id=3cc0024a18fd9d&locales=false&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false' style="height: 356px; width: 100%; border: none"></iframe>
+        <iframe id='iframe-widget' title='ChangeNOW OTC widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=1000000&amountFiat&backgroundColor=f6fafd&darkMode=false&from=usdtton&horizontal=false&isFiat=false&lang={{ t.otc_widget_lang }}&link_id=3cc0024a18fd9d&locales=false&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false' style="height: 356px; width: 100%; border: none"></iframe>
     <script defer type='text/javascript' src='https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js'></script></br></br>
         <!-- * App Bridge -->
         <center>

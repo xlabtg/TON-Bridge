@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport"
-        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+        content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
@@ -78,14 +78,14 @@
 </script>
     <!-- loader -->
     <div id="loader">
-        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+        <img src="assets/img/loading-icon.webp" alt="icon" class="loading-icon">
     </div>
     <!-- * loader -->
 
     <!-- App Header -->
     <div class="appHeader bg-primary text-light">
         <div class="left">
-            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel">
+            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel" aria-label="{{ t.menu_title }}">
                 <ion-icon name="menu-outline"></ion-icon>
             </a>
         </div>
@@ -101,7 +101,7 @@
 		<!-- App {{ sectionLabel }} -->
 <!-- {% if activePage == 'bridge' %}{{ t.bridge_img_comment }}{% else %}{{ t.exchange_img_comment }}{% endif %} -->
             <div class="text-center mb-4">
-                <img src="{{ imgSrc }}" alt="Intro Image" style="width: {{ imgW }}; height: {{ imgH }};">
+                <img src="{{ imgSrc }}" alt="Intro Image" fetchpriority="high" style="width: {{ imgW }}; height: {{ imgH }};">
             </div>
 <!-- {% if activePage == 'bridge' %}{{ t.bridge_section_comment }}{% else %}{{ t.exchange_section_comment }}{% endif %} -->
 
@@ -115,7 +115,7 @@
                         <li>&nbsp;{% if activePage == 'bridge' %}{{ t.bridge_point2 }}{% else %}{{ t.exchange_point2 }}{% endif %}</li>
                         <li>&nbsp;{% if activePage == 'bridge' %}{{ t.bridge_point3 }}{% else %}{{ t.exchange_point3 }}{% endif %}</li>
                     </ul>
-	    </br><iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount={{ iframeAmount }}&amountFiat&backgroundColor=f6fafd&darkMode=false&from={{ iframeFrom }}&horizontal=false&isFiat=false&lang={{ t.widget_lang }}&link_id=3cc0024a18fd9d&locales=true&logo=false&primaryColor=1bb2da&to={{ iframeTo }}&toTheMoon=false' style="height: 450px; width: 100%; border: none"></iframe>
+	    </br><iframe id='iframe-widget' title='ChangeNOW exchange widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount={{ iframeAmount }}&amountFiat&backgroundColor=f6fafd&darkMode=false&from={{ iframeFrom }}&horizontal=false&isFiat=false&lang={{ t.widget_lang }}&link_id=3cc0024a18fd9d&locales=true&logo=false&primaryColor=1bb2da&to={{ iframeTo }}&toTheMoon=false' style="height: 450px; width: 100%; border: none"></iframe>
 		<script defer type='text/javascript' src='https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js'></script>
         <!-- * App {{ sectionLabel }} -->
 <center><a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy"/></a></center></br></br>

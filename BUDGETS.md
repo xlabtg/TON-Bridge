@@ -4,7 +4,7 @@ This document records the performance budgets enforced in CI (`.lighthouserc.jso
 
 ## Measurement conditions
 
-All assertions are measured under **simulated Moto G4 on a 4G connection** (Lighthouse `perf` preset, mobile form factor):
+All assertions are measured by LHCI against the generated `dist/` app shell under **simulated Moto G4 on a 4G connection** (explicit Lighthouse mobile settings):
 
 | Parameter | Value |
 |-----------|-------|
@@ -12,6 +12,9 @@ All assertions are measured under **simulated Moto G4 on a 4G connection** (Ligh
 | Throughput | 1 638 Kbps down / 675 Kbps up |
 | CPU slowdown | 4× |
 | Viewport | 360 × 640, 2.625 dpr |
+| Blocked origins | ChangeNOW, Telegram, analytics, icon CDN, remote badge/image hosts |
+
+The LHCI Puppeteer hook in `lhci/block-third-party.cjs` blocks cross-origin requests and provides a minimal Telegram WebApp stub. This keeps the budgets focused on assets owned by this repository and avoids third-party network variance masking app-shell regressions.
 
 URLs tested on every PR:
 - `/index.html` — Bridge tab
@@ -27,8 +30,8 @@ URLs tested on every PR:
 | `cumulative-layout-shift` | ≤ 0.1 | Google "Good" CLS threshold. Layout shifts are especially jarring in a Mini App context where there is no browser chrome to indicate the page is still loading. |
 | `categories:performance` | ≥ 0.85 | Ensures the overall performance score stays in the "good" band. The three per-metric assertions above are the primary controls; this score acts as a secondary catch-all for regressions in metrics not individually budgeted. |
 | `categories:accessibility` | ≥ 0.90 | Baseline accessibility for Telegram's broad user base, including users with assistive technologies. Any new UI elements must not regress this. |
-| `resource-summary:script:size` | ≤ 200 KB | Total JavaScript transferred (compressed). Keeps parse and evaluation time in budget on low-end devices. The ChangeNOW iframe JS is excluded because it loads in a cross-origin frame. |
-| `resource-summary:stylesheet:size` | ≤ 30 KB | Total CSS transferred. The compressed `style.css` produced by the Sass build should remain below this after the inline-critical-CSS work (issue #21). |
+| `resource-summary:script:size` | ≤ 200 KB | First-party JavaScript transferred under the app-shell test. Keeps parse and evaluation time in budget on low-end devices; third-party widgets and analytics are intentionally blocked. |
+| `resource-summary:stylesheet:size` | ≤ 30 KB | First-party CSS transferred under the app-shell test. The compressed `style.css` produced by the Sass build should remain below this budget. |
 
 ## Adjusting a budget
 

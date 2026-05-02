@@ -77,12 +77,9 @@ if (Finapp.PWA.enable) {
 //-----------------------------------------------------------------------
 // Page Loader with preload
 //----------------------------------------------------------------------
-setTimeout(() => {
-    loader.setAttribute("style", "pointer-events: none; opacity: 0; transition: 0.2s ease-in-out;");
-    setTimeout(() => {
-        loader.setAttribute("style", "display: none;")
-    }, 1000);
-}, 450);
+if (loader) {
+    loader.setAttribute("style", "display: none;");
+}
 //-----------------------------------------------------------------------
 
 
@@ -432,11 +429,15 @@ var androidDetection = /android/i.test(osDetection);
 var iosDetection = /iPad|iPhone|iPod/.test(osDetection) && !window.MSStream;
 
 function iosAddtoHome() {
-    var modal = new bootstrap.Modal(document.getElementById('ios-add-to-home-screen'))
+    var modalElement = document.getElementById('ios-add-to-home-screen');
+    if (!modalElement) return;
+    var modal = new bootstrap.Modal(modalElement)
     modal.toggle()
 }
 function androidAddtoHome() {
-    var modal = new bootstrap.Modal(document.getElementById('android-add-to-home-screen'))
+    var modalElement = document.getElementById('android-add-to-home-screen');
+    if (!modalElement) return;
+    var modal = new bootstrap.Modal(modalElement)
     modal.toggle()
 }
 function AddtoHome(time, once) {

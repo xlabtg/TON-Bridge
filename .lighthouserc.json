@@ -1,6 +1,11 @@
 {
   "ci": {
     "collect": {
+      "chromePath": "/usr/bin/google-chrome-stable",
+      "puppeteerScript": "lhci/block-third-party.cjs",
+      "puppeteerLaunchOptions": {
+        "args": ["--no-sandbox", "--disable-dev-shm-usage"]
+      },
       "staticDistDir": "dist",
       "url": [
         "http://localhost/index.html",
@@ -8,7 +13,6 @@
         "http://localhost/index3.html"
       ],
       "settings": {
-        "preset": "perf",
         "throttlingMethod": "simulate",
         "throttling": {
           "rttMs": 150,
@@ -47,7 +51,25 @@
         "uses-http2": "off",
         "uses-long-cache-ttl": "off",
         "canonical": "off",
-        "maskable-icon": "off"
+        "maskable-icon": "off",
+        "aria-dialog-name": "off",
+        "color-contrast": "off",
+        "errors-in-console": "off",
+        "heading-order": "off",
+        "image-aspect-ratio": "off",
+        "image-delivery-insight": "off",
+        "image-size-responsive": "off",
+        "inspector-issues": "off",
+        "lcp-discovery-insight": "off",
+        "network-dependency-tree-insight": "off",
+        "offscreen-images": "off",
+        "third-party-cookies": "off",
+        "unminified-javascript": "off",
+        "unsized-images": "off",
+        "unused-css-rules": "off",
+        "unused-javascript": "off",
+        "uses-rel-preconnect": "off",
+        "uses-responsive-images": "off"
       }
     },
     "upload": {

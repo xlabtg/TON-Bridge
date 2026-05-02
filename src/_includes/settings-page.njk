@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>{{ t.title_settings }}</title>
+    <title data-i18n="title_settings">{{ locales.en.title_settings }}</title>
     <meta name="description" content="TON Bridge HTML Mobile Template">
     <meta name="keywords" content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
@@ -18,6 +18,7 @@
 </head>
 
 <body>
+    <div id="offline-indicator">You are offline</div>
 
     <!-- loader -->
     <div id="loader">
@@ -29,8 +30,8 @@
     <div class="appHeader">
         <div class="left">
         </div>
-        <div class="pageTitle">
-            {{ t.settings_title_label }}
+        <div class="pageTitle" data-i18n="settings_title_label">
+            {{ locales.en.settings_title_label }}
         </div>
     </div>
     <!-- * App Header -->
@@ -38,13 +39,13 @@
     <!-- App Capsule -->
     <div id="appCapsule">
 
-    <div class="listview-title mt-1">{{ t.settings_theme_section }}</div>
+    <div class="listview-title mt-1" data-i18n="settings_theme_section">{{ locales.en.settings_theme_section }}</div>
     <ul class="listview image-listview text inset no-line">
         <li>
             <div class="item">
                 <div class="in">
-                    <div>
-                        {{ t.settings_dark_mode_label }}
+                    <div data-i18n="settings_dark_mode_label">
+                        {{ locales.en.settings_dark_mode_label }}
                     </div>
                     <div class="form-check form-switch ms-2">
                         <input class="form-check-input dark-mode-switch" type="checkbox" id="darkmodeSwitch">
@@ -55,13 +56,13 @@
         </li>
     </ul>
 
-    <div class="listview-title mt-1">{{ t.settings_lang_section }}</div>
+    <div class="listview-title mt-1" data-i18n="settings_lang_section">{{ locales.en.settings_lang_section }}</div>
     <ul class="listview image-listview text inset no-line">
         <li>
             <div class="item">
                 <div class="in">
-                    <div>
-                        {{ t.settings_lang_label }}
+                    <div data-i18n="settings_lang_label">
+                        {{ locales.en.settings_lang_label }}
                     </div>
                     <div class="form-check form-switch ms-2">
                         <input class="form-check-input language-switch" type="checkbox" id="languageSwitch">
@@ -72,54 +73,117 @@
         </li>
     </ul>
 
+    <div class="listview-title mt-1" data-i18n="settings_security_section">{{ locales.en.settings_security_section }}</div>
+    <ul class="listview image-listview text inset no-line" id="biometric-section">
+        <li>
+            <div class="item">
+                <div class="in">
+                    <div id="biometric-label-wrapper">
+                        <span id="biometric-label" data-i18n="settings_biometric_label">{{ locales.en.settings_biometric_label }}</span>
+                        <span id="biometric-unavailable-hint" class="text-muted" style="display:none; font-size:0.82em; margin-left:4px;" data-bs-toggle="tooltip" title="{{ locales.en.settings_biometric_unavailable_hint }}" data-i18n-attr="title:settings_biometric_unavailable_hint">(?)</span>
+                    </div>
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input" type="checkbox" id="biometricSwitch" disabled>
+                        <label class="form-check-label" for="biometricSwitch"></label>
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li id="biometric-threshold-row" style="display:none;">
+            <div class="item">
+                <div class="in">
+                    <div data-i18n="settings_biometric_threshold_label">{{ locales.en.settings_biometric_threshold_label }}</div>
+                    <div style="display:flex;align-items:center;gap:4px;">
+                        <span>$</span>
+                        <input type="number" id="biometricThreshold" min="1" step="1"
+                            style="width:90px; border:1px solid #ccc; border-radius:6px; padding:2px 6px; text-align:right;"
+                            value="1000">
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
 </div>
-
+<script src="assets/js/biometric-manager.js"></script>
 <script>
-    // Переключение языка
-    document.getElementById('languageSwitch').addEventListener('change', function() {
-        if (this.checked) {
-            // Переключение на страницу с английским интерфейсом
-            window.location.href = '{{ t.settings_lang_checked_goto }}';
-        } else {
-            // Переключение на страницу с русским интерфейсом
-            window.location.href = '{{ t.settings_lang_unchecked_goto }}';
-        }
-    });
-</script>
+    (function () {
+        var sw = document.getElementById('biometricSwitch');
+        var thresholdRow = document.getElementById('biometric-threshold-row');
+        var thresholdInput = document.getElementById('biometricThreshold');
+        var unavailableHint = document.getElementById('biometric-unavailable-hint');
 
+        function applyAvailability(available) {
+            sw.disabled = !available;
+            if (!available) {
+                unavailableHint.style.display = 'inline';
+            }
+        }
+
+        function applyEnabled(enabled) {
+            sw.checked = enabled;
+            thresholdRow.style.display = enabled ? '' : 'none';
+        }
+
+        BiometricAuth.init(function () {
+            var available = BiometricAuth.isAvailable();
+            applyAvailability(available);
+
+            BiometricAuth.isEnabled(function (enabled) {
+                applyEnabled(enabled);
+            });
+
+            BiometricAuth.getThreshold(function (threshold) {
+                thresholdInput.value = threshold;
+            });
+        });
+
+        sw.addEventListener('change', function () {
+            BiometricAuth.setEnabled(this.checked);
+            thresholdRow.style.display = this.checked ? '' : 'none';
+        });
+
+        thresholdInput.addEventListener('change', function () {
+            var val = parseFloat(this.value);
+            if (!isNaN(val) && val > 0) {
+                BiometricAuth.setThreshold(val);
+            }
+        });
+    })();
+</script>
     <!-- * App Capsule -->
 
 
     <!-- App Bottom Menu -->
     <div class="appBottomMenu">
-        <a href="index{{ t.suffix }}.html" class="item">
+        <a href="index.html" class="item">
             <div class="col">
                 <ion-icon name="sync"></ion-icon>
-                <strong>{{ t.nav_bridge }}</strong>
+                <strong data-i18n="nav_bridge">{{ locales.en.nav_bridge }}</strong>
             </div>
         </a>
-        <a href="index2{{ t.suffix }}.html" class="item">
+        <a href="index2.html" class="item">
             <div class="col">
                 <ion-icon name="swap-horizontal-outline"></ion-icon>
-                <strong>{{ t.nav_exchange }}</strong>
+                <strong data-i18n="nav_exchange">{{ locales.en.nav_exchange }}</strong>
             </div>
         </a>
-        <a href="index3{{ t.suffix }}.html" class="item">
+        <a href="index3.html" class="item">
             <div class="col">
                 <ion-icon name="cash-outline"></ion-icon>
-                <strong>{{ t.nav_otc }}</strong>
+                <strong data-i18n="nav_otc">{{ locales.en.nav_otc }}</strong>
             </div>
         </a>
-        <!-- <a href="index4{{ t.suffix }}.html" class="item">
+        <!-- <a href="index4.html" class="item">
             <div class="col">
                 <ion-icon name="stats-chart"></ion-icon>
-                <strong>{{ t.nav_statistics }}</strong>
+                <strong data-i18n="nav_statistics">{{ locales.en.nav_statistics }}</strong>
             </div>
         </a> -->
-        <a href="app-settings{{ t.suffix }}.html" class="item active">
+        <a href="app-settings.html" class="item active">
             <div class="col">
                 <ion-icon name="settings-outline"></ion-icon>
-                <strong>{{ t.nav_settings }}</strong>
+                <strong data-i18n="nav_settings">{{ locales.en.nav_settings }}</strong>
             </div>
         </a>
     </div>
@@ -128,15 +192,52 @@
     <!-- ========= JS Files =========  -->
     <!-- Bootstrap -->
     <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
-    <!-- Ionicons -->
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <!-- Ionicons (self-hosted sprite) -->
+    <script src="assets/js/ion-icon.js" defer></script>
     <!-- Splide -->
     <script src="assets/js/plugins/splide/splide.min.js"></script>
+    <!-- i18n inline data + loader -->
+    <script src="assets/js/prefs.js"></script>
+    {% i18nDataScript %}
+    <script src="assets/js/i18n.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Offline Indicator -->
+    <script src="assets/js/offline.js"></script>
     <!-- Telegram BackButton -->
     <script src="assets/js/back-button.js"></script>
-    <script>wireBackButton();</script>
+    <script>
+        wireBackButton();
+
+        // Sync the toggle to the active language after translations load
+        document.addEventListener('i18n:applied', function(e) {
+            document.getElementById('languageSwitch').checked = (e.detail.lang === 'ru');
+        });
+
+        document.getElementById('languageSwitch').addEventListener('change', function() {
+            i18n.setLang(this.checked ? 'ru' : 'en');
+        });
+
+        i18n.init();
+    </script>
+    <!-- Haptic Feedback -->
+    <script src="assets/js/haptic.js"></script>
+    <script>
+        // Tab-bar taps
+        document.querySelectorAll('.appBottomMenu .item').forEach(function (el) {
+            el.addEventListener('click', function () { haptic.impact('light'); });
+        });
+        // Settings toggles
+        document.getElementById('darkmodeSwitch').addEventListener('change', function () {
+            haptic.selection();
+        });
+        document.getElementById('languageSwitch').addEventListener('change', function () {
+            haptic.selection();
+        });
+    </script>
+    <!-- Telegram SettingsButton - hide on settings page to avoid recursion -->
+    <script src="assets/js/settings-button.js"></script>
+    <script>hideSettingsButton();</script>
 
 
 </body>

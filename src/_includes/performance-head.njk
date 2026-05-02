@@ -9,7 +9,9 @@
 <!-- Full stylesheets loaded asynchronously -->
 <link rel="preload" href="assets/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 {% if includeTgThemeCss %}<link rel="preload" href="assets/css/tg-theme.css" as="style" onload="this.onload=null;this.rel='stylesheet'">{% endif %}
+{% if includeRateTickerCss %}<link rel="preload" href="assets/css/rate-ticker.css" as="style" onload="this.onload=null;this.rel='stylesheet'">{% endif %}
 <noscript>
     <link rel="stylesheet" href="assets/css/style.css">
     {% if includeTgThemeCss %}<link rel="stylesheet" href="assets/css/tg-theme.css">{% endif %}
+    {% if includeRateTickerCss %}<link rel="stylesheet" href="assets/css/rate-ticker.css">{% endif %}
 </noscript>

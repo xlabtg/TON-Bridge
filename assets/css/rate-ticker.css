@@ -1,41 +1,4 @@
 /* Rate Ticker - Task 3.1 */
-#rate-ticker-section {
-  margin: 12px 0 8px;
-  min-height: 128px;
-  overflow: hidden;
-}
-
-.lhci-audit #loader {
-  display: none !important;
-}
-
-.lhci-logo-text {
-  display: none;
-}
-
-.lhci-audit .appHeader .pageTitle .logo {
-  display: none;
-}
-
-.lhci-audit .lhci-logo-text {
-  display: inline-block;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 24px;
-}
-
-#rate-ticker-section .splide__track {
-  min-height: 116px;
-}
-
-#rate-ticker-section .splide__list {
-  align-items: stretch;
-}
-
-#rate-ticker-section .splide__slide {
-  min-height: 116px;
-}
-
 .rate-card {
   background: #fff;
   border: 0;

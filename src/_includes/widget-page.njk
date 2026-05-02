@@ -15,19 +15,14 @@
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
     {% set includeTgThemeCss = true %}
+    {% set includeRateTickerCss = activePage == 'bridge' %}
     {% include "performance-head.njk" %}
-    {% if activePage == 'bridge' %}<link rel="stylesheet" href="assets/css/rate-ticker.css">{% endif %}
     <link rel="manifest" href="__manifest.json">
 </head>
 
 <body>
     <div id="offline-indicator">You are offline</div>
     <div id="viewport"></div>
-    <script>
-        if (navigator.userAgent.indexOf('Chrome-Lighthouse') !== -1) {
-            document.documentElement.classList.add('lhci-audit');
-        }
-    </script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="assets/js/auth.js"></script>
     <script>
@@ -129,8 +124,7 @@
             </a>
         </div>
         <div class="pageTitle">
-            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo">
-            <span class="lhci-logo-text">TONBANKCARD</span>
+            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo" width="143" height="24" loading="eager" decoding="async">
         </div>
     </div>
     <!-- * App Header -->

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "npm run build:css && eleventy --config=eleventy.config.js",
+    "build": "npm run build:css && eleventy --config=eleventy.config.js && node build-sw.js",
     "build:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions",
     "check:env": "node --input-type=module --eval \"import('./src/_data/env.js').then(m => { m.default(); console.log('All required environment variables are set.'); }).catch(e => { console.error(e.message); process.exit(1); })\"",
     "watch:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions --watch",

@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 
@@ -16,12 +15,13 @@
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/tg-theme.css">
     <link rel="manifest" href="__manifest.json">
 </head>
 
 <body>
     <div id="viewport"></div>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
@@ -32,34 +32,15 @@
 
         Telegram.WebApp.setHeaderColor('secondary_bg_color');
 
+        // Apply themeParams CSS variables on first load
         (function() {
-            var tg = Telegram.WebApp;
-            var mainButton = tg.MainButton;
-            mainButton.setText('Подтвердить обмен');
-
-            window.addEventListener('message', function(event) {
-                if (!event.data || typeof event.data !== 'object') return;
-                var type = event.data.type;
-                if (type === 'deeplink' || type === 'change-now-widget-step') {
-                    var step = event.data.step || event.data.value || '';
-                    if (step === 'initial' || step === 'success' || step === 'finish') {
-                        mainButton.hide();
-                    } else {
-                        mainButton.show();
-                    }
+            var params = Telegram.WebApp.themeParams || {};
+            var root = document.documentElement;
+            for (var key in params) {
+                if (Object.prototype.hasOwnProperty.call(params, key)) {
+                    root.style.setProperty('--tg-theme-' + key.replace(/_/g, '-'), params[key]);
                 }
-            });
-
-            mainButton.onClick(function() {
-                var iframe = document.getElementById('iframe-widget');
-                if (iframe && iframe.contentWindow) {
-                    iframe.contentWindow.postMessage({ type: 'submit' }, '*');
-                }
-            });
-
-            window.addEventListener('beforeunload', function() {
-                mainButton.hide();
-            });
+            }
         })();
     </script>
 	<script
@@ -71,8 +52,8 @@
 <script>
     function initAnalytics() {
       window.telegramAnalytics.init({
-        token: 'eyJhcHBfbmFtZSI6IlRPTkJyaWRnZV9yb2JvdCIsImFwcF91cmwiOiJodHRwczovL3QubWUvVE9OQnJpZGdlX3JvYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vdG9uYmFua2NhcmQuY29tL2JyaWRnZS9UTUEvMDAuaHRtbCJ9!PQ40y7Tz3lZti6uDVlApq+BcGxi8tR9WEsH6Hyu+mD0=', // SDK Auth token received via @DataChief_bot
-        appName: 'TONBridge_robot', // The analytics identifier you entered in @DataChief_bot
+        token: '%%TG_ANALYTICS_TOKEN%%', // SDK Auth token received via @DataChief_bot
+        appName: '%%TG_ANALYTICS_APP_NAME%%', // The analytics identifier you entered in @DataChief_bot
       });
     }
 </script>
@@ -110,7 +91,7 @@
                         <li>&nbsp;- Нулевое проскальзывание</li>
                         <li>&nbsp;- Агрегация CEX + DEX</li>
                     </ul>
-        <iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=1000000&amountFiat&backgroundColor=f6fafd&darkMode=false&from=usdtton&horizontal=false&isFiat=false&lang=ru-RU&link_id=3cc0024a18fd9d&locales=false&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false' style="height: 356px; width: 100%; border: none"></iframe>
+        <iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=1000000&amountFiat&backgroundColor=f6fafd&darkMode=false&from=usdtton&horizontal=false&isFiat=false&lang=ru-RU&link_id=%%CHANGENOW_LINK_ID%%&locales=false&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false' style="height: 356px; width: 100%; border: none"></iframe>
     <script defer type='text/javascript' src='https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js'></script></br></br>
         <!-- * App Bridge -->
         <center>
@@ -159,12 +140,6 @@
                 <strong>OTC</strong>
             </div>
         </a>
-        <a href="orders-ru.html" class="item">
-            <div class="col">
-                <ion-icon name="receipt-outline"></ion-icon>
-                <strong>Заказы</strong>
-            </div>
-        </a>
         <!-- <a href="index4-ru.html" class="item">
             <div class="col">
                 <ion-icon name="stats-chart"></ion-icon>
@@ -186,10 +161,10 @@
             <div class="modal-content">
                 <div class="modal-body p-0">
                     <!-- menu -->
-                    <div class="listview-title mt-1">Меню</div>
+                    <div class="listview-title mt-1">Menu</div>
                     <ul class="listview flush transparent no-line image-listview">
                         <li>
-                            <a href="app-settings-ru.html" class="item">
+                            <a href="app-settings.html" class="item">
                                 <div class="icon-box bg-primary">
                                     <ion-icon name="settings-outline"></ion-icon>
                                 </div>
@@ -213,22 +188,22 @@
                     <div class="listview-title mt-1">Сообщество</div>
                     <ul class="listview flush transparent no-line image-listview">
                         <li>
-                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_ru');" class="item">
+                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard');" class="item">
                                 <div class="icon-box bg-secondary">
                                     <ion-icon name="people-circle-outline"></ion-icon>
                                 </div>
                                 <div class="in">
-                                    Группа в Telegram
+                                    Telegram группа
                                 </div>
                             </a>
                         </li>
                         <li>
-                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_chat_ru');" class="item">
+                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_chat');" class="item">
                                 <div class="icon-box bg-secondary">
                                     <ion-icon name="chatbubbles-outline"></ion-icon>
                                 </div>
                                 <div class="in">
-                                    Чат в Telegram
+                                    Telegram Чат
                                 </div>
                             </a>
                         </li>
@@ -244,15 +219,15 @@
     <div id="cookiesbox" class="offcanvas offcanvas-bottom cookies-box" tabindex="-1" data-bs-scroll="true"
         data-bs-backdrop="false">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title">Мы используем файлы cookie</h5>
+            <h5 class="offcanvas-title">We use cookies</h5>
         </div>
         <div class="offcanvas-body">
             <div>
-                Закон, который должен соблюдать каждый, - это закон, который объединяет элиту. Ничего не значит для лацинии. Ничего не значит для облегчения.
-                <a href="#" class="text-secondary"><u>Учить больше</u></a>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla non lacinia quam. Nulla facilisi.
+                <a href="#" class="text-secondary"><u>Learn more</u></a>
             </div>
             <div class="buttons">
-                <a href="#" class="btn btn-primary btn-block" data-bs-dismiss="offcanvas">Я понимаю</a>
+                <a href="#" class="btn btn-primary btn-block" data-bs-dismiss="offcanvas">I understand</a>
             </div>
         </div>
     </div>
@@ -260,12 +235,14 @@
     <!-- ========= JS Files =========  -->
     <!-- Bootstrap -->
     <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
-    <!-- Ionicons -->
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <!-- Ionicons (self-hosted sprite) -->
+    <script src="assets/js/ion-icon.js" defer></script>
     <!-- Splide -->
     <script src="assets/js/plugins/splide/splide.min.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Telegram Theme Integration -->
+    <script src="assets/js/tg-theme.js"></script>
 
     <script>
         // Add to Home with 2 seconds delay.
@@ -279,16 +256,15 @@
    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-   ym(98019798, "init", {
+   ym(%%YANDEX_METRIKA_ID%%, "init", {
         clickmap:true,
         trackLinks:true,
         accurateTrackBounce:true,
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/%%YANDEX_METRIKA_ID%%" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
 </body>
 
 </html>
-

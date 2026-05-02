@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 
@@ -29,6 +28,9 @@
     <!-- App Header -->
     <div class="appHeader">
         <div class="left">
+            <a href="index.html" class="headerButton goBack">
+                <ion-icon name="chevron-back-outline"></ion-icon>
+            </a>
         </div>
         <div class="pageTitle">
             Settings
@@ -79,10 +81,10 @@
     // Переключение языка
     document.getElementById('languageSwitch').addEventListener('change', function() {
         if (this.checked) {
-            // Переключение на страницу с английским интерфейсом
+            // Переключение на страницу с русским интерфейсом
             window.location.href = 'app-settings-ru.html';
         } else {
-            // Переключение на страницу с русским интерфейсом
+            // Переключение на страницу с английским интерфейсом
             window.location.href = 'app-settings.html';
         }
     });
@@ -111,12 +113,6 @@
                 <strong>OTC</strong>
             </div>
         </a>
-        <a href="orders.html" class="item">
-            <div class="col">
-                <ion-icon name="receipt-outline"></ion-icon>
-                <strong>Orders</strong>
-            </div>
-        </a>
         <!-- <a href="index4.html" class="item">
             <div class="col">
                 <ion-icon name="stats-chart"></ion-icon>
@@ -135,18 +131,14 @@
     <!-- ========= JS Files =========  -->
     <!-- Bootstrap -->
     <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
-    <!-- Ionicons -->
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <!-- Ionicons (self-hosted sprite) -->
+    <script src="assets/js/ion-icon.js" defer></script>
     <!-- Splide -->
     <script src="assets/js/plugins/splide/splide.min.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
-    <!-- Telegram BackButton -->
-    <script src="assets/js/back-button.js"></script>
-    <script>wireBackButton();</script>
 
 
 </body>
 
 </html>
-

@@ -1,11 +1,10 @@
-
 <!doctype html>
 <html lang="en">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport"
-        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+        content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
@@ -16,6 +15,7 @@
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/tg-theme.css">
     <link rel="manifest" href="__manifest.json">
 </head>
 
@@ -32,35 +32,15 @@
 
         Telegram.WebApp.setHeaderColor('secondary_bg_color');
 
+        // Apply themeParams CSS variables on first load
         (function() {
-            var tg = Telegram.WebApp;
-            var mainButton = tg.MainButton;
-            var buttonText = 'Continue';
-            mainButton.setText(buttonText);
-
-            window.addEventListener('message', function(event) {
-                if (!event.data || typeof event.data !== 'object') return;
-                var type = event.data.type;
-                if (type === 'deeplink' || type === 'change-now-widget-step') {
-                    var step = event.data.step || event.data.value || '';
-                    if (step === 'initial' || step === 'success' || step === 'finish') {
-                        mainButton.hide();
-                    } else {
-                        mainButton.show();
-                    }
+            var params = Telegram.WebApp.themeParams || {};
+            var root = document.documentElement;
+            for (var key in params) {
+                if (Object.prototype.hasOwnProperty.call(params, key)) {
+                    root.style.setProperty('--tg-theme-' + key.replace(/_/g, '-'), params[key]);
                 }
-            });
-
-            mainButton.onClick(function() {
-                var iframe = document.getElementById('iframe-widget');
-                if (iframe && iframe.contentWindow) {
-                    iframe.contentWindow.postMessage({ type: 'submit' }, '*');
-                }
-            });
-
-            window.addEventListener('beforeunload', function() {
-                mainButton.hide();
-            });
+            }
         })();
     </script>
 	<script
@@ -72,14 +52,14 @@
 <script>
     function initAnalytics() {
       window.telegramAnalytics.init({
-        token: 'eyJhcHBfbmFtZSI6IlRPTkJyaWRnZV9yb2JvdCIsImFwcF91cmwiOiJodHRwczovL3QubWUvVE9OQnJpZGdlX3JvYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vdG9uYmFua2NhcmQuY29tL2JyaWRnZS9UTUEvMDAuaHRtbCJ9!PQ40y7Tz3lZti6uDVlApq+BcGxi8tR9WEsH6Hyu+mD0=', // SDK Auth token received via @DataChief_bot
-        appName: 'TONBridge_robot', // The analytics identifier you entered in @DataChief_bot
+        token: '', // Set via TG_ANALYTICS_TOKEN — see .env.example
+        appName: '', // Set via TG_ANALYTICS_APP_NAME — see .env.example
       });
     }
 </script>
     <!-- loader -->
     <div id="loader">
-        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon" width="256" height="256">
     </div>
     <!-- * loader -->
 
@@ -91,7 +71,7 @@
             </a>
         </div>
         <div class="pageTitle">
-            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo">
+            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo" width="200" height="40">
         </div>
     </div>
     <!-- * App Header -->
@@ -102,24 +82,24 @@
 		<!-- App Bridge -->
 <!-- img -->
             <div class="text-center mb-4">
-                <img src="assets/img/gfx-a-1.png" alt="Intro Image" style="width: 300px; height: 200px;">
+                <img src="assets/img/gfx-a-1.png" alt="Intro Image" width="300" height="259" style="max-width: 300px; height: auto;">
             </div>
 <!-- Security and Privacy -->
 
                     <h3>&nbsp;Security and privacy</h3>
                     <p>
-                        &nbsp;TONBANKCARD preserves your privacy and  guarantees security.
-                        We are not a custodial  exchange service:
+                        &nbsp;TONBANKCARD preserves your privacy and &nbsp;guarantees security.
+                        We are not a custodial &nbsp;exchange service:
                     </p>
                     <ul class="list-unstyled">
                         <li>&nbsp;- We do not save your data</li>
                         <li>&nbsp;- We do not control your funds</li>
                         <li>&nbsp;- We do not force you to register</li>
                     </ul>
-	    </br><iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=10&amountFiat&backgroundColor=f6fafd&darkMode=false&from=ton&horizontal=false&isFiat=false&lang=en-EN&link_id=3cc0024a18fd9d&locales=true&logo=false&primaryColor=1bb2da&to=tonbsc&toTheMoon=false' style="height: 450px; width: 100%; border: none"></iframe>
+	    </br><iframe id='iframe-widget' title="Exchange Widget" src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=10&amountFiat&backgroundColor=f6fafd&darkMode=false&from=ton&horizontal=false&isFiat=false&lang=en-EN&link_id=CHANGENOW_LINK_ID&locales=true&logo=false&primaryColor=1bb2da&to=tonbsc&toTheMoon=false' style="height: 450px; width: 100%; border: none"></iframe>
 		<script defer type='text/javascript' src='https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js'></script>
         <!-- * App Bridge -->
-<center><a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy"/></a></center></br></br>
+<center><a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" width="240" height="60" loading="lazy"/></a></center></br></br>
 <center>
 <table>
 <tr><td>
@@ -154,12 +134,6 @@
             <div class="col">
                 <ion-icon name="cash-outline"></ion-icon>
                 <strong>OTC</strong>
-            </div>
-        </a>
-        <a href="orders.html" class="item">
-            <div class="col">
-                <ion-icon name="receipt-outline"></ion-icon>
-                <strong>Orders</strong>
             </div>
         </a>
         <!-- <a href="index4.html" class="item">
@@ -259,12 +233,14 @@
     <!-- ========= JS Files =========  -->
     <!-- Bootstrap -->
     <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
-    <!-- Ionicons -->
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <!-- Ionicons (self-hosted sprite) -->
+    <script src="assets/js/ion-icon.js" defer></script>
     <!-- Splide -->
     <script src="assets/js/plugins/splide/splide.min.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Telegram Theme Integration -->
+    <script src="assets/js/tg-theme.js"></script>
 
     <script>
         // Add to Home with 2 seconds delay.
@@ -278,16 +254,15 @@
    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-   ym(98019798, "init", {
+   ym(0 /* YANDEX_METRIKA_ID */, "init", {
         clickmap:true,
         trackLinks:true,
         accurateTrackBounce:true,
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/0" style="position:absolute; left:-9999px;" alt="" width="1" height="1" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
 </body>
 
 </html>
-

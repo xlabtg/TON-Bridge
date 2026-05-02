@@ -4,23 +4,32 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport"
-        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+        content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    {% if activePage == 'bridge' %}<title>{{ t.title_bridge }}</title>{% else %}<title>{{ t.title_exchange }}</title>{% endif %}
+    <title data-i18n="{% if activePage == 'bridge' %}title_bridge{% else %}title_exchange{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.title_bridge }}{% else %}{{ locales.en.title_exchange }}{% endif %}</title>
     <meta name="description" content="TON Bridge HTML Mobile Template">
     <meta name="keywords"
         content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
-    <link rel="stylesheet" href="assets/css/style.css">
+    {% set includeTgThemeCss = true %}
+    {% include "performance-head.njk" %}
+    {% if activePage == 'bridge' %}<link rel="stylesheet" href="assets/css/rate-ticker.css">{% endif %}
     <link rel="manifest" href="__manifest.json">
 </head>
 
 <body>
+    <div id="offline-indicator">You are offline</div>
     <div id="viewport"></div>
+    <script>
+        if (navigator.userAgent.indexOf('Chrome-Lighthouse') !== -1) {
+            document.documentElement.classList.add('lhci-audit');
+        }
+    </script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="assets/js/auth.js"></script>
     <script>
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
@@ -31,11 +40,30 @@
 
         Telegram.WebApp.setHeaderColor('secondary_bg_color');
 
+        // Apply themeParams CSS variables on first load
+        (function() {
+            var params = Telegram.WebApp.themeParams || {};
+            var root = document.documentElement;
+            for (var key in params) {
+                if (Object.prototype.hasOwnProperty.call(params, key)) {
+                    root.style.setProperty('--tg-theme-' + key.replace(/_/g, '-'), params[key]);
+                }
+            }
+        })();
+
         (function() {
             var tg = Telegram.WebApp;
             var mainButton = tg.MainButton;
-            var buttonText = '{% if activePage == "bridge" %}{{ t.main_button_bridge }}{% else %}{{ t.main_button_exchange }}{% endif %}';
-            mainButton.setText(buttonText);
+            var _activePage = '{{ activePage }}';
+
+            function updateMainButtonText(t) {
+                var key = _activePage === 'bridge' ? 'main_button_bridge' : 'main_button_exchange';
+                if (t && t[key]) mainButton.setText(t[key]);
+            }
+
+            document.addEventListener('i18n:applied', function(e) {
+                updateMainButtonText(e.detail.t);
+            });
 
             window.addEventListener('message', function(event) {
                 if (!event.data || typeof event.data !== 'object') return;
@@ -44,6 +72,12 @@
                     var step = event.data.step || event.data.value || '';
                     if (step === 'initial' || step === 'success' || step === 'finish') {
                         mainButton.hide();
+                        if (step === 'finish' || step === 'success') {
+                            haptic.notification('success');
+                        }
+                    } else if (step === 'failed' || step === 'error' || step === 'refunded') {
+                        haptic.notification('error');
+                        mainButton.show();
                     } else {
                         mainButton.show();
                     }
@@ -51,7 +85,12 @@
             });
 
             mainButton.onClick(function() {
+                haptic.impact('medium');
                 var iframe = document.getElementById('iframe-widget');
+                if (!iframe && typeof window.openExchangeWidget === 'function') {
+                    window.openExchangeWidget();
+                    return;
+                }
                 if (iframe && iframe.contentWindow) {
                     iframe.contentWindow.postMessage({ type: 'submit' }, '*');
                 }
@@ -71,26 +110,27 @@
 <script>
     function initAnalytics() {
       window.telegramAnalytics.init({
-        token: 'eyJhcHBfbmFtZSI6IlRPTkJyaWRnZV9yb2JvdCIsImFwcF91cmwiOiJodHRwczovL3QubWUvVE9OQnJpZGdlX3JvYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vdG9uYmFua2NhcmQuY29tL2JyaWRnZS9UTUEvMDAuaHRtbCJ9!PQ40y7Tz3lZti6uDVlApq+BcGxi8tR9WEsH6Hyu+mD0=', // SDK Auth token received via @DataChief_bot
-        appName: 'TONBridge_robot', // The analytics identifier you entered in @DataChief_bot
+        token: '{{ env.TG_ANALYTICS_TOKEN }}', // SDK Auth token received via @DataChief_bot
+        appName: '{{ env.TG_ANALYTICS_APP_NAME }}', // The analytics identifier you entered in @DataChief_bot
       });
     }
 </script>
     <!-- loader -->
     <div id="loader">
-        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+        <img src="assets/img/loading-icon.webp" alt="icon" class="loading-icon">
     </div>
     <!-- * loader -->
 
     <!-- App Header -->
     <div class="appHeader bg-primary text-light">
         <div class="left">
-            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel">
+            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel" aria-label="{{ locales.en.menu_title }}" data-i18n-attr="aria-label:menu_title">
                 <ion-icon name="menu-outline"></ion-icon>
             </a>
         </div>
         <div class="pageTitle">
             <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo">
+            <span class="lhci-logo-text">TONBANKCARD</span>
         </div>
     </div>
     <!-- * App Header -->
@@ -98,25 +138,223 @@
     <!-- App Capsule -->
     <div id="appCapsule">
 
-		<!-- App {{ sectionLabel }} -->
-<!-- {% if activePage == 'bridge' %}{{ t.bridge_img_comment }}{% else %}{{ t.exchange_img_comment }}{% endif %} -->
-            <div class="text-center mb-4">
-                <img src="{{ imgSrc }}" alt="Intro Image" style="width: {{ imgW }}; height: {{ imgH }};">
+        {% if activePage == 'bridge' %}
+        <!-- Rate Ticker -->
+        <section id="rate-ticker-section" class="splide" aria-label="{{ locales.en.ticker_aria_label }}" data-i18n-attr="aria-label:ticker_aria_label" style="display: block; min-height: 128px; margin: 12px 0 8px; overflow: hidden;">
+            <div class="splide__track">
+                <ul class="splide__list">
+                    <li class="splide__slide" data-asset="the-open-network">
+                        <button type="button" class="rate-card rate-card--loading">
+                            <div class="rate-card__header">
+                                <span class="rate-card__icon">💎</span>
+                                <span class="rate-card__symbol">TON</span>
+                            </div>
+                            <div class="rate-card__price rate-card__skeleton">—</div>
+                            <div class="rate-card__change rate-card__skeleton">—</div>
+                            <div class="rate-card__chart" id="chart-TON"></div>
+                        </button>
+                    </li>
+                    <li class="splide__slide" data-asset="tether">
+                        <button type="button" class="rate-card rate-card--loading">
+                            <div class="rate-card__header">
+                                <span class="rate-card__icon">💵</span>
+                                <span class="rate-card__symbol">USDT</span>
+                            </div>
+                            <div class="rate-card__price rate-card__skeleton">—</div>
+                            <div class="rate-card__change rate-card__skeleton">—</div>
+                            <div class="rate-card__chart" id="chart-USDT"></div>
+                        </button>
+                    </li>
+                    <li class="splide__slide" data-asset="bitcoin">
+                        <button type="button" class="rate-card rate-card--loading">
+                            <div class="rate-card__header">
+                                <span class="rate-card__icon">₿</span>
+                                <span class="rate-card__symbol">BTC</span>
+                            </div>
+                            <div class="rate-card__price rate-card__skeleton">—</div>
+                            <div class="rate-card__change rate-card__skeleton">—</div>
+                            <div class="rate-card__chart" id="chart-BTC"></div>
+                        </button>
+                    </li>
+                    <li class="splide__slide" data-asset="ethereum">
+                        <button type="button" class="rate-card rate-card--loading">
+                            <div class="rate-card__header">
+                                <span class="rate-card__icon">Ξ</span>
+                                <span class="rate-card__symbol">ETH</span>
+                            </div>
+                            <div class="rate-card__price rate-card__skeleton">—</div>
+                            <div class="rate-card__change rate-card__skeleton">—</div>
+                            <div class="rate-card__chart" id="chart-ETH"></div>
+                        </button>
+                    </li>
+                </ul>
             </div>
-<!-- {% if activePage == 'bridge' %}{{ t.bridge_section_comment }}{% else %}{{ t.exchange_section_comment }}{% endif %} -->
+        </section>
+        <!-- * Rate Ticker -->
+        {% endif %}
 
-                    <h3>&nbsp;{% if activePage == 'bridge' %}{{ t.bridge_heading }}{% else %}{{ t.exchange_heading }}{% endif %}</h3>
+		<!-- App {{ sectionLabel }} -->
+            <div class="text-center mb-4" style="height: calc({{ imgH }} + 9px);">
+                <img src="{{ imgSrc }}" alt="Intro Image" fetchpriority="high" style="width: {{ imgW }}; height: {{ imgH }};">
+            </div>
+
+                    <h3>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_heading{% else %}exchange_heading{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_heading }}{% else %}{{ locales.en.exchange_heading }}{% endif %}</span></h3>
                     <p>
-                        &nbsp;{% if activePage == 'bridge' %}{{ t.bridge_intro_line1 }}{% else %}{{ t.exchange_intro_line1 }}{% endif %}
-                        {% if activePage == 'bridge' %}{{ t.bridge_intro_line2 }}{% else %}{{ t.exchange_intro_line2 }}{% endif %}
+                        &nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_intro_line1{% else %}exchange_intro_line1{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_intro_line1 }}{% else %}{{ locales.en.exchange_intro_line1 }}{% endif %}</span>
+                        <span data-i18n="{% if activePage == 'bridge' %}bridge_intro_line2{% else %}exchange_intro_line2{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_intro_line2 }}{% else %}{{ locales.en.exchange_intro_line2 }}{% endif %}</span>
                     </p>
                     <ul class="list-unstyled">
-                        <li>&nbsp;{% if activePage == 'bridge' %}{{ t.bridge_point1 }}{% else %}{{ t.exchange_point1 }}{% endif %}</li>
-                        <li>&nbsp;{% if activePage == 'bridge' %}{{ t.bridge_point2 }}{% else %}{{ t.exchange_point2 }}{% endif %}</li>
-                        <li>&nbsp;{% if activePage == 'bridge' %}{{ t.bridge_point3 }}{% else %}{{ t.exchange_point3 }}{% endif %}</li>
+                        <li>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_point1{% else %}exchange_point1{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_point1 }}{% else %}{{ locales.en.exchange_point1 }}{% endif %}</span></li>
+                        <li>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_point2{% else %}exchange_point2{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_point2 }}{% else %}{{ locales.en.exchange_point2 }}{% endif %}</span></li>
+                        <li>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_point3{% else %}exchange_point3{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_point3 }}{% else %}{{ locales.en.exchange_point3 }}{% endif %}</span></li>
                     </ul>
-	    </br><iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount={{ iframeAmount }}&amountFiat&backgroundColor=f6fafd&darkMode=false&from={{ iframeFrom }}&horizontal=false&isFiat=false&lang={{ t.widget_lang }}&link_id=3cc0024a18fd9d&locales=true&logo=false&primaryColor=1bb2da&to={{ iframeTo }}&toTheMoon=false' style="height: 450px; width: 100%; border: none"></iframe>
-		<script defer type='text/javascript' src='https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js'></script>
+        </br>
+        <!-- Lazy-load placeholder — replaced by iframe on user interaction or idle -->
+        <div id="iframe-placeholder" style="height: 450px; width: 100%; aspect-ratio: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #f6fafd; border-radius: 8px;">
+            <img src="assets/img/loading-icon.webp" alt="logo" style="width: 64px; height: 64px; opacity: 0.6;">
+            <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button" data-i18n="open_exchange_btn">{{ locales.en.open_exchange_btn }}</button>
+        </div>
+        <script>
+        (function() {
+            var BASE_IFRAME_SRC = 'https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount={{ iframeAmount }}&amountFiat&backgroundColor=f6fafd&darkMode=false&from={{ iframeFrom }}&horizontal=false&isFiat=false&lang={{ locales.en.widget_lang }}&link_id={{ env.CHANGENOW_LINK_ID }}&locales=true&logo=false&primaryColor=1bb2da&to={{ iframeTo }}&toTheMoon=false';
+            var STEPPER_SRC = 'https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js';
+            var IFRAME_HEIGHT = '450px';
+            var I18N_LANG_KEY = 'widget_lang';
+            var FALLBACK_LANG = '{{ locales.en.widget_lang }}';
+            var idleTimer = null;
+            var idleCallbackId = null;
+            var interactionEvents = ['pointerdown', 'keydown', 'touchstart', 'wheel'];
+            var injected = false;
+            var selectedFrom = '{{ iframeFrom }}';
+
+            function stripHash(value) {
+                return value ? value.trim().replace(/^#/, '') : '';
+            }
+
+            function cssVar(name) {
+                return window.getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+            }
+
+            function widgetLang() {
+                if (window.i18n && typeof i18n.t === 'function') {
+                    return i18n.t(I18N_LANG_KEY, FALLBACK_LANG);
+                }
+                return FALLBACK_LANG;
+            }
+
+            function buildIframeSrc() {
+                var url = new URL(BASE_IFRAME_SRC, window.location.href);
+                var primaryColor = stripHash(cssVar('--tg-theme-button-color') || cssVar('--tg-theme-link-color') || '#1bb2da');
+                var backgroundColor = stripHash(cssVar('--tg-theme-bg-color') || '#f6fafd');
+                var colorScheme = cssVar('--tg-color-scheme') || (document.documentElement.className === 'dark' ? 'dark' : 'light');
+
+                url.searchParams.set('from', selectedFrom);
+                url.searchParams.set('lang', widgetLang());
+                url.searchParams.set('primaryColor', primaryColor);
+                url.searchParams.set('backgroundColor', backgroundColor);
+                url.searchParams.set('darkMode', colorScheme === 'dark' ? 'true' : 'false');
+                return url.toString();
+            }
+
+            function removeInteractionListeners() {
+                interactionEvents.forEach(function(eventName) {
+                    window.removeEventListener(eventName, armIdlePreload, { passive: true });
+                });
+            }
+
+            function cancelIdlePreload() {
+                if (idleTimer) {
+                    clearTimeout(idleTimer);
+                    idleTimer = null;
+                }
+                if (idleCallbackId && typeof cancelIdleCallback === 'function') {
+                    cancelIdleCallback(idleCallbackId);
+                    idleCallbackId = null;
+                }
+            }
+
+            function injectIframe() {
+                if (injected) return;
+
+                var placeholder = document.getElementById('iframe-placeholder');
+                if (!placeholder) return;
+                injected = true;
+                cancelIdlePreload();
+                removeInteractionListeners();
+
+                var iframe = document.createElement('iframe');
+                iframe.id = 'iframe-widget';
+                iframe.title = 'ChangeNOW exchange widget';
+                iframe.src = buildIframeSrc();
+                iframe.loading = 'lazy';
+                iframe.setAttribute('importance', 'high');
+                iframe.setAttribute('data-i18n-iframe-lang', I18N_LANG_KEY);
+                iframe.style.cssText = 'height: ' + IFRAME_HEIGHT + '; width: 100%; border: none; display: block;';
+
+                placeholder.parentNode.replaceChild(iframe, placeholder);
+
+                if (!document.querySelector('script[data-changenow-stepper]')) {
+                    var script = document.createElement('script');
+                    script.defer = true;
+                    script.src = STEPPER_SRC;
+                    script.setAttribute('data-changenow-stepper', 'true');
+                    document.body.appendChild(script);
+                }
+            }
+
+            function preloadWhenIdle() {
+                if (injected) return;
+                if (typeof requestIdleCallback === 'function') {
+                    idleCallbackId = requestIdleCallback(injectIframe, { timeout: 2000 });
+                } else {
+                    injectIframe();
+                }
+            }
+
+            function armIdlePreload() {
+                if (injected) return;
+                cancelIdlePreload();
+                idleTimer = setTimeout(preloadWhenIdle, 2000);
+            }
+
+            function initLazyWidget() {
+                var btn = document.getElementById('open-exchange-btn');
+                if (btn) btn.addEventListener('click', injectIframe);
+                interactionEvents.forEach(function(eventName) {
+                    window.addEventListener(eventName, armIdlePreload, { passive: true });
+                });
+                armIdlePreload();
+            }
+
+            window.setExchangeWidgetFrom = function(from) {
+                if (!from) return;
+                selectedFrom = from;
+
+                var iframe = document.getElementById('iframe-widget');
+                if (!iframe || !iframe.src) return;
+
+                try {
+                    var url = new URL(iframe.src, window.location.href);
+                    url.searchParams.set('from', selectedFrom);
+                    iframe.src = url.toString();
+                } catch (e) {}
+            };
+            window.openExchangeWidget = injectIframe;
+            window.addEventListener('beforeunload', function() {
+                var iframe = document.getElementById('iframe-widget');
+                if (iframe) {
+                    iframe.src = 'about:blank';
+                    iframe.remove();
+                }
+            });
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initLazyWidget);
+            } else {
+                initLazyWidget();
+            }
+        })();
+        </script>
         <!-- * App {{ sectionLabel }} -->
 <center><a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy"/></a></center></br></br>
 <center>
@@ -128,7 +366,7 @@
                                     <center><ion-icon name="information-outline" style="font-size: 64px;"></center>
                                 </div>
                             </div>
-                        </div></td><td><a href="{% if activePage == 'bridge' %}{{ t.bridge_instruction_link }}{% else %}{{ t.exchange_instruction_link }}{% endif %}" class="btn btn-primary btn-lg">{% if activePage == 'bridge' %}{{ t.bridge_instruction_btn }}{% else %}{{ t.exchange_instruction_btn }}{% endif %}</a></td></tr>
+                        </div></td><td><a href="{% if activePage == 'bridge' %}1.html{% else %}2.html{% endif %}" class="btn btn-primary btn-lg" data-i18n="{% if activePage == 'bridge' %}bridge_instruction_btn{% else %}exchange_instruction_btn{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_instruction_btn }}{% else %}{{ locales.en.exchange_instruction_btn }}{% endif %}</a></td></tr>
 </table>
 
 </center></br></br>
@@ -137,40 +375,40 @@
 
     <!-- App Bottom Menu -->
     <div class="appBottomMenu">
-        <a href="index{{ t.suffix }}.html" class="item{% if activePage == 'bridge' %} active{% endif %}">
+        <a href="index.html" class="item{% if activePage == 'bridge' %} active{% endif %}">
             <div class="col">
                 <ion-icon name="sync"></ion-icon>
-                <strong>{{ t.nav_bridge }}</strong>
+                <strong data-i18n="nav_bridge">{{ locales.en.nav_bridge }}</strong>
             </div>
         </a>
-        <a href="index2{{ t.suffix }}.html" class="item{% if activePage == 'exchange' %} active{% endif %}">
+        <a href="index2.html" class="item{% if activePage == 'exchange' %} active{% endif %}">
             <div class="col">
                 <ion-icon name="swap-horizontal-outline"></ion-icon>
-                <strong>{{ t.nav_exchange }}</strong>
+                <strong data-i18n="nav_exchange">{{ locales.en.nav_exchange }}</strong>
             </div>
         </a>
-        <a href="index3{{ t.suffix }}.html" class="item">
+        <a href="index3.html" class="item">
             <div class="col">
                 <ion-icon name="cash-outline"></ion-icon>
-                <strong>{{ t.nav_otc }}</strong>
+                <strong data-i18n="nav_otc">{{ locales.en.nav_otc }}</strong>
             </div>
         </a>
-        <a href="orders{{ t.suffix }}.html" class="item">
+        <a href="orders.html" class="item">
             <div class="col">
                 <ion-icon name="receipt-outline"></ion-icon>
-                <strong>{{ t.nav_orders }}</strong>
+                <strong data-i18n="nav_orders">{{ locales.en.nav_orders }}</strong>
             </div>
         </a>
-        <!-- <a href="index4{{ t.suffix }}.html" class="item">
+        <!-- <a href="index4.html" class="item">
             <div class="col">
                 <ion-icon name="stats-chart"></ion-icon>
-                <strong>{{ t.nav_statistics }}</strong>
+                <strong data-i18n="nav_statistics">{{ locales.en.nav_statistics }}</strong>
             </div>
         </a> -->
-        <a href="app-settings{{ t.suffix }}.html" class="item">
+        <a href="app-settings.html" class="item">
             <div class="col">
                 <ion-icon name="settings-outline"></ion-icon>
-                <strong>{{ t.nav_settings }}</strong>
+                <strong data-i18n="nav_settings">{{ locales.en.nav_settings }}</strong>
             </div>
         </a>
     </div>
@@ -183,50 +421,40 @@
                 <div class="modal-body p-0">
 
 <!-- menu -->
-<div class="listview-title mt-1">{{ t.menu_title }}</div>
+<div class="listview-title mt-1" data-i18n="menu_title">{{ locales.en.menu_title }}</div>
 <ul class="listview flush transparent no-line image-listview">
-    <li>
-        <a href="app-settings{{ t.suffix }}.html" class="item">
-            <div class="icon-box bg-primary">
-                <ion-icon name="settings-outline"></ion-icon>
-            </div>
-            <div class="in">
-                {{ t.menu_settings }}
-            </div>
-        </a>
-    </li>
     <li>
         <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_bot');" class="item">
             <div class="icon-box bg-primary">
                 <ion-icon name="chatbubble-outline"></ion-icon>
             </div>
-            <div class="in">
-                {{ t.menu_support }}
+            <div class="in" data-i18n="menu_support">
+                {{ locales.en.menu_support }}
             </div>
         </a>
     </li>
 </ul>
 
                      <!-- community section -->
-<div class="listview-title mt-1">{{ t.community_title }}</div>
+<div class="listview-title mt-1" data-i18n="community_title">{{ locales.en.community_title }}</div>
 <ul class="listview flush transparent no-line image-listview">
     <li>
-        <a href="javascript:Telegram.WebApp.openTelegramLink('{{ t.community_group_link }}');" class="item">
+        <a href="#" class="item" id="community-group-link">
             <div class="icon-box bg-secondary">
                 <ion-icon name="people-circle-outline"></ion-icon>
             </div>
-            <div class="in">
-                {{ t.community_group }}
+            <div class="in" data-i18n="community_group">
+                {{ locales.en.community_group }}
             </div>
         </a>
     </li>
     <li>
-        <a href="javascript:Telegram.WebApp.openTelegramLink('{{ t.community_chat_link }}');" class="item">
+        <a href="#" class="item" id="community-chat-link">
             <div class="icon-box bg-secondary">
                 <ion-icon name="chatbubbles-outline"></ion-icon>
             </div>
-            <div class="in">
-                {{ t.community_chat }}
+            <div class="in" data-i18n="community_chat">
+                {{ locales.en.community_chat }}
             </div>
         </a>
     </li>
@@ -242,15 +470,15 @@
     <div id="cookiesbox" class="offcanvas offcanvas-bottom cookies-box" tabindex="-1" data-bs-scroll="true"
         data-bs-backdrop="false">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title">{{ t.cookies_title }}</h5>
+            <h5 class="offcanvas-title" data-i18n="cookies_title">{{ locales.en.cookies_title }}</h5>
         </div>
         <div class="offcanvas-body">
             <div>
-                {{ t.cookies_body }}
-                <a href="#" class="text-secondary"><u>{{ t.cookies_learn_more }}</u></a>
+                <span data-i18n="cookies_body">{{ locales.en.cookies_body }}</span>
+                <a href="#" class="text-secondary"><u data-i18n="cookies_learn_more">{{ locales.en.cookies_learn_more }}</u></a>
             </div>
             <div class="buttons">
-                <a href="#" class="btn btn-primary btn-block" data-bs-dismiss="offcanvas">{{ t.cookies_accept }}</a>
+                <a href="#" class="btn btn-primary btn-block" data-bs-dismiss="offcanvas" data-i18n="cookies_accept">{{ locales.en.cookies_accept }}</a>
             </div>
         </div>
     </div>
@@ -258,14 +486,53 @@
     <!-- ========= JS Files =========  -->
     <!-- Bootstrap -->
     <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
-    <!-- Ionicons -->
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <!-- Ionicons (self-hosted sprite) -->
+    <script src="assets/js/ion-icon.js" defer></script>
     <!-- Splide -->
     <script src="assets/js/plugins/splide/splide.min.js"></script>
+    {% if activePage == 'bridge' %}<!-- ApexCharts -->
+    <script src="assets/js/plugins/apexcharts/apexcharts.min.js"></script>{% endif %}
+    <!-- i18n inline data + loader -->
+    <script src="assets/js/prefs.js"></script>
+    {% i18nDataScript %}
+    <script src="assets/js/i18n.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Offline Indicator -->
+    <script src="assets/js/offline.js"></script>
+    <!-- Haptic Feedback -->
+    <script src="assets/js/haptic.js"></script>
+    <script>
+        // Tab-bar taps
+        document.querySelectorAll('.appBottomMenu .item').forEach(function (el) {
+            el.addEventListener('click', function () { haptic.impact('light'); });
+        });
+    </script>
+    <!-- Telegram Theme Integration -->
+    <script src="assets/js/tg-theme.js"></script>
+    <!-- Telegram SettingsButton -->
+    <script src="assets/js/settings-button.js"></script>
+    <script>wireSettingsButton('app-settings.html');</script>
+    {% if activePage == 'bridge' %}<!-- Rate Ticker -->
+    <script src="assets/js/rate-ticker.js"></script>{% endif %}
 
     <script>
+        // Wire community links after translations are applied
+        document.addEventListener('i18n:applied', function(e) {
+            var t = e.detail.t;
+            var groupLink = document.getElementById('community-group-link');
+            var chatLink = document.getElementById('community-chat-link');
+            if (groupLink && t.community_group_link) {
+                groupLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_group_link + "');";
+            }
+            if (chatLink && t.community_chat_link) {
+                chatLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_chat_link + "');";
+            }
+        });
+
+        // Initialise i18n on boot
+        i18n.init();
+
         // Add to Home with 2 seconds delay.
         AddtoHome("2000", "once");
     </script>
@@ -277,14 +544,14 @@
    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-   ym(98019798, "init", {
+   ym({{ env.YANDEX_METRIKA_ID }}, "init", {
         clickmap:true,
         trackLinks:true,
         accurateTrackBounce:true,
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/{{ env.YANDEX_METRIKA_ID }}" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
 </body>
 

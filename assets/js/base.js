@@ -500,7 +500,6 @@ function AddtoHome(time, once) {
 
 //-----------------------------------------------------------------------
 // Dark Mode
-var checkDarkModeStatus = localStorage.getItem("FinappDarkmode");
 var switchDarkMode = document.querySelectorAll(".dark-mode-switch");
 var pageBodyActive = pageBody.classList.contains("dark-mode");
 
@@ -532,32 +531,37 @@ function switchDarkModeCheck(value) {
         el.checked = value
     })
 }
-// if dark mode on
-if (checkDarkModeStatus === 1 || checkDarkModeStatus === "1" || pageBody.classList.contains('dark-mode')) {
-    switchDarkModeCheck(true);
-    if (pageBodyActive) {
-        // dark mode already activated
-    }
-    else {
-        pageBody.classList.add("dark-mode")
-    }
+
+// Apply saved theme preference from prefs (CloudStorage / localStorage)
+if (window.prefs) {
+    window.prefs.get('pref:theme').then(function (theme) {
+        if (theme === 'dark') {
+            pageBody.classList.add("dark-mode");
+            switchDarkModeCheck(true);
+        } else if (theme === 'light') {
+            pageBody.classList.remove("dark-mode");
+            switchDarkModeCheck(false);
+        } else {
+            // No saved preference — reflect current state from defaults above
+            switchDarkModeCheck(pageBody.classList.contains('dark-mode'));
+        }
+    });
+} else {
+    switchDarkModeCheck(pageBody.classList.contains('dark-mode'));
 }
-else {
-    switchDarkModeCheck(false);
-}
+
 switchDarkMode.forEach(function (el) {
     el.addEventListener("click", function () {
-        var darkmodeCheck = localStorage.getItem("FinappDarkmode");
         var bodyCheck = pageBody.classList.contains('dark-mode');
-        if (darkmodeCheck === 1 || darkmodeCheck === "1" || bodyCheck) {
+        if (bodyCheck) {
             pageBody.classList.remove("dark-mode");
-            localStorage.setItem("FinappDarkmode", "0");
             switchDarkModeCheck(false);
+            if (window.prefs) window.prefs.set('pref:theme', 'light');
         }
         else {
             pageBody.classList.add("dark-mode")
             switchDarkModeCheck(true);
-            localStorage.setItem("FinappDarkmode", "1");
+            if (window.prefs) window.prefs.set('pref:theme', 'dark');
         }
     })
 })

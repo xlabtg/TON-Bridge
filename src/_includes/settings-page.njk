@@ -90,6 +90,21 @@
         </li>
     </ul>
 
+    <div class="listview-title mt-1" data-i18n="wallet_section">{{ locales.en.wallet_section }}</div>
+    <ul class="listview image-listview text inset no-line" id="wallet-settings-list">
+        <li id="wallet-settings-connect-row">
+            <div class="item">
+                <div class="in">
+                    <div id="wallet-settings-status" data-i18n="wallet_connect_btn">{{ locales.en.wallet_connect_btn }}</div>
+                    <button class="btn btn-primary btn-sm rounded" id="wallet-settings-btn" onclick="WalletConnect.connect()">
+                        <ion-icon name="wallet-outline" style="font-size:16px;margin-right:4px;vertical-align:middle;"></ion-icon>
+                        <span id="wallet-settings-btn-label" data-i18n="wallet_connect_btn">{{ locales.en.wallet_connect_btn }}</span>
+                    </button>
+                </div>
+            </div>
+        </li>
+    </ul>
+
     <div class="listview-title mt-1" data-i18n="settings_security_section">{{ locales.en.settings_security_section }}</div>
     <ul class="listview image-listview text inset no-line" id="biometric-section">
         <li>
@@ -251,6 +266,8 @@
     <script src="assets/js/i18n.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Wallet Connect -->
+    <script src="assets/js/wallet-connect.js"></script>
     <!-- Offline Indicator -->
     <script src="assets/js/offline.js"></script>
     <!-- Telegram BackButton -->
@@ -285,6 +302,45 @@
         });
         document.getElementById('notificationsSwitch').addEventListener('change', function () {
             haptic.selection();
+        });
+    </script>
+    <script>
+        var i18nWallet = {
+            connectBtn: '{{ locales.en.wallet_connect_btn }}',
+            disconnectBtn: '{{ locales.en.wallet_disconnect_btn }}'
+        };
+
+        document.addEventListener('i18n:applied', function(e) {
+            var t = e.detail.t || {};
+            i18nWallet.connectBtn = t.wallet_connect_btn || i18nWallet.connectBtn;
+            i18nWallet.disconnectBtn = t.wallet_disconnect_btn || i18nWallet.disconnectBtn;
+        });
+
+        function updateSettingsWalletUI(state) {
+            var statusEl = document.getElementById('wallet-settings-status');
+            var btnEl = document.getElementById('wallet-settings-btn');
+            var btnLabelEl = document.getElementById('wallet-settings-btn-label');
+            if (!statusEl || !btnEl || !btnLabelEl) return;
+
+            if (state && state.connected && state.address) {
+                var short = WalletConnect.shortenAddress(state.address);
+                var balLine = state.balance != null ? ' · ' + state.balance + ' TON' : '';
+                statusEl.textContent = short + balLine;
+                btnLabelEl.textContent = i18nWallet.disconnectBtn;
+                btnEl.className = 'btn btn-danger btn-sm rounded';
+                btnEl.onclick = function() { WalletConnect.disconnect(); };
+            } else {
+                statusEl.textContent = i18nWallet.connectBtn;
+                btnLabelEl.textContent = i18nWallet.connectBtn;
+                btnEl.className = 'btn btn-primary btn-sm rounded';
+                btnEl.onclick = function() { WalletConnect.connect(); };
+            }
+        }
+
+        WalletConnect.onChange(updateSettingsWalletUI);
+        WalletConnect.init('tonconnect-manifest.json', {
+            sdkUrl: 'assets/js/vendor/tonconnect-ui.min.js',
+            lazy: true
         });
     </script>
     <!-- Telegram SettingsButton - hide on settings page to avoid recursion -->

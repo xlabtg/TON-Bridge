@@ -126,6 +126,12 @@
         <div class="pageTitle">
             <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo" width="143" height="24" loading="eager" decoding="async">
         </div>
+        <div class="right">
+            <button id="wallet-btn" class="headerButton btn btn-sm btn-outline-light rounded" onclick="WalletConnect.connect()" style="font-size:11px;height:28px;padding:0 8px;">
+                <ion-icon name="wallet-outline" style="font-size:16px;margin-right:4px;vertical-align:middle;"></ion-icon>
+                <span id="wallet-btn-label" data-i18n="wallet_connect_btn">{{ locales.en.wallet_connect_btn }}</span>
+            </button>
+        </div>
     </div>
     <!-- * App Header -->
 
@@ -202,6 +208,16 @@
                         <li>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_point2{% else %}exchange_point2{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_point2 }}{% else %}{{ locales.en.exchange_point2 }}{% endif %}</span></li>
                         <li>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_point3{% else %}exchange_point3{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_point3 }}{% else %}{{ locales.en.exchange_point3 }}{% endif %}</span></li>
                     </ul>
+        {% if activePage == 'bridge' %}
+        <div id="wallet-prefill-bar" style="display:none;padding:0 8px 8px;">
+            <span class="chip chip-primary chip-outline" id="wallet-prefill-half" style="cursor:pointer;margin-right:6px;" onclick="walletPrefillHalf()">
+                <span class="chip-label" id="wallet-prefill-half-label" data-i18n="wallet_prefill_half">{{ locales.en.wallet_prefill_half }}</span>
+            </span>
+            <span class="chip chip-primary chip-outline" id="wallet-prefill-max" style="cursor:pointer;" onclick="walletPrefillMax()">
+                <span class="chip-label" data-i18n="wallet_prefill_max">{{ locales.en.wallet_prefill_max }}</span>
+            </span>
+        </div>
+        {% endif %}
         </br>
         <!-- Lazy-load placeholder — replaced by iframe on user interaction or idle -->
         <div id="iframe-placeholder" style="height: 450px; width: 100%; aspect-ratio: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #f6fafd; border-radius: 8px;">
@@ -492,6 +508,8 @@
     <script src="assets/js/i18n.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Wallet Connect -->
+    <script src="assets/js/wallet-connect.js"></script>
     <!-- Offline Indicator -->
     <script src="assets/js/offline.js"></script>
     <!-- Haptic Feedback -->
@@ -529,6 +547,84 @@
 
         // Add to Home with 2 seconds delay.
         AddtoHome("2000", "once");
+    </script>
+
+    <script>
+        var i18nWallet = {
+            connectBtn: '{{ locales.en.wallet_connect_btn }}',
+            disconnectBtn: '{{ locales.en.wallet_disconnect_btn }}',
+            prefillHalf: '{{ locales.en.wallet_prefill_half }}'
+        };
+        var _walletBalance = null;
+
+        document.addEventListener('i18n:applied', function(e) {
+            var t = e.detail.t || {};
+            i18nWallet.connectBtn = t.wallet_connect_btn || i18nWallet.connectBtn;
+            i18nWallet.disconnectBtn = t.wallet_disconnect_btn || i18nWallet.disconnectBtn;
+            i18nWallet.prefillHalf = t.wallet_prefill_half || i18nWallet.prefillHalf;
+        });
+
+        function updateWalletUI(state) {
+            var btn = document.getElementById('wallet-btn');
+            var btnLabel = document.getElementById('wallet-btn-label');
+            var prefillBar = document.getElementById('wallet-prefill-bar');
+            var halfLabel = document.getElementById('wallet-prefill-half-label');
+            if (!btn || !btnLabel) return;
+
+            if (state && state.connected && state.address) {
+                var short = WalletConnect.shortenAddress(state.address);
+                btnLabel.textContent = state.balance != null ? short + ' · ' + state.balance + ' TON' : short;
+                btn.onclick = function() { WalletConnect.disconnect(); };
+                _walletBalance = state.balance ? parseFloat(state.balance) : null;
+
+                {% if activePage == 'bridge' %}
+                if (prefillBar) {
+                    prefillBar.style.display = '';
+                    if (halfLabel && _walletBalance != null) {
+                        halfLabel.textContent = i18nWallet.prefillHalf.replace('{bal}', (_walletBalance / 2).toFixed(2));
+                    }
+                }
+                {% endif %}
+            } else {
+                btnLabel.textContent = i18nWallet.connectBtn;
+                btn.onclick = function() { WalletConnect.connect(); };
+                _walletBalance = null;
+                {% if activePage == 'bridge' %}
+                if (prefillBar) prefillBar.style.display = 'none';
+                {% endif %}
+            }
+        }
+
+        {% if activePage == 'bridge' %}
+        function walletPrefillHalf() {
+            if (_walletBalance == null) return;
+            prefillIframe((_walletBalance / 2).toFixed(2));
+        }
+
+        function walletPrefillMax() {
+            if (_walletBalance == null) return;
+            prefillIframe(_walletBalance.toFixed(2));
+        }
+
+        function prefillIframe(amount) {
+            if (typeof window.openExchangeWidget === 'function') {
+                window.openExchangeWidget();
+            }
+
+            setTimeout(function() {
+                var iframe = document.getElementById('iframe-widget');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({ type: 'set-amount', amount: amount }, '*');
+                }
+            }, 0);
+        }
+        {% endif %}
+
+        WalletConnect.onChange(updateWalletUI);
+        WalletConnect.init('tonconnect-manifest.json', {
+            sdkUrl: 'assets/js/vendor/tonconnect-ui.min.js',
+            lazy: true
+        });
     </script>
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript" >

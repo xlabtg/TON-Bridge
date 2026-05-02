@@ -34,8 +34,12 @@ export default function(eleventyConfig) {
   });
 
   eleventyConfig.addPassthroughCopy({ 'assets': 'assets' });
+  eleventyConfig.addPassthroughCopy({
+    'node_modules/@tonconnect/ui/dist/tonconnect-ui.min.js': 'assets/js/vendor/tonconnect-ui.min.js'
+  });
   eleventyConfig.addPassthroughCopy('__manifest.json');
   eleventyConfig.addPassthroughCopy('__service-worker.js');
+  eleventyConfig.addPassthroughCopy('tonconnect-manifest.json');
 
   return {
     dir: {

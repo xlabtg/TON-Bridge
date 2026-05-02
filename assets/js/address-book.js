@@ -207,10 +207,16 @@
   }
 
   function prefillIframe(address) {
-    var iframe = document.getElementById('iframe-widget');
-    if (iframe && iframe.contentWindow) {
-      iframe.contentWindow.postMessage({ type: 'set-recipient', address: address }, '*');
+    if (typeof global.openExchangeWidget === 'function') {
+      global.openExchangeWidget();
     }
+
+    setTimeout(function () {
+      var iframe = document.getElementById('iframe-widget');
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage({ type: 'set-recipient', address: address }, '*');
+      }
+    }, 0);
   }
 
   // ── Action sheet ──────────────────────────────────────────────────────────

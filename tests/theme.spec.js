@@ -126,4 +126,17 @@ test.describe('Telegram themeParams integration', () => {
     await expect.poll(() => iframeParam(page, 'backgroundColor')).toBe('010203');
     await expect.poll(() => iframeParam(page, 'darkMode')).toBe('true');
   });
+
+  test('keeps page chrome and ChangeNOW dark when Telegram omits themeParams', async ({ page }) => {
+    await mockTelegramWebApp(page, {}, 'dark');
+
+    await page.goto(distUrl('index.html'));
+
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).backgroundColor))
+      .toBe('rgb(3, 1, 8)');
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.querySelector('.appHeader')).backgroundColor))
+      .toBe('rgb(22, 17, 41)');
+    await expect.poll(() => iframeParam(page, 'backgroundColor')).toBe('030108');
+    await expect.poll(() => iframeParam(page, 'darkMode')).toBe('true');
+  });
 });

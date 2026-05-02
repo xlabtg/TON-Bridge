@@ -65,6 +65,17 @@ function iframeParam(page, name) {
   }, name);
 }
 
+async function disableIdlePreload(page) {
+  await page.addInitScript(() => {
+    window.requestIdleCallback = function() { return 0; };
+    const origSetTimeout = window.setTimeout;
+    window.setTimeout = function(fn, delay, ...args) {
+      if (delay === 2000) return 0;
+      return origSetTimeout(fn, delay, ...args);
+    };
+  });
+}
+
 test.describe('Telegram themeParams integration', () => {
   test('applies Telegram theme colors to page chrome and ChangeNOW on load', async ({ page }) => {
     await mockTelegramWebApp(page, {
@@ -80,6 +91,7 @@ test.describe('Telegram themeParams integration', () => {
       section_separator_color: '#56789a',
       bottom_bar_bg_color: '#6789ab',
     }, 'dark');
+    await disableIdlePreload(page);
 
     await page.goto(distUrl('index.html'));
 
@@ -93,6 +105,9 @@ test.describe('Telegram themeParams integration', () => {
     await expect.poll(() => page.evaluate(() => {
       return document.documentElement.style.getPropertyValue('--tg-theme-button-color').trim();
     })).toBe('#abcdef');
+    await expect(page.locator('#iframe-widget')).toHaveCount(0);
+
+    await page.locator('#open-exchange-btn').click();
     await expect.poll(() => iframeParam(page, 'primaryColor')).toBe('abcdef');
     await expect.poll(() => iframeParam(page, 'backgroundColor')).toBe('123456');
     await expect.poll(() => iframeParam(page, 'darkMode')).toBe('true');
@@ -105,8 +120,12 @@ test.describe('Telegram themeParams integration', () => {
       button_color: '#111111',
       button_text_color: '#ffffff',
     }, 'light');
+    await disableIdlePreload(page);
 
     await page.goto(distUrl('index2.html'));
+    await expect(page.locator('#iframe-widget')).toHaveCount(0);
+    await page.locator('#open-exchange-btn').click();
+
     await expect.poll(() => iframeParam(page, 'primaryColor')).toBe('111111');
     await expect.poll(() => iframeParam(page, 'darkMode')).toBe('false');
 
@@ -129,6 +148,7 @@ test.describe('Telegram themeParams integration', () => {
 
   test('keeps page chrome and ChangeNOW dark when Telegram omits themeParams', async ({ page }) => {
     await mockTelegramWebApp(page, {}, 'dark');
+    await disableIdlePreload(page);
 
     await page.goto(distUrl('index.html'));
 
@@ -136,6 +156,9 @@ test.describe('Telegram themeParams integration', () => {
       .toBe('rgb(3, 1, 8)');
     await expect.poll(() => page.evaluate(() => getComputedStyle(document.querySelector('.appHeader')).backgroundColor))
       .toBe('rgb(22, 17, 41)');
+
+    await expect(page.locator('#iframe-widget')).toHaveCount(0);
+    await page.locator('#open-exchange-btn').click();
     await expect.poll(() => iframeParam(page, 'backgroundColor')).toBe('030108');
     await expect.poll(() => iframeParam(page, 'darkMode')).toBe('true');
   });

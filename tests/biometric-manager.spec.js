@@ -14,6 +14,11 @@ async function setLangPref(page, lang) {
   }, lang);
 }
 
+async function openLazyOtcWidget(page) {
+  await page.locator('#open-exchange-btn').click();
+  await expect(page.locator('#iframe-widget')).toHaveCount(1);
+}
+
 /**
  * Mock Telegram.WebApp with configurable BiometricManager behaviour.
  *
@@ -234,6 +239,7 @@ test.describe('OTC page — biometric guard on MainButton', () => {
   test('MainButton click: trade proceeds when biometric off (feature disabled)', async ({ page }) => {
     await mockTelegramWithBiometric(page, { bmAvailable: true, authenticateOk: true });
     await page.goto(distUrl('index3.html'));
+    await openLazyOtcWidget(page);
 
     // Biometric is off by default; firing the handler must not throw.
     // We can't intercept cross-origin iframe postMessage, so we just verify
@@ -255,6 +261,7 @@ test.describe('OTC page — biometric guard on MainButton', () => {
   test('MainButton click: authenticate called when biometric enabled and amount >= threshold', async ({ page }) => {
     await mockTelegramWithBiometric(page, { bmAvailable: true, bmAccessGranted: true, authenticateOk: true });
     await page.goto(distUrl('index3.html'));
+    await openLazyOtcWidget(page);
 
     // Enable biometric via CloudStorage before the guard runs
     await page.evaluate(() => {
@@ -288,6 +295,7 @@ test.describe('OTC page — biometric guard on MainButton', () => {
   test('MainButton click: missing amount does not trigger biometric prompt', async ({ page }) => {
     await mockTelegramWithBiometric(page, { bmAvailable: true, bmAccessGranted: true, authenticateOk: true });
     await page.goto(distUrl('index3.html'));
+    await openLazyOtcWidget(page);
 
     await page.evaluate(() => {
       window.Telegram.WebApp.CloudStorage._store['biometricEnabled'] = '1';
@@ -313,6 +321,7 @@ test.describe('OTC page — biometric guard on MainButton', () => {
   test('MainButton click: trade aborted and toast shown when biometric fails', async ({ page }) => {
     await mockTelegramWithBiometric(page, { bmAvailable: true, bmAccessGranted: true, authenticateOk: false });
     await page.goto(distUrl('index3.html'));
+    await openLazyOtcWidget(page);
 
     await page.evaluate(() => {
       window.Telegram.WebApp.CloudStorage._store['biometricEnabled'] = '1';

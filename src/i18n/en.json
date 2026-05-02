@@ -52,6 +52,8 @@
   "main_button_exchange": "Confirm exchange",
   "main_button_otc": "Confirm exchange",
 
+  "open_exchange_btn": "Open exchange",
+
   "otc_heading": "PrimeFlow OTC",
   "otc_buy_text": "Buy TON from $1 million Without Losses:",
   "otc_point1": "- Fixed rate",

@@ -77,6 +77,10 @@
             mainButton.onClick(function() {
                 haptic.impact('medium');
                 var iframe = document.getElementById('iframe-widget');
+                if (!iframe && typeof window.openExchangeWidget === 'function') {
+                    window.openExchangeWidget();
+                    return;
+                }
                 function submitToIframe() {
                     if (iframe && iframe.contentWindow) {
                         iframe.contentWindow.postMessage({ type: 'submit' }, '*');
@@ -150,8 +154,136 @@
                         <li>&nbsp;<span data-i18n="otc_point2">{{ locales.en.otc_point2 }}</span></li>
                         <li>&nbsp;<span data-i18n="otc_point3">{{ locales.en.otc_point3 }}</span></li>
                     </ul>
-        <iframe id='iframe-widget' src='https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=1000000&amountFiat&backgroundColor=f6fafd&darkMode=false&from=usdtton&horizontal=false&isFiat=false&lang={{ locales.en.otc_widget_lang }}&link_id={{ env.CHANGENOW_LINK_ID }}&locales=false&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false' data-i18n-iframe-lang="otc_widget_lang" style="height: 356px; width: 100%; border: none"></iframe>
-    <script defer type='text/javascript' src='https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js'></script></br></br>
+        <!-- Lazy-load placeholder — replaced by iframe on user interaction or idle -->
+        <div id="iframe-placeholder" style="height: 356px; width: 100%; aspect-ratio: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #f6fafd; border-radius: 8px;">
+            <img src="assets/img/loading-icon.png" alt="logo" style="width: 64px; height: 64px; opacity: 0.6;">
+            <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button" data-i18n="open_exchange_btn">{{ locales.en.open_exchange_btn }}</button>
+        </div>
+        <script>
+        (function() {
+            var BASE_IFRAME_SRC = 'https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=1000000&amountFiat&backgroundColor=f6fafd&darkMode=false&from=usdtton&horizontal=false&isFiat=false&lang={{ locales.en.otc_widget_lang }}&link_id={{ env.CHANGENOW_LINK_ID }}&locales=false&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false';
+            var STEPPER_SRC = 'https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js';
+            var IFRAME_HEIGHT = '356px';
+            var I18N_LANG_KEY = 'otc_widget_lang';
+            var FALLBACK_LANG = '{{ locales.en.otc_widget_lang }}';
+            var idleTimer = null;
+            var idleCallbackId = null;
+            var interactionEvents = ['pointerdown', 'keydown', 'touchstart', 'wheel'];
+            var injected = false;
+
+            function stripHash(value) {
+                return value ? value.trim().replace(/^#/, '') : '';
+            }
+
+            function cssVar(name) {
+                return window.getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+            }
+
+            function widgetLang() {
+                if (window.i18n && typeof i18n.t === 'function') {
+                    return i18n.t(I18N_LANG_KEY, FALLBACK_LANG);
+                }
+                return FALLBACK_LANG;
+            }
+
+            function buildIframeSrc() {
+                var url = new URL(BASE_IFRAME_SRC, window.location.href);
+                var primaryColor = stripHash(cssVar('--tg-theme-button-color') || cssVar('--tg-theme-link-color') || '#1bb2da');
+                var backgroundColor = stripHash(cssVar('--tg-theme-bg-color') || '#f6fafd');
+                var colorScheme = cssVar('--tg-color-scheme') || (document.documentElement.className === 'dark' ? 'dark' : 'light');
+
+                url.searchParams.set('lang', widgetLang());
+                url.searchParams.set('primaryColor', primaryColor);
+                url.searchParams.set('backgroundColor', backgroundColor);
+                url.searchParams.set('darkMode', colorScheme === 'dark' ? 'true' : 'false');
+                return url.toString();
+            }
+
+            function removeInteractionListeners() {
+                interactionEvents.forEach(function(eventName) {
+                    window.removeEventListener(eventName, armIdlePreload, { passive: true });
+                });
+            }
+
+            function cancelIdlePreload() {
+                if (idleTimer) {
+                    clearTimeout(idleTimer);
+                    idleTimer = null;
+                }
+                if (idleCallbackId && typeof cancelIdleCallback === 'function') {
+                    cancelIdleCallback(idleCallbackId);
+                    idleCallbackId = null;
+                }
+            }
+
+            function injectIframe() {
+                if (injected) return;
+
+                var placeholder = document.getElementById('iframe-placeholder');
+                if (!placeholder) return;
+                injected = true;
+                cancelIdlePreload();
+                removeInteractionListeners();
+
+                var iframe = document.createElement('iframe');
+                iframe.id = 'iframe-widget';
+                iframe.src = buildIframeSrc();
+                iframe.loading = 'lazy';
+                iframe.setAttribute('importance', 'high');
+                iframe.setAttribute('data-i18n-iframe-lang', I18N_LANG_KEY);
+                iframe.style.cssText = 'height: ' + IFRAME_HEIGHT + '; width: 100%; border: none; display: block;';
+
+                placeholder.parentNode.replaceChild(iframe, placeholder);
+
+                if (!document.querySelector('script[data-changenow-stepper]')) {
+                    var script = document.createElement('script');
+                    script.defer = true;
+                    script.src = STEPPER_SRC;
+                    script.setAttribute('data-changenow-stepper', 'true');
+                    document.body.appendChild(script);
+                }
+            }
+
+            function preloadWhenIdle() {
+                if (injected) return;
+                if (typeof requestIdleCallback === 'function') {
+                    idleCallbackId = requestIdleCallback(injectIframe, { timeout: 2000 });
+                } else {
+                    injectIframe();
+                }
+            }
+
+            function armIdlePreload() {
+                if (injected) return;
+                cancelIdlePreload();
+                idleTimer = setTimeout(preloadWhenIdle, 2000);
+            }
+
+            function initLazyWidget() {
+                var btn = document.getElementById('open-exchange-btn');
+                if (btn) btn.addEventListener('click', injectIframe);
+                interactionEvents.forEach(function(eventName) {
+                    window.addEventListener(eventName, armIdlePreload, { passive: true });
+                });
+                armIdlePreload();
+            }
+
+            window.openExchangeWidget = injectIframe;
+            window.addEventListener('beforeunload', function() {
+                var iframe = document.getElementById('iframe-widget');
+                if (iframe) {
+                    iframe.src = 'about:blank';
+                    iframe.remove();
+                }
+            });
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initLazyWidget);
+            } else {
+                initLazyWidget();
+            }
+        })();
+        </script></br></br>
         <!-- * App Bridge -->
         <center>
             <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy" /></a>

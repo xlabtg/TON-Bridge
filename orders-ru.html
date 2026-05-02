@@ -1,0 +1,197 @@
+
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>TON Bridge - Заказы</title>
+    <meta name="description" content="TON Bridge HTML Mobile Template">
+    <meta name="keywords"
+        content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
+    <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
+    <!-- Preconnect to third-party origins -->
+<link rel="preconnect" href="https://changenow.io" crossorigin>
+<link rel="preconnect" href="https://widget-api.changenow.io" crossorigin>
+<link rel="preconnect" href="https://tganalytics.xyz" crossorigin>
+<link rel="preconnect" href="https://mc.yandex.ru" crossorigin>
+<link rel="preconnect" href="https://telegram.org" crossorigin>
+<!-- Critical above-the-fold CSS inlined -->
+<style>*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{font-family:"Poppins",sans-serif;font-size:15px;line-height:1.6rem;letter-spacing:.004em;color:#958d9e;background:#ededf5;width:100%;height:100%;overflow-x:hidden;margin:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}a{color:#6236ff;outline:0 !important;text-decoration:none}::-webkit-scrollbar{width:0}#loader{position:fixed;left:0;top:0;right:0;bottom:0;z-index:99999;background:#6236ff;display:flex;align-items:center;justify-content:center;user-select:none}#loader .loading-icon{width:42px;height:auto}#loader.hidden{display:none}.lhci-audit #loader{display:none !important}.appHeader{height:56px;display:flex;justify-content:center;align-items:center;position:fixed;top:env(safe-area-inset-top);left:0;right:0;z-index:999;background:#fff;color:#27173e;border-bottom:1px solid #dcdce9}.appHeader::before{content:"";height:env(safe-area-inset-top);position:fixed;top:0;left:0;right:0;width:100%;z-index:99999;background:#fff}.appHeader.bg-primary{border:0}.appHeader.bg-primary::before{background:#6236ff !important}.appHeader.text-light{color:#fff}.appHeader .left,.appHeader .right{height:56px;display:flex;align-items:center;position:absolute}.appHeader .left{left:10px;top:0}.appHeader .right{right:10px;top:0}.appHeader .pageTitle{font-size:17px;font-weight:500;padding:0 10px}.appHeader .logo{max-height:24px}.appHeader .headerButton{min-width:36px;height:56px;display:flex;align-items:center;justify-content:center;padding:10px;color:#6236ff}.appHeader .headerButton.text-light{color:#fff}#appCapsule{padding:56px 0;margin-bottom:env(safe-area-inset-bottom);margin-top:env(safe-area-inset-top)}.appBottomMenu{min-height:56px;position:fixed;z-index:999;width:100%;bottom:0;left:0;right:0;background:#fff;display:flex;align-items:center;justify-content:center;border-top:1px solid #dcdce9;padding-left:4px;padding-right:4px;padding-bottom:env(safe-area-inset-bottom)}.appBottomMenu .item{font-size:9px;letter-spacing:0;text-align:center;width:100%;height:56px;line-height:1.2em;display:flex;align-items:center;justify-content:center;position:relative;color:#27173e}.appBottomMenu .item::before{content:"";display:block;height:2px;border-radius:0 0 10px 10px;background:rgba(0,0,0,0);position:absolute;left:4px;right:4px;top:0}.appBottomMenu .item.active::before{background:#6236ff}.appBottomMenu .item.active ion-icon,.appBottomMenu .item.active strong{color:#6236ff !important;font-weight:500}.appBottomMenu .item .col{width:100%;padding:0 4px;text-align:center}.appBottomMenu .item ion-icon{display:block;font-size:24px;line-height:1em;color:#27173e;margin:1px auto 3px}.appBottomMenu .item strong{margin-top:4px;display:block;color:#27173e;font-weight:400}</style>
+<!-- Full stylesheets loaded asynchronously -->
+<link rel="preload" href="assets/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+
+<noscript>
+    <link rel="stylesheet" href="assets/css/style.css">
+
+
+</noscript>
+
+    <link rel="stylesheet" href="assets/css/orders.css">
+    <link rel="manifest" href="__manifest.json">
+</head>
+
+<body>
+    <div id="offline-indicator">You are offline</div>
+    <div id="viewport"></div>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+
+        Telegram.WebApp.onEvent('themeChanged', function() {
+            document.documentElement.className = Telegram.WebApp.colorScheme;
+        });
+
+        Telegram.WebApp.setHeaderColor('secondary_bg_color');
+
+        // Pass i18n strings to orders.js
+        window._i18n = {
+            status_new:        'Новый',
+            status_waiting:    'Ожидание',
+            status_confirming: 'Подтверждение',
+            status_exchanging: 'Обмен',
+            status_sending:    'Отправка',
+            status_finished:   'Завершён',
+            status_failed:     'Ошибка',
+            status_refunded:   'Возврат',
+            orders_empty:      'Заказов пока нет. Начните обмен на вкладке «Мост» или «Обмен».',
+            orders_empty_cta:  'Перейти к Мосту',
+            orders_bridge_href:'index.html'
+        };
+    </script>
+    <script
+        async
+        src="https://tganalytics.xyz/index.js"
+        onload="initAnalytics()"
+        type="text/javascript"
+    ></script>
+    <script>
+        function initAnalytics() {
+          window.telegramAnalytics.init({
+            token: 'local-placeholder',
+            appName: 'local-app',
+          });
+        }
+    </script>
+
+    <!-- loader -->
+    <div id="loader">
+        <img src="assets/img/loading-icon.webp" alt="icon" class="loading-icon">
+    </div>
+    <!-- * loader -->
+
+    <!-- App Header -->
+    <div class="appHeader">
+        <div class="left">
+        </div>
+        <div class="pageTitle">
+            Заказы
+        </div>
+    </div>
+    <!-- * App Header -->
+
+    <!-- App Capsule -->
+    <div id="appCapsule">
+
+        <!-- Loading spinner -->
+        <div id="orders-loading" class="orders-loading" style="display:flex;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Загрузка…</span>
+            </div>
+        </div>
+
+        <!-- Empty state -->
+        <div id="orders-empty" class="orders-empty-state" style="display:none;">
+            <ion-icon name="receipt-outline" class="orders-empty-icon"></ion-icon>
+            <p>Заказов пока нет. Начните обмен на вкладке «Мост» или «Обмен».</p>
+            <a href="index.html" class="btn btn-primary">Перейти к Мосту</a>
+        </div>
+
+        <!-- Orders list -->
+        <ul id="orders-list" class="orders-list listview flush transparent no-line image-listview"></ul>
+
+        <!-- Load more button (fallback for non-scroll environments) -->
+        <div id="orders-load-more" class="orders-load-more" style="display:none;">
+            <button class="btn btn-outline-primary btn-sm">Загрузить ещё</button>
+        </div>
+
+    </div>
+    <!-- * App Capsule -->
+
+    <!-- App Bottom Menu -->
+    <div class="appBottomMenu">
+        <a href="index.html" class="item">
+            <div class="col">
+                <ion-icon name="sync"></ion-icon>
+                <strong>Мост</strong>
+            </div>
+        </a>
+        <a href="index2.html" class="item">
+            <div class="col">
+                <ion-icon name="swap-horizontal-outline"></ion-icon>
+                <strong>Обмен</strong>
+            </div>
+        </a>
+        <a href="index3.html" class="item">
+            <div class="col">
+                <ion-icon name="cash-outline"></ion-icon>
+                <strong>OTC</strong>
+            </div>
+        </a>
+        <a href="orders.html" class="item active">
+            <div class="col">
+                <ion-icon name="receipt-outline"></ion-icon>
+                <strong>Заказы</strong>
+            </div>
+        </a>
+        <a href="app-settings.html" class="item">
+            <div class="col">
+                <ion-icon name="settings-outline"></ion-icon>
+                <strong>Настройки</strong>
+            </div>
+        </a>
+    </div>
+    <!-- * App Bottom Menu -->
+
+    <!-- ========= JS Files =========  -->
+    <!-- Bootstrap -->
+    <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
+    <!-- Ionicons (self-hosted sprite) -->
+    <script src="assets/js/ion-icon.js" defer></script>
+    <!-- Splide -->
+    <script src="assets/js/plugins/splide/splide.min.js"></script>
+    <!-- Base Js File -->
+    <script src="assets/js/base.js"></script>
+    <!-- Offline Indicator -->
+    <script src="assets/js/offline.js"></script>
+    <!-- Telegram BackButton -->
+    <script src="assets/js/back-button.js"></script>
+    <!-- Orders logic -->
+    <script src="assets/js/orders.js"></script>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+       m[i].l=1*new Date();
+       for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+       k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+       (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+       ym(1234567, "init", {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true,
+            webvisor:true
+       });
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/1234567" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+</body>
+
+</html>

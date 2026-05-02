@@ -18,9 +18,26 @@ async function setupMocks(page) {
     await page.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({
         status: 200, contentType: 'application/javascript', body: '/* mocked */',
     }));
-    await page.route('https://unpkg.com/@tonconnect/ui@latest/**', route => route.fulfill({
+    await page.route('**/assets/js/vendor/tonconnect-ui.min.js', route => route.fulfill({
         status: 200, contentType: 'application/javascript',
-        body: 'window.TON_CONNECT_UI = window.TON_CONNECT_UI || {};',
+        body: `
+            window.TON_CONNECT_UI = {
+                TonConnectUI: function(opts) {
+                    this._opts = opts;
+                    window.__tcInstance = this;
+                }
+            };
+            window.TON_CONNECT_UI.TonConnectUI.prototype.onStatusChange = function(fn) {
+                window.__tcStatusChange = fn;
+            };
+            window.TON_CONNECT_UI.TonConnectUI.prototype.openModal = function() {
+                window.__tcOpenModalCalled = true;
+            };
+            window.TON_CONNECT_UI.TonConnectUI.prototype.disconnect = function() {
+                window.__tcDisconnectCalled = true;
+                if (window.__tcStatusChange) window.__tcStatusChange(null);
+            };
+        `,
     }));
     await page.route('https://unpkg.com/ionicons@5.5.2/**', route => route.fulfill({
         status: 200, contentType: 'application/javascript', body: '/* ionicons mocked */',
@@ -71,22 +88,6 @@ async function setupMocks(page) {
         };
 
         window.__tcStatusChange = null;
-        window.TON_CONNECT_UI = {
-            TonConnectUI: function(opts) {
-                this._opts = opts;
-                window.__tcInstance = this;
-            },
-        };
-        window.TON_CONNECT_UI.TonConnectUI.prototype.onStatusChange = function(fn) {
-            window.__tcStatusChange = fn;
-        };
-        window.TON_CONNECT_UI.TonConnectUI.prototype.openModal = function() {
-            window.__tcOpenModalCalled = true;
-        };
-        window.TON_CONNECT_UI.TonConnectUI.prototype.disconnect = function() {
-            window.__tcDisconnectCalled = true;
-            if (window.__tcStatusChange) window.__tcStatusChange(null);
-        };
     });
 }
 
@@ -134,9 +135,10 @@ test.describe('Wallet Connect — widget pages', () => {
         expect(label).toBe('Connect wallet');
     });
 
-    test('Bridge RU: "Подключить кошелёк" button is visible in header', async ({ page }) => {
+    test('Bridge RU: "Подключить кошелёк" button is visible after language switch', async ({ page }) => {
         await setupMocks(page);
-        await page.goto(distUrl('index-ru.html'));
+        await page.goto(distUrl('index.html'));
+        await page.evaluate(() => window.i18n.setLang('ru'));
         const label = await page.locator('#wallet-btn-label').textContent();
         expect(label).toBe('Подключить кошелёк');
     });

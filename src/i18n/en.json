@@ -168,5 +168,6 @@
   "referral_stars_disabled": "Stars rebate is disabled for your account (TBC points mode is active).",
   "referral_tbc_note": "If Stars rebate is active, TBC points referral payout is disabled for the same swap to prevent double-pay.",
   "share_story_btn": "Share my bridge",
-  "share_story_skip": "Skip"
+  "share_story_skip": "Skip",
+  "social_proof_label": "{count} bridges in the last 24 h · {volume} volume"
 }

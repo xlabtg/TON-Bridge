@@ -252,12 +252,18 @@ test.describe('TonBridgeDeepLink.init — widget prefill via hash redirect', () 
     });
     await page.goto(distUrl('index.html'));
     const state = await page.evaluate(() => {
+      const iframe = document.getElementById('iframe-widget');
       return {
-        hasIframe: Boolean(document.getElementById('iframe-widget')),
-        hasPlaceholder: Boolean(document.getElementById('iframe-placeholder')),
+        hasPreset: Boolean(window.__tonBridgeDeepLinkPreset),
+        iframeSrc: iframe ? iframe.src : null,
       };
     });
-    expect(state).toEqual({ hasIframe: false, hasPlaceholder: true });
+    expect(state.hasPreset).toBe(false);
+    if (state.iframeSrc) {
+      expect(state.iframeSrc).toContain('from=ton');
+      expect(state.iframeSrc).not.toContain('to=tonbsc');
+      expect(state.iframeSrc).not.toContain('amount=7');
+    }
   });
 
   test('stores ref code in sessionStorage', async ({ page }) => {

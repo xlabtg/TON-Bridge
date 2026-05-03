@@ -168,5 +168,6 @@
   "referral_stars_disabled": "Вознаграждение Stars отключено для вашего аккаунта (активен режим TBC Points).",
   "referral_tbc_note": "Если реферальное вознаграждение Stars активно, выплата TBC Points за тот же обмен отключена во избежание двойной выплаты.",
   "share_story_btn": "Поделиться историей",
-  "share_story_skip": "Пропустить"
+  "share_story_skip": "Пропустить",
+  "social_proof_label": "{count} обменов за последние 24 ч · {volume} объём"
 }

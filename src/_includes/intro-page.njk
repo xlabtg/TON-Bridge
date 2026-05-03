@@ -3,22 +3,24 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>{{ t.title_intro_bridge }}</title>
+    <title data-i18n="title_intro_bridge">{{ locales.en.title_intro_bridge }}</title>
     <meta name="description" content="TON Bridge HTML Mobile Template">
     <meta name="keywords" content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
-    <link rel="stylesheet" href="assets/css/style.css">
+    {% include "performance-head.njk" %}
     <link rel="manifest" href="__manifest.json">
 </head>
 
 <body>
+    <div id="offline-indicator">You are offline</div>
     <div id="viewport"></div>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="assets/js/auth.js"></script>
     <script>
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
@@ -31,7 +33,7 @@
     </script>
     <!-- loader -->
     <div id="loader">
-        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+        <img src="assets/img/loading-icon.webp" alt="icon" class="loading-icon">
     </div>
     <!-- * loader -->
 
@@ -52,17 +54,17 @@
         <section id="introSection" class="section mt-5">
             <div class="container">
                 <div class="section-head text">
-                    <h2 class="title title-lg">{{ t.intro_bridge_heading }}</h2>
-                    <p>
-                        {{ t.intro_bridge_p1 }}
+                    <h2 class="title title-lg" data-i18n="intro_bridge_heading">{{ locales.en.intro_bridge_heading }}</h2>
+                    <p data-i18n="intro_bridge_p1">
+                        {{ locales.en.intro_bridge_p1 }}
                     </p>
                     <p>
-                        <b>{{ t.intro_bridge_p2_bold }}</b>
+                        <b data-i18n="intro_bridge_p2_bold">{{ locales.en.intro_bridge_p2_bold }}</b>
                     </p>
                 </div>
                 <!-- "Start Exchange" Button -->
                 <div class="text-center mt-4">
-                    <a href="{{ t.intro_bridge_target }}" class="btn btn-primary btn-lg">{{ t.intro_bridge_btn }}</a>
+                    <a href="index.html" class="btn btn-primary btn-lg" data-i18n="intro_bridge_btn">{{ locales.en.intro_bridge_btn }}</a>
                 </div>
             </div>
         </section>
@@ -71,14 +73,27 @@
 
     <!-- Bootstrap -->
     <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
-    <!-- Ionicons -->
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <!-- Ionicons (self-hosted sprite) -->
+    <script src="assets/js/ion-icon.js" defer></script>
+    <!-- i18n inline data + loader -->
+    <script src="assets/js/prefs.js"></script>
+    {% i18nDataScript %}
+    <script src="assets/js/i18n.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- UTM attribution from directory listings -->
+    <script src="assets/js/utm.js"></script>
+    <!-- Offline Indicator -->
+    <script src="assets/js/offline.js"></script>
     <!-- Telegram BackButton -->
     <script src="assets/js/back-button.js"></script>
-    <script>wireBackButton();</script>
-
+    <script>
+        wireBackButton();
+        i18n.init();
+    </script>
+    <!-- Telegram SettingsButton -->
+    <script src="assets/js/settings-button.js"></script>
+    <script>wireSettingsButton('app-settings.html');</script>
 
 </body>
 

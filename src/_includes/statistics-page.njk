@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="{{ t.lang_attr }}">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>{{ t.title_statistics }}</title>
+    <meta name="description" content="TON Bridge - Statistics Dashboard">
+    <meta name="keywords" content="ton, blockchain, crypto, statistics, dashboard, web3" />
+    <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="manifest" href="__manifest.json">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+    <style>
+        .stats-section {
+            background: var(--bs-body-bg, #ffffff);
+            border-radius: 16px;
+            margin: 10px;
+            padding: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .stats-section-title {
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #6C5CE7;
+            margin-bottom: 10px;
+        }
+        .volume-cards {
+            display: flex;
+            gap: 8px;
+        }
+        .volume-card {
+            flex: 1;
+            background: #1bb2da;
+            color: #fff;
+            border-radius: 10px;
+            padding: 10px 6px;
+            text-align: center;
+        }
+        .volume-card .vc-label {
+            font-size: 0.72em;
+            opacity: 0.85;
+        }
+        .volume-card .vc-value {
+            font-size: 1.05em;
+            font-weight: 700;
+            word-break: break-all;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th {
+            background: #f8f9fa;
+            color: #6C5CE7;
+            padding: 8px 10px;
+            border-bottom: 2px solid #e9ecef;
+            text-align: left;
+            font-size: 0.82em;
+        }
+        .data-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.9em;
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .avg-box {
+            text-align: center;
+            font-size: 2em;
+            font-weight: 700;
+            color: #1bb2da;
+            padding: 10px 0 4px;
+        }
+        .avg-unit {
+            font-size: 0.45em;
+            color: #888;
+            font-weight: 400;
+        }
+        .chart-wrapper {
+            position: relative;
+            height: 200px;
+        }
+        .last-updated {
+            text-align: right;
+            font-size: 0.72em;
+            color: #aaa;
+            margin: 4px 12px 8px;
+        }
+        .stats-loading {
+            color: #aaa;
+            font-size: 0.9em;
+            padding: 8px 0;
+        }
+        .stats-error {
+            color: #e74c3c;
+            font-size: 0.85em;
+            padding: 8px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="viewport"></div>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+        Telegram.WebApp.onEvent('themeChanged', function() {
+            document.documentElement.className = Telegram.WebApp.colorScheme;
+        });
+        Telegram.WebApp.setHeaderColor('secondary_bg_color');
+    </script>
+    <!-- loader -->
+    <div id="loader">
+        <img src="assets/img/loading-icon.webp" alt="icon" class="loading-icon">
+    </div>
+
+    <!-- App Header -->
+    <div class="appHeader bg-primary text-light">
+        <div class="left">
+            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel">
+                <ion-icon name="menu-outline"></ion-icon>
+            </a>
+        </div>
+        <div class="pageTitle">
+            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo">
+        </div>
+    </div>
+
+    <!-- App Capsule -->
+    <div id="appCapsule">
+
+        <!-- Total Volume -->
+        <div class="stats-section">
+            <div class="stats-section-title">{{ t.stats_total_volume }}</div>
+            <div class="volume-cards">
+                <div class="volume-card">
+                    <div class="vc-label">{{ t.stats_24h }}</div>
+                    <div class="vc-value" id="vol-24h"><span class="stats-loading">{{ t.stats_loading }}</span></div>
+                </div>
+                <div class="volume-card">
+                    <div class="vc-label">{{ t.stats_7d }}</div>
+                    <div class="vc-value" id="vol-7d"><span class="stats-loading">{{ t.stats_loading }}</span></div>
+                </div>
+                <div class="volume-card">
+                    <div class="vc-label">{{ t.stats_30d }}</div>
+                    <div class="vc-value" id="vol-30d"><span class="stats-loading">{{ t.stats_loading }}</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Pairs -->
+        <div class="stats-section">
+            <div class="stats-section-title">{{ t.stats_top_pairs }}</div>
+            <div id="top-pairs-wrap">
+                <span class="stats-loading">{{ t.stats_loading }}</span>
+            </div>
+        </div>
+
+        <!-- Average Completion Time -->
+        <div class="stats-section">
+            <div class="stats-section-title">{{ t.stats_avg_completion }}</div>
+            <div class="avg-box" id="avg-time">
+                <span class="stats-loading" style="font-size:0.5em">{{ t.stats_loading }}</span>
+            </div>
+        </div>
+
+        <!-- Bridges per Hour chart -->
+        <div class="stats-section">
+            <div class="stats-section-title">{{ t.stats_bridges_per_hour }}</div>
+            <div class="chart-wrapper">
+                <canvas id="bphChart"></canvas>
+            </div>
+        </div>
+
+        <div class="last-updated" id="last-updated-line">
+            {{ t.stats_last_updated }}: <span id="last-updated-val">{{ t.stats_never }}</span>
+        </div>
+
+    </div>
+    <!-- * App Capsule -->
+
+    <!-- App Bottom Menu -->
+    <div class="appBottomMenu">
+        <a href="index{{ t.suffix }}.html" class="item">
+            <div class="col">
+                <ion-icon name="sync"></ion-icon>
+                <strong>{{ t.nav_bridge }}</strong>
+            </div>
+        </a>
+        <a href="index2{{ t.suffix }}.html" class="item">
+            <div class="col">
+                <ion-icon name="swap-horizontal-outline"></ion-icon>
+                <strong>{{ t.nav_exchange }}</strong>
+            </div>
+        </a>
+        <a href="index3{{ t.suffix }}.html" class="item">
+            <div class="col">
+                <ion-icon name="cash-outline"></ion-icon>
+                <strong>{{ t.nav_otc }}</strong>
+            </div>
+        </a>
+        <a href="orders{{ t.suffix }}.html" class="item">
+            <div class="col">
+                <ion-icon name="receipt-outline"></ion-icon>
+                <strong>{{ t.nav_orders }}</strong>
+            </div>
+        </a>
+        <a href="index4{{ t.suffix }}.html" class="item active">
+            <div class="col">
+                <ion-icon name="stats-chart"></ion-icon>
+                <strong>{{ t.nav_statistics }}</strong>
+            </div>
+        </a>
+        <a href="app-settings{{ t.suffix }}.html" class="item">
+            <div class="col">
+                <ion-icon name="settings-outline"></ion-icon>
+                <strong>{{ t.nav_settings }}</strong>
+            </div>
+        </a>
+    </div>
+
+    <!-- App Sidebar -->
+    <div class="modal fade panelbox panelbox-left" id="sidebarPanel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <div class="listview-title mt-1">{{ t.menu_title }}</div>
+                    <ul class="listview flush transparent no-line image-listview">
+                        <li>
+                            <a href="app-settings{{ t.suffix }}.html" class="item">
+                                <div class="icon-box bg-primary">
+                                    <ion-icon name="settings-outline"></ion-icon>
+                                </div>
+                                <div class="in">{{ t.menu_settings }}</div>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_bot');" class="item">
+                                <div class="icon-box bg-primary">
+                                    <ion-icon name="chatbubble-outline"></ion-icon>
+                                </div>
+                                <div class="in">{{ t.menu_support }}</div>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="listview-title mt-1">{{ t.community_title }}</div>
+                    <ul class="listview flush transparent no-line image-listview">
+                        <li>
+                            <a href="javascript:Telegram.WebApp.openTelegramLink('{{ t.community_group_link }}');" class="item">
+                                <div class="icon-box bg-secondary">
+                                    <ion-icon name="people-circle-outline"></ion-icon>
+                                </div>
+                                <div class="in">{{ t.community_group }}</div>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:Telegram.WebApp.openTelegramLink('{{ t.community_chat_link }}');" class="item">
+                                <div class="icon-box bg-secondary">
+                                    <ion-icon name="chatbubbles-outline"></ion-icon>
+                                </div>
+                                <div class="in">{{ t.community_chat }}</div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap -->
+    <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
+    <!-- Ionicons -->
+    <!-- Ionicons (self-hosted sprite) -->
+    <script src="assets/js/ion-icon.js" defer></script>
+    <!-- Base Js File -->
+    <script src="assets/js/base.js"></script>
+
+    <script>
+    (function () {
+        var LOCALE = '{{ t.lang_attr }}';
+        var CACHE_KEY = 'stats_cache_v1';
+        var CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+        var STRINGS = {
+            loading: '{{ t.stats_loading }}',
+            error: '{{ t.stats_error }}',
+            avgUnit: '{{ t.stats_avg_completion_unit }}',
+            lastUpdated: '{{ t.stats_last_updated }}',
+            never: '{{ t.stats_never }}',
+            pair: '{{ t.stats_pair }}',
+            volume: '{{ t.stats_volume }}'
+        };
+
+        // ChangeNOW public stats API proxied through the CF Worker at /api/stats
+        // Falls back to direct ChangeNOW endpoint when worker is unavailable.
+        var API_BASE = '/api/stats';
+
+        var nf = new Intl.NumberFormat(LOCALE === 'ru' ? 'ru-RU' : 'en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 4
+        });
+        var nfInt = new Intl.NumberFormat(LOCALE === 'ru' ? 'ru-RU' : 'en-US', {
+            maximumFractionDigits: 0
+        });
+        var rtf = new Intl.RelativeTimeFormat(LOCALE === 'ru' ? 'ru' : 'en', { numeric: 'auto' });
+
+        var bphChart = null;
+
+        function showError(el) {
+            el.innerHTML = '<span class="stats-error">' + STRINGS.error + '</span>';
+        }
+
+        function setVol(id, val) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            if (val == null) { showError(el); return; }
+            el.textContent = nf.format(val) + ' BTC';
+        }
+
+        function setAvg(minutes) {
+            var el = document.getElementById('avg-time');
+            if (!el) return;
+            if (minutes == null) { showError(el); return; }
+            el.innerHTML = nf.format(minutes) + '<span class="avg-unit"> ' + STRINGS.avgUnit + '</span>';
+        }
+
+        function renderTopPairs(pairs) {
+            var wrap = document.getElementById('top-pairs-wrap');
+            if (!wrap) return;
+            if (!pairs || pairs.length === 0) { showError(wrap); return; }
+            var rows = pairs.map(function (p) {
+                return '<tr><td>' + p.from.toUpperCase() + ' → ' + p.to.toUpperCase() +
+                    '</td><td>' + nf.format(p.volumeBtc) + ' BTC</td></tr>';
+            }).join('');
+            wrap.innerHTML = '<table class="data-table"><thead><tr>' +
+                '<th>' + STRINGS.pair + '</th><th>' + STRINGS.volume + '</th>' +
+                '</tr></thead><tbody>' + rows + '</tbody></table>';
+        }
+
+        function renderChart(hours) {
+            var ctx = document.getElementById('bphChart');
+            if (!ctx) return;
+            if (!hours || hours.length === 0) return;
+            var labels = hours.map(function (h) { return h.hour + ':00'; });
+            var data = hours.map(function (h) { return h.count; });
+            if (bphChart) { bphChart.destroy(); }
+            bphChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: 'rgba(27,178,218,0.75)',
+                        borderRadius: 4,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { maxTicksLimit: 8, font: { size: 10 } } },
+                        y: { beginAtZero: true, ticks: { precision: 0 } }
+                    }
+                }
+            });
+        }
+
+        function updateLastUpdated(ts) {
+            var el = document.getElementById('last-updated-val');
+            if (!el) return;
+            var diffMs = Date.now() - ts;
+            var diffMins = Math.round(diffMs / 60000);
+            if (diffMins < 1) {
+                el.textContent = rtf.format(0, 'minute');
+            } else if (diffMins < 60) {
+                el.textContent = rtf.format(-diffMins, 'minute');
+            } else {
+                el.textContent = new Date(ts).toLocaleTimeString(LOCALE === 'ru' ? 'ru-RU' : 'en-US',
+                    { hour: '2-digit', minute: '2-digit' });
+            }
+        }
+
+        function applyData(data) {
+            setVol('vol-24h', data.volume24h);
+            setVol('vol-7d', data.volume7d);
+            setVol('vol-30d', data.volume30d);
+            renderTopPairs(data.topPairs);
+            setAvg(data.avgCompletionMin);
+            renderChart(data.bridgesPerHour);
+            updateLastUpdated(data.fetchedAt);
+        }
+
+        function loadFromCache() {
+            try {
+                var raw = Telegram.WebApp.CloudStorage
+                    ? null // use async path below
+                    : localStorage.getItem(CACHE_KEY);
+                if (raw) {
+                    var obj = JSON.parse(raw);
+                    if (obj && obj.fetchedAt && (Date.now() - obj.fetchedAt) < CACHE_TTL * 2) {
+                        applyData(obj);
+                        return true;
+                    }
+                }
+            } catch (e) {}
+            return false;
+        }
+
+        function loadFromCloudStorage(cb) {
+            try {
+                if (Telegram.WebApp.CloudStorage) {
+                    Telegram.WebApp.CloudStorage.getItem(CACHE_KEY, function (err, val) {
+                        if (!err && val) {
+                            try {
+                                var obj = JSON.parse(val);
+                                if (obj && obj.fetchedAt && (Date.now() - obj.fetchedAt) < CACHE_TTL * 2) {
+                                    applyData(obj);
+                                }
+                            } catch (e) {}
+                        }
+                        cb();
+                    });
+                } else {
+                    cb();
+                }
+            } catch (e) { cb(); }
+        }
+
+        function saveToCache(data) {
+            try {
+                var s = JSON.stringify(data);
+                if (Telegram.WebApp.CloudStorage) {
+                    Telegram.WebApp.CloudStorage.setItem(CACHE_KEY, s, function () {});
+                }
+                localStorage.setItem(CACHE_KEY, s);
+            } catch (e) {}
+        }
+
+        function fetchStats() {
+            fetch(API_BASE)
+                .then(function (r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function (json) {
+                    var data = {
+                        volume24h: json.volume24h,
+                        volume7d: json.volume7d,
+                        volume30d: json.volume30d,
+                        topPairs: json.topPairs,
+                        avgCompletionMin: json.avgCompletionMin,
+                        bridgesPerHour: json.bridgesPerHour,
+                        fetchedAt: Date.now()
+                    };
+                    saveToCache(data);
+                    applyData(data);
+                })
+                .catch(function () {
+                    // If live fetch fails, keep whatever was loaded from cache
+                    var ids = ['vol-24h', 'vol-7d', 'vol-30d'];
+                    ids.forEach(function (id) {
+                        var el = document.getElementById(id);
+                        if (el && el.querySelector('.stats-loading')) showError(el);
+                    });
+                    var tw = document.getElementById('top-pairs-wrap');
+                    if (tw && tw.querySelector('.stats-loading')) showError(tw);
+                    var av = document.getElementById('avg-time');
+                    if (av && av.querySelector('.stats-loading')) showError(av);
+                });
+        }
+
+        function init() {
+            loadFromCloudStorage(function () {
+                loadFromCache();
+                fetchStats();
+                setInterval(fetchStats, CACHE_TTL);
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+    </script>
+
+</body>
+
+</html>

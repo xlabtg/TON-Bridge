@@ -1,0 +1,20 @@
+// Offline indicator — shown when navigator.onLine === false
+#offline-indicator {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: #e74c3c;
+    color: #fff;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 16px;
+    letter-spacing: 0.02em;
+
+    &.show {
+        display: block;
+    }
+}

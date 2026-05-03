@@ -172,5 +172,6 @@
   "tier_share_btn": "Поделиться",
   "tier_close_btn": "Закрыть",
   "tier_celebration_title": "Уровень разблокирован",
+  "tier_progress_aria": "Прогресс уровня",
   "social_proof_label": "{count} обменов за последние 24 ч · {volume} объём"
 }

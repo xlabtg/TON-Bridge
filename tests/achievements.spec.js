@@ -69,6 +69,7 @@ test.describe('Achievement / tier system', () => {
         await page.goto(distUrl('index.html'));
         const bar = page.locator('#tier-progress-bar');
         await expect(bar).toBeAttached();
+        await expect(bar).toHaveAttribute('aria-label', 'Tier progress');
     });
 
     test('Achievements.computeTier returns null for 0 swaps', async ({ page }) => {

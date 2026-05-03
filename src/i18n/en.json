@@ -172,5 +172,6 @@
   "tier_share_btn": "Share",
   "tier_close_btn": "Close",
   "tier_celebration_title": "Tier unlocked",
+  "tier_progress_aria": "Tier progress",
   "social_proof_label": "{count} bridges in the last 24 h · {volume} volume"
 }

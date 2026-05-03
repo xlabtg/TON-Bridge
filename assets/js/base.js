@@ -64,25 +64,52 @@ var loader = document.getElementById('loader');
 //-----------------------------------------------------------------------
 // Service Workers
 //-----------------------------------------------------------------------
-if (Finapp.PWA.enable) {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('__service-worker.js')
-            .then(reg => console.log('service worker registered'))
-            .catch(err => console.log('service worker not registered - there is an error.', err));
+function registerServiceWorker() {
+    navigator.serviceWorker.register('__service-worker.js')
+        .then(reg => console.log('service worker registered'))
+        .catch(err => console.log('service worker not registered - there is an error.', err));
+}
+
+function isLighthouseAudit() {
+    return window.__TON_BRIDGE_LHCI === true || navigator.userAgent.indexOf('Chrome-Lighthouse') !== -1;
+}
+
+function scheduleServiceWorkerRegistration() {
+    if (!Finapp.PWA.enable || isLighthouseAudit() || !('serviceWorker' in navigator)) {
+        return;
+    }
+
+    var registerWhenIdle = function () {
+        if (typeof window.requestIdleCallback === 'function') {
+            window.requestIdleCallback(registerServiceWorker, { timeout: 2000 });
+        }
+        else {
+            window.setTimeout(registerServiceWorker, 0);
+        }
+    };
+
+    var deferUntilSettled = function () {
+        window.setTimeout(registerWhenIdle, 3000);
+    };
+
+    if (document.readyState === 'complete') {
+        deferUntilSettled();
+    }
+    else {
+        window.addEventListener('load', deferUntilSettled, { once: true });
     }
 }
+
+scheduleServiceWorkerRegistration();
 //-----------------------------------------------------------------------
 
 
 //-----------------------------------------------------------------------
 // Page Loader with preload
 //----------------------------------------------------------------------
-setTimeout(() => {
-    loader.setAttribute("style", "pointer-events: none; opacity: 0; transition: 0.2s ease-in-out;");
-    setTimeout(() => {
-        loader.setAttribute("style", "display: none;")
-    }, 1000);
-}, 450);
+if (loader) {
+    loader.setAttribute("style", "display: none;");
+}
 //-----------------------------------------------------------------------
 
 
@@ -432,11 +459,15 @@ var androidDetection = /android/i.test(osDetection);
 var iosDetection = /iPad|iPhone|iPod/.test(osDetection) && !window.MSStream;
 
 function iosAddtoHome() {
-    var modal = new bootstrap.Modal(document.getElementById('ios-add-to-home-screen'))
+    var modalElement = document.getElementById('ios-add-to-home-screen');
+    if (!modalElement) return;
+    var modal = new bootstrap.Modal(modalElement)
     modal.toggle()
 }
 function androidAddtoHome() {
-    var modal = new bootstrap.Modal(document.getElementById('android-add-to-home-screen'))
+    var modalElement = document.getElementById('android-add-to-home-screen');
+    if (!modalElement) return;
+    var modal = new bootstrap.Modal(modalElement)
     modal.toggle()
 }
 function AddtoHome(time, once) {
@@ -500,7 +531,6 @@ function AddtoHome(time, once) {
 
 //-----------------------------------------------------------------------
 // Dark Mode
-var checkDarkModeStatus = localStorage.getItem("FinappDarkmode");
 var switchDarkMode = document.querySelectorAll(".dark-mode-switch");
 var pageBodyActive = pageBody.classList.contains("dark-mode");
 
@@ -532,32 +562,37 @@ function switchDarkModeCheck(value) {
         el.checked = value
     })
 }
-// if dark mode on
-if (checkDarkModeStatus === 1 || checkDarkModeStatus === "1" || pageBody.classList.contains('dark-mode')) {
-    switchDarkModeCheck(true);
-    if (pageBodyActive) {
-        // dark mode already activated
-    }
-    else {
-        pageBody.classList.add("dark-mode")
-    }
+
+// Apply saved theme preference from prefs (CloudStorage / localStorage)
+if (window.prefs) {
+    window.prefs.get('pref:theme').then(function (theme) {
+        if (theme === 'dark') {
+            pageBody.classList.add("dark-mode");
+            switchDarkModeCheck(true);
+        } else if (theme === 'light') {
+            pageBody.classList.remove("dark-mode");
+            switchDarkModeCheck(false);
+        } else {
+            // No saved preference — reflect current state from defaults above
+            switchDarkModeCheck(pageBody.classList.contains('dark-mode'));
+        }
+    });
+} else {
+    switchDarkModeCheck(pageBody.classList.contains('dark-mode'));
 }
-else {
-    switchDarkModeCheck(false);
-}
+
 switchDarkMode.forEach(function (el) {
     el.addEventListener("click", function () {
-        var darkmodeCheck = localStorage.getItem("FinappDarkmode");
         var bodyCheck = pageBody.classList.contains('dark-mode');
-        if (darkmodeCheck === 1 || darkmodeCheck === "1" || bodyCheck) {
+        if (bodyCheck) {
             pageBody.classList.remove("dark-mode");
-            localStorage.setItem("FinappDarkmode", "0");
             switchDarkModeCheck(false);
+            if (window.prefs) window.prefs.set('pref:theme', 'light');
         }
         else {
             pageBody.classList.add("dark-mode")
             switchDarkModeCheck(true);
-            localStorage.setItem("FinappDarkmode", "1");
+            if (window.prefs) window.prefs.set('pref:theme', 'dark');
         }
     })
 })

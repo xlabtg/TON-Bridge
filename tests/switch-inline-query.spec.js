@@ -39,6 +39,12 @@ async function mockTelegramWebApp(page) {
   });
 }
 
+async function setLangPref(page, lang) {
+  await page.addInitScript(l => {
+    localStorage.setItem('pref:lang', l);
+  }, lang);
+}
+
 function distUrl(file) {
   return 'file://' + resolve(__dirname, '..', 'dist', file);
 }
@@ -54,7 +60,9 @@ test.describe('"Send to chat" button — switchInlineQuery', () => {
 
   test('Bridge RU: button is present with text "Отправить в чат"', async ({ page }) => {
     await mockTelegramWebApp(page);
-    await page.goto(distUrl('index-ru.html'));
+    await setLangPref(page, 'ru');
+    await page.goto(distUrl('index.html'));
+    await page.waitForFunction(() => document.documentElement.lang === 'ru');
     const btn = page.locator('#send-to-chat-btn');
     await expect(btn).toBeVisible();
     await expect(btn).toContainText('Отправить в чат');

@@ -5,3 +5,15 @@ function sendToChat(query) {
     if (!tg || typeof tg.switchInlineQuery !== 'function') return;
     tg.switchInlineQuery(query || '', ['users', 'groups', 'channels']);
 }
+
+function sendToChatFromButton(button) {
+    var key = button && button.getAttribute('data-send-to-chat-query-key');
+    var fallback = button && button.getAttribute('data-send-to-chat-fallback-query');
+    var query = fallback || '';
+
+    if (key && window.i18n && typeof i18n.t === 'function') {
+        query = i18n.t(key, fallback || '');
+    }
+
+    sendToChat(query);
+}

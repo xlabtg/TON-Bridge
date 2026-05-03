@@ -8,6 +8,12 @@ function distUrl(file) {
     return 'file://' + resolve(__dirname, '..', 'dist', file);
 }
 
+async function setLangPref(page, lang) {
+    await page.addInitScript(l => {
+        localStorage.setItem('pref:lang', l);
+    }, lang);
+}
+
 // Intercept the ChangeNOW stats API with a mock response.
 async function mockStatsApi(page, data) {
     await page.route('https://api.changenow.io/v1/info/stats*', route => {
@@ -68,8 +74,9 @@ test.describe('Social-proof widget', () => {
 
     test('pill is present in Bridge RU page', async ({ page }) => {
         await mockTelegramWebApp(page);
+        await setLangPref(page, 'ru');
         await mockStatsApi(page, { count: 12343, volume: 500000 });
-        await page.goto(distUrl('index-ru.html'));
+        await page.goto(distUrl('index.html'));
         const pill = page.locator('#social-proof-pill');
         await expect(pill).toBeAttached();
     });
@@ -178,8 +185,9 @@ test.describe('Social-proof widget', () => {
 
     test('RU locale formats number with space separator', async ({ page }) => {
         await mockTelegramWebApp(page);
+        await setLangPref(page, 'ru');
         await mockStatsApi(page, { count: 12343, volume: 500000 });
-        await page.goto(distUrl('index-ru.html'));
+        await page.goto(distUrl('index.html'));
         const text = page.locator('#social-proof-pill .sp-text');
         // In RU locale Intl.NumberFormat uses non-breaking space: "12 343"
         // We just check the count digits are present

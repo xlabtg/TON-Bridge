@@ -1,3 +1,5 @@
+import leaderboardWorker from '../leaderboard.js';
+
 /**
  * Cloudflare Worker — POST /auth/verify
  *
@@ -363,11 +365,20 @@ export default {
       });
     }
 
+    if (new URL(request.url).pathname === '/optin') {
+      return leaderboardWorker.fetch(request, env);
+    }
+
     return new Response(null, { status: 404, headers: cors });
   },
 
-  async scheduled(_event, env, ctx) {
-    if (!env.BRIDGE_KV || !env.BOT_TOKEN || !env.CHANGENOW_API_KEY) return;
-    ctx.waitUntil(runNotificationCron(env.BRIDGE_KV, env.BOT_TOKEN, env.CHANGENOW_API_KEY));
+  async scheduled(event, env, ctx) {
+    if (env.BRIDGE_KV && env.BOT_TOKEN && env.CHANGENOW_API_KEY) {
+      ctx.waitUntil(runNotificationCron(env.BRIDGE_KV, env.BOT_TOKEN, env.CHANGENOW_API_KEY));
+    }
+
+    if (event.cron === '0 9 * * *') {
+      ctx.waitUntil(leaderboardWorker.scheduled(event, env, ctx));
+    }
   },
 };

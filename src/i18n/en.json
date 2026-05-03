@@ -171,5 +171,6 @@
   "share_story_skip": "Skip",
   "tier_share_btn": "Share",
   "tier_close_btn": "Close",
-  "tier_celebration_title": "Tier unlocked"
+  "tier_celebration_title": "Tier unlocked",
+  "social_proof_label": "{count} bridges in the last 24 h · {volume} volume"
 }

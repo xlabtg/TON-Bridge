@@ -459,15 +459,11 @@ var androidDetection = /android/i.test(osDetection);
 var iosDetection = /iPad|iPhone|iPod/.test(osDetection) && !window.MSStream;
 
 function iosAddtoHome() {
-    var modalElement = document.getElementById('ios-add-to-home-screen');
-    if (!modalElement) return;
-    var modal = new bootstrap.Modal(modalElement)
+    var modal = new bootstrap.Modal(document.getElementById('ios-add-to-home-screen'))
     modal.toggle()
 }
 function androidAddtoHome() {
-    var modalElement = document.getElementById('android-add-to-home-screen');
-    if (!modalElement) return;
-    var modal = new bootstrap.Modal(modalElement)
+    var modal = new bootstrap.Modal(document.getElementById('android-add-to-home-screen'))
     modal.toggle()
 }
 function AddtoHome(time, once) {
@@ -531,6 +527,7 @@ function AddtoHome(time, once) {
 
 //-----------------------------------------------------------------------
 // Dark Mode
+var checkDarkModeStatus = localStorage.getItem("FinappDarkmode");
 var switchDarkMode = document.querySelectorAll(".dark-mode-switch");
 var pageBodyActive = pageBody.classList.contains("dark-mode");
 
@@ -562,37 +559,32 @@ function switchDarkModeCheck(value) {
         el.checked = value
     })
 }
-
-// Apply saved theme preference from prefs (CloudStorage / localStorage)
-if (window.prefs) {
-    window.prefs.get('pref:theme').then(function (theme) {
-        if (theme === 'dark') {
-            pageBody.classList.add("dark-mode");
-            switchDarkModeCheck(true);
-        } else if (theme === 'light') {
-            pageBody.classList.remove("dark-mode");
-            switchDarkModeCheck(false);
-        } else {
-            // No saved preference — reflect current state from defaults above
-            switchDarkModeCheck(pageBody.classList.contains('dark-mode'));
-        }
-    });
-} else {
-    switchDarkModeCheck(pageBody.classList.contains('dark-mode'));
+// if dark mode on
+if (checkDarkModeStatus === 1 || checkDarkModeStatus === "1" || pageBody.classList.contains('dark-mode')) {
+    switchDarkModeCheck(true);
+    if (pageBodyActive) {
+        // dark mode already activated
+    }
+    else {
+        pageBody.classList.add("dark-mode")
+    }
 }
-
+else {
+    switchDarkModeCheck(false);
+}
 switchDarkMode.forEach(function (el) {
     el.addEventListener("click", function () {
+        var darkmodeCheck = localStorage.getItem("FinappDarkmode");
         var bodyCheck = pageBody.classList.contains('dark-mode');
-        if (bodyCheck) {
+        if (darkmodeCheck === 1 || darkmodeCheck === "1" || bodyCheck) {
             pageBody.classList.remove("dark-mode");
+            localStorage.setItem("FinappDarkmode", "0");
             switchDarkModeCheck(false);
-            if (window.prefs) window.prefs.set('pref:theme', 'light');
         }
         else {
             pageBody.classList.add("dark-mode")
             switchDarkModeCheck(true);
-            if (window.prefs) window.prefs.set('pref:theme', 'dark');
+            localStorage.setItem("FinappDarkmode", "1");
         }
     })
 })
@@ -600,33 +592,124 @@ switchDarkMode.forEach(function (el) {
 
 
 //-----------------------------------------------------------------------
+// Consent management
+// Stored as JSON under key "FinappConsent" with shape:
+// { version: 1, ts: <epoch-ms>, analytics: bool, marketing: bool }
+// Legacy key "FinappCookiesStatus" is migrated on first load.
+
+var CONSENT_KEY = "FinappConsent";
+var CONSENT_TTL_MS = 12 * 30 * 24 * 60 * 60 * 1000; // ~12 months
+
+function _readConsent() {
+    try {
+        var raw = localStorage.getItem(CONSENT_KEY);
+        if (raw) {
+            var obj = JSON.parse(raw);
+            if (obj && typeof obj.ts === "number" && (Date.now() - obj.ts) < CONSENT_TTL_MS) {
+                return obj;
+            }
+        }
+        // Migrate legacy "all accepted" flag
+        if (localStorage.getItem("FinappCookiesStatus") === "1") {
+            var migrated = { version: 1, ts: Date.now(), analytics: true, marketing: false };
+            localStorage.setItem(CONSENT_KEY, JSON.stringify(migrated));
+            localStorage.removeItem("FinappCookiesStatus");
+            return migrated;
+        }
+    } catch (e) {}
+    return null;
+}
+
+function _saveConsent(analytics, marketing) {
+    var obj = { version: 1, ts: Date.now(), analytics: !!analytics, marketing: !!marketing };
+    localStorage.setItem(CONSENT_KEY, JSON.stringify(obj));
+    try {
+        if (window.Telegram && Telegram.WebApp && Telegram.WebApp.CloudStorage) {
+            Telegram.WebApp.CloudStorage.setItem(CONSENT_KEY, JSON.stringify(obj), function() {});
+        }
+    } catch (e) {}
+    return obj;
+}
+
+function _loadAnalytics(consent) {
+    if (!consent || !consent.analytics) return;
+
+    // Yandex.Metrika
+    if (typeof ym === "undefined") {
+        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+        (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+        ym(98019798, "init", { clickmap: true, trackLinks: true, accurateTrackBounce: true, webvisor: true });
+    }
+
+    // Telegram Analytics
+    if (typeof window.telegramAnalytics === "undefined" || !window._tgAnalyticsLoaded) {
+        window._tgAnalyticsLoaded = true;
+        var tgScript = document.createElement("script");
+        tgScript.src = "https://tganalytics.xyz/index.js";
+        tgScript.async = true;
+        tgScript.onload = function() {
+            window.telegramAnalytics.init({
+                token: "eyJhcHBfbmFtZSI6IlRPTkJyaWRnZV9yb2JvdCIsImFwcF91cmwiOiJodHRwczovL3QubWUvVE9OQnJpZGdlX3JvYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vdG9uYmFua2NhcmQuY29tL2JyaWRnZS9UTUEvMDAuaHRtbCJ9!PQ40y7Tz3lZti6uDVlApq+BcGxi8tR9WEsH6Hyu+mD0=",
+                appName: "TONBridge_robot"
+            });
+        };
+        document.head.appendChild(tgScript);
+    }
+}
+
+// Initialise analytics immediately if consent was already given
+var _existingConsent = _readConsent();
+_loadAnalytics(_existingConsent);
+
 // Cookies Box
-if (document.querySelector(".offcanvas") === null) {
-    // Doesn't exist.
+if (document.querySelector("#cookiesbox") === null) {
+    // No banner on this page.
 }
 else {
     var elCookiesBox = new bootstrap.Offcanvas(document.getElementById('cookiesbox'));
-    var CookiesStatus = localStorage.getItem("FinappCookiesStatus")
+
     function CookiesBox(time) {
-        if (CookiesStatus === "1" || CookiesStatus === 1) {
-            // Cookies already accepted.
+        if (_readConsent() !== null) {
+            // Consent already recorded — nothing to show.
+            return;
         }
-        else {
-            if (time) {
-                setTimeout(() => {
-                    elCookiesBox.toggle();
-                }, time);
-            }
-            else {
-                elCookiesBox.toggle();
-            }
+        if (time) {
+            setTimeout(() => { elCookiesBox.toggle(); }, time);
+        } else {
+            elCookiesBox.toggle();
         }
     }
-    document.querySelectorAll(".accept-cookies").forEach(function (el) {
-        el.addEventListener("click", function () {
-            localStorage.setItem("FinappCookiesStatus", "1")
-        })
-    })
+
+    // Keyboard: Esc closes the offcanvas (Bootstrap handles this natively via
+    // data-bs-keyboard="true" which is the default, so no extra code needed).
+
+    document.querySelectorAll(".accept-all-cookies").forEach(function(el) {
+        el.addEventListener("click", function() {
+            var consent = _saveConsent(true, false);
+            _loadAnalytics(consent);
+        });
+    });
+
+    document.querySelectorAll(".accept-selected-cookies").forEach(function(el) {
+        el.addEventListener("click", function() {
+            var analyticsChecked = document.querySelector(".consent-analytics-toggle");
+            var marketingChecked = document.querySelector(".consent-marketing-toggle");
+            var consent = _saveConsent(
+                analyticsChecked ? analyticsChecked.checked : false,
+                marketingChecked ? marketingChecked.checked : false
+            );
+            _loadAnalytics(consent);
+        });
+    });
+
+    document.querySelectorAll(".decline-optional-cookies").forEach(function(el) {
+        el.addEventListener("click", function() {
+            _saveConsent(false, false);
+        });
+    });
 }
 
 

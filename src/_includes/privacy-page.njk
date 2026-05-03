@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="{{ t.lang_attr }}">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>{{ t.privacy_title }}</title>
+    <meta name="description" content="TON Bridge Privacy Policy">
+    <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="manifest" href="__manifest.json">
+</head>
+
+<body>
+
+    <!-- loader -->
+    <div id="loader">
+        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+    </div>
+    <!-- * loader -->
+
+    <!-- App Header -->
+    <div class="appHeader">
+        <div class="left">
+            <a href="{{ t.privacy_back_link }}" class="headerButton goBack">
+                <ion-icon name="chevron-back-outline"></ion-icon>
+            </a>
+        </div>
+        <div class="pageTitle">
+            {{ t.privacy_title }}
+        </div>
+    </div>
+    <!-- * App Header -->
+
+    <!-- App Capsule -->
+    <div id="appCapsule">
+        <div class="section mt-2 mb-2">
+            <p class="text-muted">{{ t.privacy_last_updated }}</p>
+
+            <p>{{ t.privacy_intro }}</p>
+
+            <h3>{{ t.privacy_data_heading }}</h3>
+            <p>{{ t.privacy_data_body }}</p>
+            <ul>
+                <li>{{ t.privacy_data_item1 }}</li>
+                <li>{{ t.privacy_data_item2 }}</li>
+                <li>{{ t.privacy_data_item3 }}</li>
+                <li>{{ t.privacy_data_item4 }}</li>
+            </ul>
+
+            <h3>{{ t.privacy_processors_heading }}</h3>
+            <p>{{ t.privacy_processors_body }}</p>
+            <ul>
+                <li>{{ t.privacy_processors_item1 }}</li>
+                <li>{{ t.privacy_processors_item2 }}</li>
+                <li>{{ t.privacy_processors_item3 }}</li>
+            </ul>
+
+            <h3>{{ t.privacy_retention_heading }}</h3>
+            <p>{{ t.privacy_retention_body }}</p>
+
+            <h3>{{ t.privacy_rights_heading }}</h3>
+            <p>{{ t.privacy_rights_body }}</p>
+
+            <h3>{{ t.privacy_gdpr_heading }}</h3>
+            <p>{{ t.privacy_gdpr_body }}</p>
+
+            <h3>{{ t.privacy_pdp_heading }}</h3>
+            <p>{{ t.privacy_pdp_body }}</p>
+
+            <h3>{{ t.privacy_contact_heading }}</h3>
+            <p>{{ t.privacy_contact_body }} <a href="mailto:{{ t.privacy_contact_email }}">{{ t.privacy_contact_email }}</a></p>
+        </div>
+    </div>
+    <!-- * App Capsule -->
+
+    <!-- ========= JS Files =========  -->
+    <!-- Bootstrap -->
+    <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
+    <!-- Ionicons (self-hosted sprite) -->
+    <script src="assets/js/ion-icon.js" defer></script>
+    <!-- Base Js File -->
+    <script src="assets/js/base.js"></script>
+    <!-- Telegram BackButton -->
+    <script src="assets/js/back-button.js"></script>
+    <script>wireBackButton();</script>
+
+</body>
+
+</html>

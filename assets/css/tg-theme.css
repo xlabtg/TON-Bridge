@@ -1,0 +1,181 @@
+:root {
+    --tg-theme-bg-color: #fff;
+    --tg-theme-text-color: #000;
+    --tg-theme-hint-color: #999;
+    --tg-theme-link-color: #6236ff;
+    --tg-theme-button-color: #1bb2da;
+    --tg-theme-button-text-color: #fff;
+    --tg-theme-secondary-bg-color: #ededf5;
+    --tg-theme-header-bg-color: #fff;
+    --tg-theme-accent-text-color: #6236ff;
+    --tg-theme-section-bg-color: #fff;
+    --tg-theme-section-header-text-color: #999;
+    --tg-theme-section-separator-color: rgba(0, 0, 0, 0.12);
+    --tg-theme-subtitle-text-color: #999;
+    --tg-theme-destructive-text-color: #ff396f;
+    --tg-theme-bottom-bar-bg-color: #fff;
+
+    --tg-bg: var(--tg-theme-bg-color, #fff);
+    --tg-text: var(--tg-theme-text-color, #000);
+    --tg-hint: var(--tg-theme-hint-color, #999);
+    --tg-link: var(--tg-theme-link-color, #6236ff);
+    --tg-button: var(--tg-theme-button-color, #1bb2da);
+    --tg-button-text: var(--tg-theme-button-text-color, #fff);
+    --tg-secondary-bg: var(--tg-theme-secondary-bg-color, #ededf5);
+    --tg-header-bg: var(--tg-theme-header-bg-color, var(--tg-button));
+    --tg-accent-text: var(--tg-theme-accent-text-color, var(--tg-link));
+    --tg-section-bg: var(--tg-theme-section-bg-color, #fff);
+    --tg-section-header-text: var(--tg-theme-section-header-text-color, var(--tg-hint));
+    --tg-section-separator: var(--tg-theme-section-separator-color, rgba(0, 0, 0, 0.12));
+    --tg-subtitle-text: var(--tg-theme-subtitle-text-color, var(--tg-hint));
+    --tg-destructive-text: var(--tg-theme-destructive-text-color, #ff396f);
+    --tg-bottom-bar-bg: var(--tg-theme-bottom-bar-bg-color, var(--tg-secondary-bg));
+}
+
+body {
+    background: var(--tg-bg);
+    color: var(--tg-text);
+}
+
+a,
+a:hover,
+a:active,
+a:focus,
+.btn-link {
+    color: var(--tg-link) !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.section-title,
+.card-title,
+.modal-title,
+.offcanvas-title,
+.listview,
+.listview > li,
+.listview .item,
+.appBottomMenu .item .icon,
+.appBottomMenu .item ion-icon,
+.appBottomMenu .item strong {
+    color: var(--tg-text);
+}
+
+.text-muted,
+.listview-title,
+.content-header,
+.content-footer,
+.listview .text-muted,
+.listview .text-small,
+.listview .text-xsmall {
+    color: var(--tg-hint) !important;
+}
+
+#appCapsule,
+.appContent,
+.section {
+    background: var(--tg-bg);
+}
+
+.appHeader,
+.appHeader:before,
+.appHeader.bg-primary,
+.appHeader.bg-primary:before {
+    background: var(--tg-header-bg) !important;
+    border-bottom-color: var(--tg-section-separator);
+    color: var(--tg-text) !important;
+}
+
+.appHeader .headerButton,
+.appHeader.text-light,
+.appHeader.text-light .headerButton {
+    color: var(--tg-text) !important;
+}
+
+.appBottomMenu {
+    background: var(--tg-bottom-bar-bg);
+    border-top-color: var(--tg-section-separator);
+}
+
+.appBottomMenu .item.active:before,
+.bg-primary,
+.btn-primary,
+.icon-box.bg-primary {
+    background: var(--tg-button) !important;
+}
+
+.appBottomMenu .item.active .icon,
+.appBottomMenu .item.active ion-icon,
+.appBottomMenu .item.active strong,
+.text-primary {
+    color: var(--tg-button) !important;
+}
+
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active {
+    border-color: var(--tg-button) !important;
+    color: var(--tg-button-text) !important;
+}
+
+.btn-outline-primary {
+    border-color: var(--tg-button) !important;
+    color: var(--tg-button) !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+.btn-outline-primary.active {
+    background: var(--tg-button) !important;
+    border-color: var(--tg-button) !important;
+    color: var(--tg-button-text) !important;
+}
+
+.content-hero,
+.wide-block,
+.card,
+.listview,
+.modal-content,
+.offcanvas,
+.cookies-box {
+    background: var(--tg-section-bg);
+    border-color: var(--tg-section-separator);
+    color: var(--tg-text);
+}
+
+.listview > li:after,
+.card-header,
+.card-footer,
+.modal-header,
+.modal-footer {
+    border-color: var(--tg-section-separator) !important;
+}
+
+.listview > li.divider-title {
+    background: var(--tg-secondary-bg);
+    border-color: var(--tg-section-separator);
+    color: var(--tg-section-header-text);
+}
+
+.bg-secondary,
+.icon-box.bg-secondary {
+    background: var(--tg-secondary-bg) !important;
+    color: var(--tg-text) !important;
+}
+
+.text-secondary,
+.text-info {
+    color: var(--tg-accent-text) !important;
+}
+
+.text-danger,
+.btn-text-danger,
+.btn-outline-danger {
+    color: var(--tg-destructive-text) !important;
+}

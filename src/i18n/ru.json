@@ -169,5 +169,9 @@
   "referral_tbc_note": "Если реферальное вознаграждение Stars активно, выплата TBC Points за тот же обмен отключена во избежание двойной выплаты.",
   "share_story_btn": "Поделиться историей",
   "share_story_skip": "Пропустить",
+  "tier_share_btn": "Поделиться",
+  "tier_close_btn": "Закрыть",
+  "tier_celebration_title": "Уровень разблокирован",
+  "tier_progress_aria": "Прогресс уровня",
   "social_proof_label": "{count} обменов за последние 24 ч · {volume} объём"
 }

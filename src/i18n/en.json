@@ -169,5 +169,9 @@
   "referral_tbc_note": "If Stars rebate is active, TBC points referral payout is disabled for the same swap to prevent double-pay.",
   "share_story_btn": "Share my bridge",
   "share_story_skip": "Skip",
+  "tier_share_btn": "Share",
+  "tier_close_btn": "Close",
+  "tier_celebration_title": "Tier unlocked",
+  "tier_progress_aria": "Tier progress",
   "social_proof_label": "{count} bridges in the last 24 h · {volume} volume"
 }

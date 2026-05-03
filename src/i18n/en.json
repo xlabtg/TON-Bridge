@@ -166,5 +166,7 @@
   "referral_loading": "Loading…",
   "referral_error": "Could not load referral data. Please try again.",
   "referral_stars_disabled": "Stars rebate is disabled for your account (TBC points mode is active).",
-  "referral_tbc_note": "If Stars rebate is active, TBC points referral payout is disabled for the same swap to prevent double-pay."
+  "referral_tbc_note": "If Stars rebate is active, TBC points referral payout is disabled for the same swap to prevent double-pay.",
+  "share_story_btn": "Share my bridge",
+  "share_story_skip": "Skip"
 }

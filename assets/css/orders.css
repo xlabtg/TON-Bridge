@@ -1,0 +1,158 @@
+/* Orders page styles */
+
+.orders-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 0;
+}
+
+.orders-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+    text-align: center;
+    color: #958d9e;
+}
+
+.orders-empty-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.4;
+}
+
+.orders-empty-state p {
+    font-size: 15px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.orders-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.order-item {
+    background: var(--bs-white, #fff);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 8px 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.order-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.order-row + .order-row {
+    margin-top: 6px;
+}
+
+.order-pair {
+    font-weight: 600;
+    font-size: 15px;
+    color: #27173e;
+}
+
+.order-amounts {
+    font-size: 13px;
+    color: #6e6e82;
+}
+
+.order-arrow {
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.order-sent, .order-received {
+    flex: 1;
+}
+
+.order-received {
+    text-align: right;
+}
+
+.order-meta {
+    margin-top: 4px;
+}
+
+.order-time {
+    font-size: 12px;
+    color: #958d9e;
+}
+
+.order-copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    font-size: 12px;
+    color: #6236ff;
+    background: transparent;
+    border: 1px solid #dcdce9;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.order-copy-btn:hover {
+    background: #f5f5ff;
+}
+
+.order-copy-btn.copied {
+    color: #1bb2da;
+    border-color: #1bb2da;
+}
+
+.order-copy-btn ion-icon {
+    font-size: 13px;
+}
+
+.order-txid-short {
+    font-family: monospace;
+    font-size: 11px;
+}
+
+/* Status badges */
+.order-item .badge {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Load more */
+.orders-load-more {
+    text-align: center;
+    padding: 16px;
+}
+
+/* Dark mode support */
+.dark .order-item {
+    background: var(--bs-dark, #1e1e2d);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.dark .order-pair {
+    color: #fff;
+}
+
+.dark .order-amounts {
+    color: #aaa;
+}
+
+.dark .order-copy-btn {
+    border-color: #3a3a52;
+    color: #a59fff;
+}
+
+.dark .order-copy-btn:hover {
+    background: #2a2a3d;
+}

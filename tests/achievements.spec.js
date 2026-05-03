@@ -49,6 +49,12 @@ async function mockTelegramWebApp(page) {
     });
 }
 
+async function setLangPref(page, lang) {
+    await page.addInitScript((l) => {
+        localStorage.setItem('pref:lang', l);
+    }, lang);
+}
+
 test.describe('Achievement / tier system', () => {
 
     test('tier badge element is present on Bridge page', async ({ page }) => {
@@ -228,14 +234,18 @@ test.describe('Achievement / tier system', () => {
 
     test('tier badge and progress bar are present on RU Bridge page', async ({ page }) => {
         await mockTelegramWebApp(page);
-        await page.goto(distUrl('index-ru.html'));
+        await setLangPref(page, 'ru');
+        await page.goto(distUrl('index.html'));
+        await page.waitForFunction(() => document.documentElement.lang === 'ru');
         await expect(page.locator('#tier-badge')).toBeAttached();
         await expect(page.locator('#tier-progress-bar')).toBeAttached();
     });
 
     test('celebration share button in RU page shows translated text', async ({ page }) => {
         await mockTelegramWebApp(page);
-        await page.goto(distUrl('index-ru.html'));
+        await setLangPref(page, 'ru');
+        await page.goto(distUrl('index.html'));
+        await page.waitForFunction(() => document.documentElement.lang === 'ru');
         const shareText = await page.evaluate(() => {
             const btn = document.querySelector('.tier-celebration-share');
             return btn ? btn.textContent.trim() : '';

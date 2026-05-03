@@ -41,6 +41,12 @@ async function mockTelegramWebApp(page, { hasShareToStory = true } = {}) {
     }, { hasShareToStory });
 }
 
+async function setLangPref(page, lang) {
+    await page.addInitScript((l) => {
+        localStorage.setItem('pref:lang', l);
+    }, lang);
+}
+
 function distUrl(file) {
     return 'file://' + resolve(__dirname, '..', 'dist', file);
 }
@@ -63,7 +69,8 @@ test.describe('shareToStory — dialog appearance', () => {
 
     test('share dialog appears on success step (Bridge RU)', async ({ page }) => {
         await mockTelegramWebApp(page);
-        await page.goto(distUrl('index-ru.html'));
+        await setLangPref(page, 'ru');
+        await page.goto(distUrl('index.html'));
         await fireSuccessMessage(page);
         await expect(page.locator('#share-story-dialog')).toBeVisible({ timeout: 3000 });
     });
@@ -114,7 +121,8 @@ test.describe('shareToStory — dialog appearance', () => {
 
     test('RU dialog contains "Поделиться историей" button', async ({ page }) => {
         await mockTelegramWebApp(page);
-        await page.goto(distUrl('index-ru.html'));
+        await setLangPref(page, 'ru');
+        await page.goto(distUrl('index.html'));
         await fireSuccessMessage(page);
         await expect(page.locator('#share-story-dialog')).toContainText('Поделиться историей');
     });
@@ -206,7 +214,8 @@ test.describe('shareToStory — caption i18n', () => {
 
     test('RU caption contains "Обменял"', async ({ page }) => {
         await mockTelegramWebApp(page);
-        await page.goto(distUrl('index-ru.html'));
+        await setLangPref(page, 'ru');
+        await page.goto(distUrl('index.html'));
         const caption = await page.evaluate(() =>
             window.__shareToStory.buildCaption('2', 'ETH', 15));
         expect(caption).toContain('Обменял 2 ETH');

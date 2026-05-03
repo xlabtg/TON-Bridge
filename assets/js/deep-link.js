@@ -152,6 +152,11 @@
    */
   function _prefillWidget(link) {
     var iframe = document.getElementById('iframe-widget');
+    if (!iframe && typeof window.openExchangeWidget === 'function') {
+      window.__tonBridgeDeepLinkPreset = link;
+      window.openExchangeWidget();
+      iframe = document.getElementById('iframe-widget');
+    }
     if (!iframe) return;
 
     var src = iframe.src;
@@ -161,6 +166,14 @@
     src = _setQueryParam(src, 'amount', link.amount);
 
     iframe.src = src;
+  }
+
+  function prefillUrl(url, link) {
+    if (!link) return url;
+    url = _setQueryParam(url, 'from', link.from);
+    url = _setQueryParam(url, 'to', link.to);
+    url = _setQueryParam(url, 'amount', link.amount);
+    return url;
   }
 
   function _setQueryParam(url, key, value) {
@@ -214,6 +227,7 @@
     buildUrl: buildDeepLinkUrl,
     apply: applyDeepLink,
     init: initDeepLink,
+    prefillUrl: prefillUrl,
     ALLOWED_ASSETS: ALLOWED_ASSETS,
   };
 

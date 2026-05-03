@@ -251,14 +251,13 @@ test.describe('TonBridgeDeepLink.init — widget prefill via hash redirect', () 
       window.Telegram.WebApp.initDataUnsafe = { start_param: 'totally_invalid' };
     });
     await page.goto(distUrl('index.html'));
-    const src = await page.evaluate(() => {
-      const iframe = document.getElementById('iframe-widget');
-      return iframe ? iframe.src : null;
+    const state = await page.evaluate(() => {
+      return {
+        hasIframe: Boolean(document.getElementById('iframe-widget')),
+        hasPlaceholder: Boolean(document.getElementById('iframe-placeholder')),
+      };
     });
-    // Default values from the template are intact
-    expect(src).toContain('from=ton');
-    expect(src).toContain('to=tonbsc');
-    expect(src).toContain('amount=10');
+    expect(state).toEqual({ hasIframe: false, hasPlaceholder: true });
   });
 
   test('stores ref code in sessionStorage', async ({ page }) => {

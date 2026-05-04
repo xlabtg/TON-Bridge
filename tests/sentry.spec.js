@@ -54,49 +54,41 @@ async function setupPage(page) {
 }
 
 test.describe('Sentry integration', () => {
-  test('sentry.js is included on the Bridge page', async ({ page }) => {
+  [
+    ['Bridge page', 'index.html'],
+    ['Exchange page', 'index2.html'],
+    ['OTC page', 'index3.html'],
+    ['Statistics page', 'index4.html'],
+    ['Settings page', 'app-settings.html'],
+    ['Orders page', 'orders.html'],
+    ['Privacy page', 'privacy.html'],
+    ['Referral page', 'referral.html'],
+    ['Steps page', '1.html'],
+  ].forEach(([name, file]) => {
+    test(`sentry.js is included on the ${name}`, async ({ page }) => {
+      await setupPage(page);
+      await page.goto(distUrl(file));
+      const scripts = await page.evaluate(() =>
+        Array.from(document.querySelectorAll('script[src]')).map(s => s.getAttribute('src'))
+      );
+      expect(scripts.some(s => s.includes('sentry.js'))).toBe(true);
+    });
+  });
+
+  test('sentry.js is loaded after base.js on every core page', async ({ page }) => {
     await setupPage(page);
     await page.goto(distUrl('index.html'));
-    const scripts = await page.evaluate(() =>
-      Array.from(document.querySelectorAll('script[src]')).map(s => s.getAttribute('src'))
-    );
-    expect(scripts.some(s => s.includes('sentry.js'))).toBe(true);
-  });
 
-  test('sentry.js is included on the Exchange page', async ({ page }) => {
-    await setupPage(page);
-    await page.goto(distUrl('index2.html'));
     const scripts = await page.evaluate(() =>
       Array.from(document.querySelectorAll('script[src]')).map(s => s.getAttribute('src'))
     );
-    expect(scripts.some(s => s.includes('sentry.js'))).toBe(true);
-  });
 
-  test('sentry.js is included on the OTC page', async ({ page }) => {
-    await setupPage(page);
-    await page.goto(distUrl('index3.html'));
-    const scripts = await page.evaluate(() =>
-      Array.from(document.querySelectorAll('script[src]')).map(s => s.getAttribute('src'))
-    );
-    expect(scripts.some(s => s.includes('sentry.js'))).toBe(true);
-  });
-
-  test('sentry.js is included on the Settings page', async ({ page }) => {
-    await setupPage(page);
-    await page.goto(distUrl('app-settings.html'));
-    const scripts = await page.evaluate(() =>
-      Array.from(document.querySelectorAll('script[src]')).map(s => s.getAttribute('src'))
-    );
-    expect(scripts.some(s => s.includes('sentry.js'))).toBe(true);
-  });
-
-  test('sentry.js is included on the Steps (instruction) page', async ({ page }) => {
-    await setupPage(page);
-    await page.goto(distUrl('1.html'));
-    const scripts = await page.evaluate(() =>
-      Array.from(document.querySelectorAll('script[src]')).map(s => s.getAttribute('src'))
-    );
-    expect(scripts.some(s => s.includes('sentry.js'))).toBe(true);
+    const baseIdx = scripts.findIndex(s => s.includes('base.js'));
+    const sentryIdx = scripts.findIndex(s => s.includes('sentry.js'));
+    expect(sentryIdx).toBeGreaterThan(-1);
+    expect(baseIdx).toBeGreaterThan(-1);
+    // base.js is intentionally before sentry.js (sentry wraps errors from page JS)
+    expect(sentryIdx).toBeGreaterThan(baseIdx);
   });
 
   test('Sentry stub is a no-op when DSN token is not replaced (no real DSN)', async ({ page }) => {
@@ -129,23 +121,6 @@ test.describe('Sentry integration', () => {
       }
     });
     expect(threw).toBe(false);
-  });
-
-  test('Sentry script is loaded before base.js on every page', async ({ page }) => {
-    await setupPage(page);
-    await page.goto(distUrl('index.html'));
-
-    const order = await page.evaluate(() =>
-      Array.from(document.querySelectorAll('script[src]')).map(s => s.getAttribute('src'))
-    );
-
-    const baseIdx = order.findIndex(s => s.includes('base.js'));
-    const sentryIdx = order.findIndex(s => s.includes('sentry.js'));
-    // sentry.js should appear in the document (sentryIdx >= 0) and base.js should appear first
-    expect(sentryIdx).toBeGreaterThan(-1);
-    expect(baseIdx).toBeGreaterThan(-1);
-    // base.js is intentionally before sentry.js (sentry wraps errors from page JS)
-    expect(sentryIdx).toBeGreaterThan(baseIdx);
   });
 
   test('Dev test button is absent when sentry-test param is not in URL', async ({ page }) => {

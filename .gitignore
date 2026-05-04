@@ -10,6 +10,9 @@ dist/
 # Sass source maps
 assets/css/*.css.map
 
+# Environment secrets — never commit this file
+.env
+
 # OS noise
 .DS_Store
 Thumbs.db
@@ -21,6 +24,9 @@ Thumbs.db
 # Playwright
 test-results/
 playwright-report/
+
+# Local investigation logs
+ci-logs/
 
 # Sentry — generated build artifact (token-replaced copy of sentry.js)
 assets/js/sentry.out.js

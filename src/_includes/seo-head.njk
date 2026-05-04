@@ -10,10 +10,10 @@
       baseUrl    - site root URL
       buildSha   - git SHA for cache-busting
     Template scope:
-      t          - locale dictionary
       seoTitle   - page title for og:title (must be set before include)
       seoDesc    - page description (must be set before include)
 -#}
+{% set _locale = t if t else locales.en %}
 {% set _canonical = canonical if canonical else (baseUrl + "/" + permalink) %}
 {% set _ogImagePath = ogImagePath if ogImagePath else ("assets/img/og/" + (permalink | replace(".html", "") | replace("/", "_")) + ".png") %}
 {% set _ogImage = ogImage if ogImage else (baseUrl + "/" + _ogImagePath + "?v=" + buildSha) %}
@@ -21,15 +21,15 @@
 <link rel="canonical" href="{{ _canonical }}">
 
 {# hreflang alternates – cross-link EN↔RU pages #}
-{% if altUrl %}<link rel="alternate" hreflang="{{ t.og_locale_alternate | replace('_', '-') | lower }}" href="{{ altUrl }}">{% endif %}
-<link rel="alternate" hreflang="{{ t.og_locale | replace('_', '-') | lower }}" href="{{ _canonical }}">
+{% if altUrl %}<link rel="alternate" hreflang="{{ _locale.og_locale_alternate | replace('_', '-') | lower }}" href="{{ altUrl }}">{% endif %}
+<link rel="alternate" hreflang="{{ _locale.og_locale | replace('_', '-') | lower }}" href="{{ _canonical }}">
 <link rel="alternate" hreflang="x-default" href="{{ defaultUrl if defaultUrl else _canonical }}">
 
 {# Open Graph #}
 <meta property="og:type" content="{{ ogType if ogType else 'website' }}">
-<meta property="og:site_name" content="{{ t.og_site_name }}">
-<meta property="og:locale" content="{{ t.og_locale }}">
-{% if altUrl %}<meta property="og:locale:alternate" content="{{ t.og_locale_alternate }}">{% endif %}
+<meta property="og:site_name" content="{{ _locale.og_site_name }}">
+<meta property="og:locale" content="{{ _locale.og_locale }}">
+{% if altUrl %}<meta property="og:locale:alternate" content="{{ _locale.og_locale_alternate }}">{% endif %}
 <meta property="og:title" content="{{ seoTitle }}">
 <meta property="og:description" content="{{ seoDesc }}">
 <meta property="og:url" content="{{ _canonical }}">

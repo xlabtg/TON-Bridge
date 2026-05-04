@@ -25,22 +25,99 @@ const en = JSON.parse(readFileSync(join(root, 'src/i18n/en.json'), 'utf8'));
 const ru = JSON.parse(readFileSync(join(root, 'src/i18n/ru.json'), 'utf8'));
 
 // Pages: [outputFile, title, subtitle, locale]
-const pages = [
-  ['index.png',           en.title_bridge,               'Non-custodial · No registration', 'en'],
-  ['index-ru.png',        ru.title_bridge,               'Без хранения · Без регистрации',  'ru'],
-  ['index2.png',          en.title_exchange,             '1200+ cryptocurrencies · 200 blockchains', 'en'],
-  ['index2-ru.png',       ru.title_exchange,             '1200+ криптовалют · 200 блокчейнов',       'ru'],
-  ['index3.png',          en.title_otc,                  'Fixed rate · Zero slippage',      'en'],
-  ['index3-ru.png',       ru.title_otc,                  'Фиксированный курс · Без проскальзывания', 'ru'],
-  ['0.png',               en.title_intro_bridge,         'Get started with TON Bridge',     'en'],
-  ['0-ru.png',            ru.title_intro_bridge,         'Начните работу с TON Bridge',     'ru'],
-  ['1.png',               en.title_intro_bridge_steps,   '3 easy steps to bridge TON',      'en'],
-  ['1-ru.png',            ru.title_intro_bridge_steps,   'Мост TON за 3 простых шага',      'ru'],
-  ['2.png',               en.title_intro_exchange_steps, '3 easy steps to exchange crypto', 'en'],
-  ['2-ru.png',            ru.title_intro_exchange_steps, 'Обмен за 3 простых шага',         'ru'],
-  ['app-settings.png',    en.title_settings,             'Theme & Language',                'en'],
-  ['app-settings-ru.png', ru.title_settings,             'Тема и язык',                     'ru'],
+const pageSpecs = [
+  [
+    "index.png",
+    "title_bridge",
+    "Non-custodial - No registration",
+    "en"
+  ],
+  [
+    "index2.png",
+    "title_exchange",
+    "1200+ cryptocurrencies - 200 blockchains",
+    "en"
+  ],
+  [
+    "index3.png",
+    "title_otc",
+    "Fixed rate - Zero slippage",
+    "en"
+  ],
+  [
+    "0.png",
+    "title_intro_bridge",
+    "Get started with TON Bridge",
+    "en"
+  ],
+  [
+    "1.png",
+    "title_intro_bridge_steps",
+    "3 easy steps to bridge TON",
+    "en"
+  ],
+  [
+    "2.png",
+    "title_intro_exchange_steps",
+    "3 easy steps to exchange crypto",
+    "en"
+  ],
+  [
+    "app-settings.png",
+    "title_settings",
+    "Theme, language, security, notifications",
+    "en"
+  ],
+  [
+    "orders.png",
+    "title_orders",
+    "Track exchange order statuses",
+    "en"
+  ],
+  [
+    "index4.png",
+    "title_statistics",
+    "Volume, pairs, and bridge activity",
+    "en"
+  ],
+  [
+    "referral.png",
+    "title_referral",
+    "Earn Telegram Stars for referrals",
+    "en"
+  ],
+  [
+    "privacy.png",
+    "privacy_title",
+    "Data, consent, analytics, and privacy",
+    "en"
+  ],
+  [
+    "index4-ru.png",
+    "title_statistics",
+    "Объем, пары и активность моста",
+    "ru"
+  ],
+  [
+    "orders-ru.png",
+    "title_orders",
+    "Отслеживайте статусы заказов",
+    "ru"
+  ],
+  [
+    "referral-ru.png",
+    "title_referral",
+    "Получайте Telegram Stars за приглашения",
+    "ru"
+  ],
+  [
+    "privacy-ru.png",
+    "privacy_title",
+    "Данные, согласия, аналитика и приватность",
+    "ru"
+  ]
 ];
+const pages = pageSpecs.map(([file, titleKey, subtitle, locale]) => [file, (locale === 'ru' ? ru : en)[titleKey], subtitle, locale]);
 
 function buildHtml(title, subtitle, locale) {
   const isRu = locale === 'ru';

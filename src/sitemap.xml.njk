@@ -6,20 +6,28 @@ eleventyExcludeFromCollections: true
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   {%- set pages = [
-    { loc: baseUrl + "/index.html",           alt: baseUrl + "/index-ru.html",           lang: "en", altLang: "ru" },
-    { loc: baseUrl + "/index-ru.html",        alt: baseUrl + "/index.html",              lang: "ru", altLang: "en" },
-    { loc: baseUrl + "/index2.html",          alt: baseUrl + "/index2-ru.html",          lang: "en", altLang: "ru" },
-    { loc: baseUrl + "/index2-ru.html",       alt: baseUrl + "/index2.html",             lang: "ru", altLang: "en" },
-    { loc: baseUrl + "/index3.html",          alt: baseUrl + "/index3-ru.html",          lang: "en", altLang: "ru" },
-    { loc: baseUrl + "/index3-ru.html",       alt: baseUrl + "/index3.html",             lang: "ru", altLang: "en" },
-    { loc: baseUrl + "/0.html",               alt: baseUrl + "/0-ru.html",               lang: "en", altLang: "ru" },
-    { loc: baseUrl + "/0-ru.html",            alt: baseUrl + "/0.html",                  lang: "ru", altLang: "en" },
-    { loc: baseUrl + "/1.html",               alt: baseUrl + "/1-ru.html",               lang: "en", altLang: "ru" },
-    { loc: baseUrl + "/1-ru.html",            alt: baseUrl + "/1.html",                  lang: "ru", altLang: "en" },
-    { loc: baseUrl + "/2.html",               alt: baseUrl + "/2-ru.html",               lang: "en", altLang: "ru" },
-    { loc: baseUrl + "/2-ru.html",            alt: baseUrl + "/2.html",                  lang: "ru", altLang: "en" },
-    { loc: baseUrl + "/app-settings.html",    alt: baseUrl + "/app-settings-ru.html",   lang: "en", altLang: "ru" },
-    { loc: baseUrl + "/app-settings-ru.html", alt: baseUrl + "/app-settings.html",      lang: "ru", altLang: "en" }
+    { loc: baseUrl + "/index.html"           , alt: baseUrl + "/index-ru.html"        , lang: "en", altLang: "ru" },
+    { loc: baseUrl + "/index-ru.html"        , alt: baseUrl + "/index.html"           , lang: "ru", altLang: "en" },
+    { loc: baseUrl + "/index2.html"          , alt: baseUrl + "/index2-ru.html"       , lang: "en", altLang: "ru" },
+    { loc: baseUrl + "/index2-ru.html"       , alt: baseUrl + "/index2.html"          , lang: "ru", altLang: "en" },
+    { loc: baseUrl + "/index3.html"          , alt: baseUrl + "/index3-ru.html"       , lang: "en", altLang: "ru" },
+    { loc: baseUrl + "/index3-ru.html"       , alt: baseUrl + "/index3.html"          , lang: "ru", altLang: "en" },
+    { loc: baseUrl + "/0.html"               , alt: baseUrl + "/0-ru.html"            , lang: "en", altLang: "ru" },
+    { loc: baseUrl + "/0-ru.html"            , alt: baseUrl + "/0.html"               , lang: "ru", altLang: "en" },
+    { loc: baseUrl + "/1.html"               , alt: baseUrl + "/1-ru.html"            , lang: "en", altLang: "ru" },
+    { loc: baseUrl + "/1-ru.html"            , alt: baseUrl + "/1.html"               , lang: "ru", altLang: "en" },
+    { loc: baseUrl + "/2.html"               , alt: baseUrl + "/2-ru.html"            , lang: "en", altLang: "ru" },
+    { loc: baseUrl + "/2-ru.html"            , alt: baseUrl + "/2.html"               , lang: "ru", altLang: "en" },
+    { loc: baseUrl + "/app-settings.html"    , alt: baseUrl + "/app-settings-ru.html" , lang: "en", altLang: "ru" },
+    { loc: baseUrl + "/app-settings-ru.html" , alt: baseUrl + "/app-settings.html"    , lang: "ru", altLang: "en" },
+    { loc: baseUrl + "/index4.html"          , alt: baseUrl + "/index4-ru.html"       , lang: "en", altLang: "ru" },
+    { loc: baseUrl + "/index4-ru.html"       , alt: baseUrl + "/index4.html"          , lang: "ru", altLang: "en" },
+    { loc: baseUrl + "/orders.html"          , alt: baseUrl + "/orders-ru.html"       , lang: "en", altLang: "ru" },
+    { loc: baseUrl + "/orders-ru.html"       , alt: baseUrl + "/orders.html"          , lang: "ru", altLang: "en" },
+    { loc: baseUrl + "/privacy.html"         , alt: baseUrl + "/privacy-ru.html"      , lang: "en", altLang: "ru" },
+    { loc: baseUrl + "/privacy-ru.html"      , alt: baseUrl + "/privacy.html"         , lang: "ru", altLang: "en" },
+    { loc: baseUrl + "/referral.html"        , alt: baseUrl + "/referral-ru.html"     , lang: "en", altLang: "ru" },
+    { loc: baseUrl + "/referral-ru.html"     , alt: baseUrl + "/referral.html"        , lang: "ru", altLang: "en" }
   ] -%}
   {%- for p in pages %}
   <url>

@@ -4,19 +4,34 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "npm run build:css && eleventy --config=eleventy.config.js",
+    "build": "npm run build:css && npm run build:critical && npm run build:og && eleventy --config=eleventy.config.js && node build-sw.js",
     "build:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions",
+    "build:og": "node scripts/generate-og-images.js",
+    "build:critical": "sass assets/sass/critical.scss assets/css/critical.css --style=compressed --silence-deprecation=import,global-builtin,color-functions",
+    "check:env": "node --input-type=module --eval \"import('./src/_data/env.js').then(m => { m.default(); console.log('All required environment variables are set.'); }).catch(e => { console.error(e.message); process.exit(1); })\"",
     "watch:css": "sass assets/sass/style.scss assets/css/style.css --style=compressed --source-map --silence-deprecation=import,global-builtin,color-functions --watch",
     "test": "playwright test",
+    "validate:manifest": "node scripts/validate-manifest.js",
+    "check:i18n": "node scripts/check-i18n-keys.js",
     "test:schema": "node --test worker/tests/affiliate-schema.test.js",
+    "test:auth-verify": "node --test worker/tests/auth-verify.test.js",
+    "test:unit": "node --test tests/usdOracle.test.js tests/swapsWriter.test.js",
+    "test:accrual": "node --test worker/tests/accrualJob.test.js",
+    "test:redeem": "node --test worker/tests/redeemHandler.test.js",
     "test:rate-config": "node --test worker/tests/rateConfig.test.js"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.1.5",
+    "@axe-core/playwright": "^4.10.0",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.59.1",
     "better-sqlite3": "^11.10.0",
+    "dotenv": "^16.6.1",
     "html-validate": "^10.13.1",
-    "sass": "^1.77.0"
+    "sass": "^1.77.0",
+    "web-app-manifest-validator": "^1.1.0"
+  },
+  "dependencies": {
+    "@tonconnect/ui": "^2.4.4"
   }
 }

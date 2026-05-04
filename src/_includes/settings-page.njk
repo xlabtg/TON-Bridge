@@ -1,27 +1,36 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ locales.en.lang_attr }}">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport"
-        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+        content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>{{ t.title_settings }}</title>
-    <meta name="description" content="TON Bridge HTML Mobile Template">
+    <title data-i18n="title_settings">{{ locales.en.title_settings }}</title>
+    {% set seoTitle = locales.en.title_settings %}
+    {% set seoDesc = locales.en.desc_settings %}
+    {% include "seo-head.njk" %}
     <meta name="keywords" content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
-    <link rel="stylesheet" href="assets/css/style.css">
+    {% include "performance-head.njk" %}
     <link rel="manifest" href="__manifest.json">
+    <meta http-equiv="Content-Security-Policy-Report-Only" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://changenow.io; connect-src 'self' https://*.changenow.io https://api.telegram.org https://tganalytics.xyz; report-uri /csp-report">
 </head>
 
 <body>
+    <div id="offline-indicator">You are offline</div>
+    <script src="https://telegram.org/js/telegram-web-app.js" integrity="sha384-1XuC9S4cgk6RH1oCsL2diDRwLiiivu/oZHNfxYUitEFuiKpP5ceNbzu220KKrcK+" crossorigin="anonymous"></script>
+    <script>
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+    </script>
 
     <!-- loader -->
-    <div id="loader">
-        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+    <div id="loader" aria-hidden="true">
+        <img src="assets/img/loading-icon.webp" alt="" role="presentation" class="loading-icon">
     </div>
     <!-- * loader -->
 
@@ -29,8 +38,8 @@
     <div class="appHeader">
         <div class="left">
         </div>
-        <div class="pageTitle">
-            {{ t.settings_title_label }}
+        <div class="pageTitle" data-i18n="settings_title_label">
+            {{ locales.en.settings_title_label }}
         </div>
     </div>
     <!-- * App Header -->
@@ -38,105 +47,510 @@
     <!-- App Capsule -->
     <div id="appCapsule">
 
-    <div class="listview-title mt-1">{{ t.settings_theme_section }}</div>
+    <div class="listview-title mt-1" data-i18n="settings_theme_section">{{ locales.en.settings_theme_section }}</div>
     <ul class="listview image-listview text inset no-line">
         <li>
             <div class="item">
                 <div class="in">
-                    <div>
-                        {{ t.settings_dark_mode_label }}
+                    <div id="darkmode-label" data-i18n="settings_dark_mode_label">
+                        {{ locales.en.settings_dark_mode_label }}
                     </div>
                     <div class="form-check form-switch ms-2">
                         <input class="form-check-input dark-mode-switch" type="checkbox" id="darkmodeSwitch">
-                        <label class="form-check-label" for="darkmodeSwitch"></label>
+                        <label class="form-check-label" for="darkmodeSwitch" aria-hidden="true"></label>
                     </div>
                 </div>
             </div>
         </li>
     </ul>
 
-    <div class="listview-title mt-1">{{ t.settings_lang_section }}</div>
+    <div class="listview-title mt-1" data-i18n="settings_lang_section">{{ locales.en.settings_lang_section }}</div>
+    <ul class="listview image-listview text inset no-line">
+        <li>
+            <div class="item">
+                <div class="in">
+                    <div id="language-label" data-i18n="settings_lang_label">
+                        {{ locales.en.settings_lang_label }}
+                    </div>
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input language-switch" type="checkbox" id="languageSwitch">
+                        <label class="form-check-label" for="languageSwitch" aria-hidden="true"></label>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+    <div class="listview-title mt-1" data-i18n="settings_leaderboard_section">{{ locales.en.settings_leaderboard_section }}</div>
     <ul class="listview image-listview text inset no-line">
         <li>
             <div class="item">
                 <div class="in">
                     <div>
-                        {{ t.settings_lang_label }}
+                        <div data-i18n="settings_leaderboard_label">{{ locales.en.settings_leaderboard_label }}</div>
+                        <div class="text-muted" style="font-size:0.8em;" data-i18n="settings_leaderboard_hint">{{ locales.en.settings_leaderboard_hint }}</div>
                     </div>
                     <div class="form-check form-switch ms-2">
-                        <input class="form-check-input language-switch" type="checkbox" id="languageSwitch">
-                        <label class="form-check-label" for="languageSwitch"></label>
+                        <input class="form-check-input leaderboard-optin-switch" type="checkbox" id="leaderboardOptinSwitch">
+                        <label class="form-check-label" for="leaderboardOptinSwitch"></label>
                     </div>
                 </div>
             </div>
         </li>
     </ul>
 
+    <div class="listview-title mt-1" data-i18n="settings_notifications_section">{{ locales.en.settings_notifications_section }}</div>
+    <ul class="listview image-listview text inset no-line">
+        <li>
+            <div class="item">
+                <div class="in">
+                    <div data-i18n="settings_notifications_label">
+                        {{ locales.en.settings_notifications_label }}
+                    </div>
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input" type="checkbox" id="notificationsSwitch" checked>
+                        <label class="form-check-label" for="notificationsSwitch"></label>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+    <div class="listview-title mt-1" data-i18n="wallet_section">{{ locales.en.wallet_section }}</div>
+    <ul class="listview image-listview text inset no-line" id="wallet-settings-list">
+        <li id="wallet-settings-connect-row">
+            <div class="item">
+                <div class="in">
+                    <div id="wallet-settings-status" data-i18n="wallet_connect_btn">{{ locales.en.wallet_connect_btn }}</div>
+                    <button class="btn btn-primary btn-sm rounded" id="wallet-settings-btn" onclick="WalletConnect.connect()">
+                        <ion-icon name="wallet-outline" style="font-size:16px;margin-right:4px;vertical-align:middle;"></ion-icon>
+                        <span id="wallet-settings-btn-label" data-i18n="wallet_connect_btn">{{ locales.en.wallet_connect_btn }}</span>
+                    </button>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+    <div class="listview-title mt-1" data-i18n="ab_section">{{ locales.en.ab_section }}</div>
+    <ul class="listview image-listview text inset no-line" id="address-book-manage-list">
+        <li><div class="item"><div class="in" data-i18n="ab_empty">{{ locales.en.ab_empty }}</div></div></li>
+    </ul>
+
+    <div class="listview-title mt-1" data-i18n="referral_section_title">{{ locales.en.referral_section_title }}</div>
+    <div id="referral-section"></div>
+
+    <div class="listview-title mt-1" data-i18n="settings_security_section">{{ locales.en.settings_security_section }}</div>
+    <ul class="listview image-listview text inset no-line" id="biometric-section">
+        <li>
+            <div class="item">
+                <div class="in">
+                    <div id="biometric-label-wrapper">
+                        <span id="biometric-label" data-i18n="settings_biometric_label">{{ locales.en.settings_biometric_label }}</span>
+                        <span id="biometric-unavailable-hint" class="text-muted" style="display:none; font-size:0.82em; margin-left:4px;" data-bs-toggle="tooltip" title="{{ locales.en.settings_biometric_unavailable_hint }}" data-i18n-attr="title:settings_biometric_unavailable_hint">(?)</span>
+                    </div>
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input" type="checkbox" id="biometricSwitch" disabled>
+                        <label class="form-check-label" for="biometricSwitch"></label>
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li id="biometric-threshold-row" style="display:none;">
+            <div class="item">
+                <div class="in">
+                    <div data-i18n="settings_biometric_threshold_label">{{ locales.en.settings_biometric_threshold_label }}</div>
+                    <div style="display:flex;align-items:center;gap:4px;">
+                        <span>$</span>
+                        <input type="number" id="biometricThreshold" min="1" step="1"
+                            style="width:90px; border:1px solid #ccc; border-radius:6px; padding:2px 6px; text-align:right;"
+                            value="1000">
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+    <div class="listview-title mt-3" data-i18n="settings_credits_section">{{ locales.en.settings_credits_section }}</div>
+    <ul class="listview image-listview text inset no-line">
+        <li>
+            <a href="https://themeforest.net/item/finapp-wallet-banking-html-mobile-template/25738217" class="item" target="_blank" rel="noopener">
+                <div class="in">
+                    <div>
+                        <div>Finapp Template</div>
+                        <div class="text-muted fs-12" data-i18n="settings_credits_finapp">{{ locales.en.settings_credits_finapp }}</div>
+                    </div>
+                    <ion-icon name="open-outline" class="text-muted"></ion-icon>
+                </div>
+            </a>
+        </li>
+        <li>
+            <a href="https://getbootstrap.com" class="item" target="_blank" rel="noopener">
+                <div class="in">
+                    <div>
+                        <div>Bootstrap</div>
+                        <div class="text-muted fs-12" data-i18n="settings_credits_bootstrap">{{ locales.en.settings_credits_bootstrap }}</div>
+                    </div>
+                    <ion-icon name="open-outline" class="text-muted"></ion-icon>
+                </div>
+            </a>
+        </li>
+        <li>
+            <a href="https://changenow.io" class="item" target="_blank" rel="noopener">
+                <div class="in">
+                    <div>
+                        <div>ChangeNOW</div>
+                        <div class="text-muted fs-12" data-i18n="settings_credits_changenow">{{ locales.en.settings_credits_changenow }}</div>
+                    </div>
+                    <ion-icon name="open-outline" class="text-muted"></ion-icon>
+                </div>
+            </a>
+        </li>
+        <li>
+            <a href="https://apexcharts.com" class="item" target="_blank" rel="noopener">
+                <div class="in">
+                    <div>
+                        <div>ApexCharts</div>
+                        <div class="text-muted fs-12" data-i18n="settings_credits_apexcharts">{{ locales.en.settings_credits_apexcharts }}</div>
+                    </div>
+                    <ion-icon name="open-outline" class="text-muted"></ion-icon>
+                </div>
+            </a>
+        </li>
+        <li>
+            <a href="https://splidejs.com" class="item" target="_blank" rel="noopener">
+                <div class="in">
+                    <div>
+                        <div>Splide</div>
+                        <div class="text-muted fs-12" data-i18n="settings_credits_splide">{{ locales.en.settings_credits_splide }}</div>
+                    </div>
+                    <ion-icon name="open-outline" class="text-muted"></ion-icon>
+                </div>
+            </a>
+        </li>
+        <li>
+            <a href="https://ionic.io/ionicons" class="item" target="_blank" rel="noopener">
+                <div class="in">
+                    <div>
+                        <div>Ionicons</div>
+                        <div class="text-muted fs-12" data-i18n="settings_credits_ionicons">{{ locales.en.settings_credits_ionicons }}</div>
+                    </div>
+                    <ion-icon name="open-outline" class="text-muted"></ion-icon>
+                </div>
+            </a>
+        </li>
+    </ul>
+    <div class="text-center mt-2 mb-3">
+        <small class="text-muted">
+            <a href="/humans.txt" target="_blank" rel="noopener" class="text-muted">humans.txt</a>
+            &nbsp;·&nbsp;
+            <a href="https://github.com/xlabtg/TON-Bridge/blob/main/THIRD_PARTY.md" target="_blank" rel="noopener" class="text-muted" data-i18n="settings_credits_third_party">{{ locales.en.settings_credits_third_party }}</a>
+        </small>
+    </div>
+
 </div>
-
+<script src="assets/js/biometric-manager.js"></script>
 <script>
-    // Переключение языка
-    document.getElementById('languageSwitch').addEventListener('change', function() {
-        if (this.checked) {
-            // Переключение на страницу с английским интерфейсом
-            window.location.href = '{{ t.settings_lang_checked_goto }}';
-        } else {
-            // Переключение на страницу с русским интерфейсом
-            window.location.href = '{{ t.settings_lang_unchecked_goto }}';
-        }
-    });
-</script>
+    (function () {
+        var OPTIN_KEY = 'leaderboard_optin';
+        var WORKER_URL = '{{ locales.en.settings_leaderboard_worker_url }}';
+        var sw = document.getElementById('leaderboardOptinSwitch');
 
+        if (!sw) return;
+
+        var tg = window.Telegram && window.Telegram.WebApp;
+        if (tg && tg.CloudStorage) {
+            tg.CloudStorage.getItem(OPTIN_KEY, function(err, val) {
+                if (!err && val === '1') {
+                    sw.checked = true;
+                }
+            });
+        }
+
+        sw.addEventListener('change', function () {
+            var optIn = sw.checked;
+            var value = optIn ? '1' : '0';
+
+            if (tg && tg.CloudStorage) {
+                tg.CloudStorage.setItem(OPTIN_KEY, value);
+            }
+
+            if (WORKER_URL && tg && tg.initData && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                fetch(WORKER_URL + '/optin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Telegram-Init-Data': tg.initData,
+                    },
+                    body: JSON.stringify({
+                        userId: String(tg.initDataUnsafe.user.id),
+                        optIn: optIn,
+                    }),
+                }).catch(function() {});
+            }
+        });
+    })();
+
+    (function () {
+        var STORAGE_KEY = 'pref:notificationsOptOut';
+        var toggle = document.getElementById('notificationsSwitch');
+
+        if (!toggle) return;
+
+        function getPref(key) {
+            if (window.prefs && window.prefs.get) return window.prefs.get(key);
+            return Promise.resolve(localStorage.getItem(key));
+        }
+
+        function setPref(key, value) {
+            if (window.prefs && window.prefs.set) return window.prefs.set(key, value);
+            localStorage.setItem(key, value);
+            return Promise.resolve();
+        }
+
+        getPref(STORAGE_KEY).then(function (value) {
+            toggle.checked = value !== '1';
+        });
+
+        toggle.addEventListener('change', function () {
+            setPref(STORAGE_KEY, this.checked ? '0' : '1');
+        });
+    })();
+
+    (function () {
+        var sw = document.getElementById('biometricSwitch');
+        var thresholdRow = document.getElementById('biometric-threshold-row');
+        var thresholdInput = document.getElementById('biometricThreshold');
+        var unavailableHint = document.getElementById('biometric-unavailable-hint');
+
+        function applyAvailability(available) {
+            sw.disabled = !available;
+            if (!available) {
+                unavailableHint.style.display = 'inline';
+            }
+        }
+
+        function applyEnabled(enabled) {
+            sw.checked = enabled;
+            thresholdRow.style.display = enabled ? '' : 'none';
+        }
+
+        BiometricAuth.init(function () {
+            var available = BiometricAuth.isAvailable();
+            applyAvailability(available);
+
+            BiometricAuth.isEnabled(function (enabled) {
+                applyEnabled(enabled);
+            });
+
+            BiometricAuth.getThreshold(function (threshold) {
+                thresholdInput.value = threshold;
+            });
+        });
+
+        sw.addEventListener('change', function () {
+            BiometricAuth.setEnabled(this.checked);
+            thresholdRow.style.display = this.checked ? '' : 'none';
+        });
+
+        thresholdInput.addEventListener('change', function () {
+            var val = parseFloat(this.value);
+            if (!isNaN(val) && val > 0) {
+                BiometricAuth.setThreshold(val);
+            }
+        });
+    })();
+</script>
     <!-- * App Capsule -->
 
 
     <!-- App Bottom Menu -->
-    <div class="appBottomMenu">
-        <a href="index{{ t.suffix }}.html" class="item">
+    <nav class="appBottomMenu" aria-label="{{ locales.en.nav_aria_label }}" data-i18n-attr="aria-label:nav_aria_label">
+        <div role="tablist" aria-label="{{ locales.en.nav_aria_label }}" data-i18n-attr="aria-label:nav_aria_label">
+        <a href="index.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="sync"></ion-icon>
-                <strong>{{ t.nav_bridge }}</strong>
+                <ion-icon name="sync" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_bridge">{{ locales.en.nav_bridge }}</strong>
             </div>
         </a>
-        <a href="index2{{ t.suffix }}.html" class="item">
+        <a href="index2.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="swap-horizontal-outline"></ion-icon>
-                <strong>{{ t.nav_exchange }}</strong>
+                <ion-icon name="swap-horizontal-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_exchange">{{ locales.en.nav_exchange }}</strong>
             </div>
         </a>
-        <a href="index3{{ t.suffix }}.html" class="item">
+        <a href="index3.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="cash-outline"></ion-icon>
-                <strong>{{ t.nav_otc }}</strong>
+                <ion-icon name="cash-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_otc">{{ locales.en.nav_otc }}</strong>
             </div>
         </a>
-        <a href="index4{{ t.suffix }}.html" class="item">
+        <a href="orders.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="stats-chart"></ion-icon>
-                <strong>{{ t.nav_statistics }}</strong>
+                <ion-icon name="receipt-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_orders">{{ locales.en.nav_orders }}</strong>
             </div>
         </a>
-        <a href="app-settings{{ t.suffix }}.html" class="item active">
+        <a href="redeem.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="settings-outline"></ion-icon>
-                <strong>{{ t.nav_settings }}</strong>
+                <ion-icon name="gift-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_redeem">{{ locales.en.nav_redeem }}</strong>
             </div>
         </a>
-    </div>
+        <a href="index4{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
+            <div class="col">
+                <ion-icon name="stats-chart" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_statistics">{{ locales.en.nav_statistics }}</strong>
+            </div>
+        </a>
+        <a href="referral{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
+            <div class="col">
+                <ion-icon name="star-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_referral">{{ locales.en.nav_referral }}</strong>
+            </div>
+        </a>
+        <a href="app-settings{{ t.suffix }}.html" class="item active" role="tab" aria-selected="true">
+            <div class="col">
+                <ion-icon name="settings-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_settings">{{ locales.en.nav_settings }}</strong>
+            </div>
+        </a>
+        </div>
+    </nav>
     <!-- * App Bottom Menu -->
 
     <!-- ========= JS Files =========  -->
     <!-- Bootstrap -->
     <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
-    <!-- Ionicons -->
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <!-- Ionicons (self-hosted sprite) -->
+    <script src="assets/js/ion-icon.js" defer></script>
     <!-- Splide -->
     <script src="assets/js/plugins/splide/splide.min.js"></script>
+    <!-- i18n inline data + loader -->
+    <script src="assets/js/prefs.js"></script>
+    {% i18nDataScript %}
+    <script src="assets/js/i18n.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Auth + Referral -->
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/referral.js"></script>
+    <!-- Sentry error reporting -->
+    <script src="assets/js/sentry.js"></script>
+    <!-- Wallet Connect -->
+    <script src="assets/js/wallet-connect.js"></script>
+    <!-- UTM attribution from directory listings -->
+    <script src="assets/js/utm.js"></script>
+    <!-- Offline Indicator -->
+    <script src="assets/js/offline.js"></script>
     <!-- Telegram BackButton -->
     <script src="assets/js/back-button.js"></script>
-    <script>wireBackButton();</script>
+    <script>
+        wireBackButton();
+
+        // Sync the toggle to the active language after translations load
+        document.addEventListener('i18n:applied', function(e) {
+            document.getElementById('languageSwitch').checked = (e.detail.lang === 'ru');
+        });
+
+        document.getElementById('languageSwitch').addEventListener('change', function() {
+            i18n.setLang(this.checked ? 'ru' : 'en');
+        });
+
+        i18n.init();
+    </script>
+    <!-- Haptic Feedback -->
+    <script src="assets/js/haptic.js"></script>
+    <script>
+        // Tab-bar taps
+        document.querySelectorAll('.appBottomMenu .item').forEach(function (el) {
+            el.addEventListener('click', function () { haptic.impact('light'); });
+        });
+        // Settings toggles
+        document.getElementById('darkmodeSwitch').addEventListener('change', function () {
+            haptic.selection();
+        });
+        document.getElementById('languageSwitch').addEventListener('change', function () {
+            haptic.selection();
+        });
+        document.getElementById('notificationsSwitch').addEventListener('change', function () {
+            haptic.selection();
+        });
+        document.getElementById('leaderboardOptinSwitch').addEventListener('change', function () {
+            haptic.selection();
+        });
+    </script>
+    <script>
+        function applyReferralI18n(t) {
+            window.__referralI18n = {
+                code_label: t.referral_code_label || '{{ locales.en.referral_code_label }}',
+                url_label: t.referral_url_label || '{{ locales.en.referral_url_label }}',
+                share_btn: t.referral_share_btn || '{{ locales.en.referral_share_btn }}',
+                copy_btn: t.referral_copy_btn || '{{ locales.en.referral_copy_btn }}',
+                copied: t.referral_copied || '{{ locales.en.referral_copied }}',
+                share_text: t.referral_share_text || '{{ locales.en.referral_share_text }}'
+            };
+        }
+
+        applyReferralI18n(window.__i18nData.en);
+        document.addEventListener('i18n:applied', function(e) {
+            applyReferralI18n(e.detail.t || window.__i18nData.en);
+            ReferralModule.init();
+        });
+        ReferralModule.init();
+    </script>
+    <script>
+        var i18nWallet = {
+            connectBtn: '{{ locales.en.wallet_connect_btn }}',
+            disconnectBtn: '{{ locales.en.wallet_disconnect_btn }}'
+        };
+
+        document.addEventListener('i18n:applied', function(e) {
+            var t = e.detail.t || {};
+            i18nWallet.connectBtn = t.wallet_connect_btn || i18nWallet.connectBtn;
+            i18nWallet.disconnectBtn = t.wallet_disconnect_btn || i18nWallet.disconnectBtn;
+        });
+
+        function updateSettingsWalletUI(state) {
+            var statusEl = document.getElementById('wallet-settings-status');
+            var btnEl = document.getElementById('wallet-settings-btn');
+            var btnLabelEl = document.getElementById('wallet-settings-btn-label');
+            if (!statusEl || !btnEl || !btnLabelEl) return;
+
+            if (state && state.connected && state.address) {
+                var short = WalletConnect.shortenAddress(state.address);
+                var balLine = state.balance != null ? ' · ' + state.balance + ' TON' : '';
+                statusEl.textContent = short + balLine;
+                btnLabelEl.textContent = i18nWallet.disconnectBtn;
+                btnEl.className = 'btn btn-danger btn-sm rounded';
+                btnEl.onclick = function() { WalletConnect.disconnect(); };
+            } else {
+                statusEl.textContent = i18nWallet.connectBtn;
+                btnLabelEl.textContent = i18nWallet.connectBtn;
+                btnEl.className = 'btn btn-primary btn-sm rounded';
+                btnEl.onclick = function() { WalletConnect.connect(); };
+            }
+        }
+
+        WalletConnect.onChange(updateSettingsWalletUI);
+        WalletConnect.init('tonconnect-manifest.json', {
+            sdkUrl: 'assets/js/vendor/tonconnect-ui.min.js',
+            lazy: true
+        });
+    </script>
+    <!-- Address Book -->
+    <script src="assets/js/address-book.js"></script>
+    <script>
+        AddressBook.initManage('{{ locales.en.ab_chain }}', {
+            ab_empty: '{{ locales.en.ab_empty }}',
+            ab_edit: '{{ locales.en.ab_edit }}',
+            ab_remove: '{{ locales.en.ab_remove }}',
+            ab_edit_label_prompt: '{{ locales.en.ab_edit_label_prompt }}'
+        });
+    </script>
+    <!-- * Address Book -->
+    <!-- Telegram SettingsButton - hide on settings page to avoid recursion -->
+    <script src="assets/js/settings-button.js"></script>
+    <script>hideSettingsButton();</script>
 
 
 </body>

@@ -238,5 +238,13 @@
   "desc_privacy": "Read how TON Bridge handles personal data, consent preferences, analytics, and exchange-related information.",
   "og_site_name": "TON Bridge",
   "og_locale": "en_US",
-  "og_locale_alternate": "ru_RU"
+  "og_locale_alternate": "ru_RU",
+  "settings_credits_section": "About & Credits",
+  "settings_credits_finapp": "UI template by Bragher (MIT license)",
+  "settings_credits_bootstrap": "CSS framework (MIT license)",
+  "settings_credits_changenow": "Exchange widget",
+  "settings_credits_apexcharts": "Charts library (MIT license)",
+  "settings_credits_splide": "Slider library (MIT license)",
+  "settings_credits_ionicons": "Icon library (MIT license)",
+  "settings_credits_third_party": "Third-party licenses"
 }

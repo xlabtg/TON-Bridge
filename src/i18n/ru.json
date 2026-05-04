@@ -238,5 +238,13 @@
   "desc_privacy": "Узнайте, как TON Bridge обрабатывает персональные данные, согласия, аналитику и сведения об обменах.",
   "og_site_name": "TON Bridge",
   "og_locale": "ru_RU",
-  "og_locale_alternate": "en_US"
+  "og_locale_alternate": "en_US",
+  "settings_credits_section": "О приложении",
+  "settings_credits_finapp": "UI-шаблон от Bragher (лицензия MIT)",
+  "settings_credits_bootstrap": "CSS-фреймворк (лицензия MIT)",
+  "settings_credits_changenow": "Виджет обмена",
+  "settings_credits_apexcharts": "Библиотека графиков (лицензия MIT)",
+  "settings_credits_splide": "Библиотека слайдера (лицензия MIT)",
+  "settings_credits_ionicons": "Библиотека иконок (лицензия MIT)",
+  "settings_credits_third_party": "Лицензии сторонних компонентов"
 }

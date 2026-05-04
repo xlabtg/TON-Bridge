@@ -161,8 +161,8 @@
             <span id="tier-badge" class="tier-badge"></span>
         </div>
         <div class="right">
-            <button id="wallet-btn" class="headerButton btn btn-sm btn-outline-light rounded" onclick="WalletConnect.connect()" style="font-size:11px;height:28px;padding:0 8px;">
-                <ion-icon name="wallet-outline" style="font-size:16px;margin-right:4px;vertical-align:middle;" aria-hidden="true"></ion-icon>
+            <button id="wallet-btn" class="headerButton btn btn-sm btn-outline-light rounded wallet-connect-btn" onclick="WalletConnect.connect()">
+                <ion-icon name="wallet-outline" class="wallet-connect-btn__icon" aria-hidden="true"></ion-icon>
                 <span id="wallet-btn-label" data-i18n="wallet_connect_btn">{{ locales.en.wallet_connect_btn }}</span>
             </button>
         </div>
@@ -188,14 +188,14 @@
         <div class="tier-progress-wrap">
             <span id="tier-progress-label" class="tier-progress-label"></span>
             <div class="progress">
-                <div id="tier-progress-bar" class="progress-bar" role="progressbar" aria-label="{{ locales.en.tier_progress_aria | default('Tier progress') }}" style="width: 0%"></div>
+                <div id="tier-progress-bar" class="progress-bar tier-progress-bar-empty" role="progressbar" aria-label="{{ locales.en.tier_progress_aria | default('Tier progress') }}"></div>
             </div>
         </div>
         <!-- * Tier progress bar -->
 
         {% if activePage == 'bridge' %}
         <!-- Rate Ticker -->
-        <section id="rate-ticker-section" class="splide" aria-label="{{ locales.en.ticker_aria_label }}" data-i18n-attr="aria-label:ticker_aria_label" style="display: block; min-height: 128px; margin: 12px 0 8px; overflow: hidden;">
+        <section id="rate-ticker-section" class="splide rate-ticker-section" aria-label="{{ locales.en.ticker_aria_label }}" data-i18n-attr="aria-label:ticker_aria_label">
             <div class="splide__track">
                 <ul class="splide__list">
                     <li class="splide__slide" data-asset="the-open-network">
@@ -249,8 +249,8 @@
         {% endif %}
 
 		<!-- App {{ sectionLabel }} -->
-            <div class="text-center mb-4" style="height: calc({{ imgH }} + 9px);">
-                <img src="{{ imgSrc }}" alt="{{ imgAlt | default(sectionLabel + ' illustration') }}" fetchpriority="high" style="width: {{ imgW }}; height: {{ imgH }};">
+            <div class="text-center mb-4 intro-img-frame">
+                <img src="{{ imgSrc }}" alt="{{ imgAlt | default(sectionLabel + ' illustration') }}" class="intro-img" width="{{ imgW | replace('px', '') }}" height="{{ imgH | replace('px', '') }}" fetchpriority="high">
             </div>
 
                     <h3>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_heading{% else %}exchange_heading{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_heading }}{% else %}{{ locales.en.exchange_heading }}{% endif %}</span></h3>
@@ -272,22 +272,22 @@
         <div id="social-proof-region" aria-live="polite" aria-atomic="true" class="visually-hidden"></div>
         {% endif %}
         {% if activePage == 'bridge' %}
-        <div id="wallet-prefill-bar" style="display:none;padding:0 8px 8px;">
-            <span class="chip chip-primary chip-outline" id="wallet-prefill-half" style="cursor:pointer;margin-right:6px;" onclick="walletPrefillHalf()">
+        <div id="wallet-prefill-bar" class="wallet-prefill-bar is-hidden">
+            <span class="chip chip-primary chip-outline wallet-prefill-chip wallet-prefill-chip--spaced" id="wallet-prefill-half" onclick="walletPrefillHalf()">
                 <span class="chip-label" id="wallet-prefill-half-label" data-i18n="wallet_prefill_half">{{ locales.en.wallet_prefill_half }}</span>
             </span>
-            <span class="chip chip-primary chip-outline" id="wallet-prefill-max" style="cursor:pointer;" onclick="walletPrefillMax()">
+            <span class="chip chip-primary chip-outline wallet-prefill-chip" id="wallet-prefill-max" onclick="walletPrefillMax()">
                 <span class="chip-label" data-i18n="wallet_prefill_max">{{ locales.en.wallet_prefill_max }}</span>
             </span>
         </div>
         {% endif %}
         <!-- Address Book chips -->
-        <div id="address-book-chips" class="address-book-chips-wrap" data-max="10" style="display:none; padding: 0 4px 8px;"></div>
+        <div id="address-book-chips" class="address-book-chips-wrap address-book-chips-wrap--hidden" data-max="10"></div>
         <!-- * Address Book chips -->
         </br>
         <!-- Lazy-load placeholder — replaced by iframe on user interaction or idle -->
-        <div id="iframe-placeholder" style="height: 450px; width: 100%; aspect-ratio: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #f6fafd; border-radius: 8px;">
-            <img src="assets/img/loading-icon.webp" alt="" role="presentation" style="width: 64px; height: 64px; opacity: 0.6;">
+        <div id="iframe-placeholder" class="iframe-placeholder iframe-placeholder--tall">
+            <img src="assets/img/loading-icon.webp" alt="" role="presentation" class="iframe-placeholder__icon">
             <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button" data-i18n="open_exchange_btn">{{ locales.en.open_exchange_btn }}</button>
         </div>
         <script>
@@ -436,7 +436,7 @@
         })();
         </script>
         <!-- * App {{ sectionLabel }} -->
-<center>
+<div class="text-center">
     <button id="send-to-chat-btn" class="btn btn-secondary btn-lg mt-2 mb-2"
         data-send-to-chat-query-key="{% if activePage == 'bridge' %}send_to_chat_query_bridge{% else %}send_to_chat_query_exchange{% endif %}"
         data-send-to-chat-fallback-query="{% if activePage == 'bridge' %}{{ locales.en.send_to_chat_query_bridge }}{% else %}{{ locales.en.send_to_chat_query_exchange }}{% endif %}"
@@ -444,21 +444,18 @@
         onclick="sendToChatFromButton(this)">
         {{ locales.en.send_to_chat_btn }}
     </button>
-</center>
-<center><a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="{{ locales.en.cede_badge_alt }}" data-i18n-attr="alt:cede_badge_alt" loading="lazy"/></a></center></br></br>
-<center>
-<table>
-<tr><td>
-                        <div class="col-lg-4">
-                            <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
-                                <div class="feature-icon dot">
-                                    <center><ion-icon name="information-outline" style="font-size: 64px;" aria-hidden="true"></ion-icon></center>
-                                </div>
-                            </div>
-                        </div></td><td><a href="{% if activePage == 'bridge' %}1.html{% else %}2.html{% endif %}" class="btn btn-primary btn-lg" data-i18n="{% if activePage == 'bridge' %}bridge_instruction_btn{% else %}exchange_instruction_btn{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_instruction_btn }}{% else %}{{ locales.en.exchange_instruction_btn }}{% endif %}</a></td></tr>
-</table>
-
-</center></br></br>
+</div>
+<div class="text-center mb-2">
+    <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="{{ locales.en.cede_badge_alt }}" data-i18n-attr="alt:cede_badge_alt" loading="lazy"></a>
+</div>
+<div class="info-action-row my-4">
+    <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
+        <div class="feature-icon dot text-center">
+            <ion-icon name="information-outline" class="feature-icon-md" aria-hidden="true"></ion-icon>
+        </div>
+    </div>
+    <a href="{% if activePage == 'bridge' %}1.html{% else %}2.html{% endif %}" class="btn btn-primary btn-lg" data-i18n="{% if activePage == 'bridge' %}bridge_instruction_btn{% else %}exchange_instruction_btn{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_instruction_btn }}{% else %}{{ locales.en.exchange_instruction_btn }}{% endif %}</a>
+</div>
     </div>
     <!-- * App Capsule -->
 
@@ -614,7 +611,7 @@
                         <div class="in">
                             <div>
                                 <strong data-i18n="cookies_necessary_label">{{ locales.en.cookies_necessary_label }}</strong>
-                                <div class="text-muted" style="font-size:0.82em" data-i18n="cookies_necessary_desc">{{ locales.en.cookies_necessary_desc }}</div>
+                                <div class="text-muted cookie-desc" data-i18n="cookies_necessary_desc">{{ locales.en.cookies_necessary_desc }}</div>
                             </div>
                             <div class="form-check form-switch ms-2">
                                 <input class="form-check-input" type="checkbox" id="consentNecessary" checked disabled>
@@ -628,7 +625,7 @@
                         <div class="in">
                             <div>
                                 <strong data-i18n="cookies_analytics_label">{{ locales.en.cookies_analytics_label }}</strong>
-                                <div class="text-muted" style="font-size:0.82em" data-i18n="cookies_analytics_desc">{{ locales.en.cookies_analytics_desc }}</div>
+                                <div class="text-muted cookie-desc" data-i18n="cookies_analytics_desc">{{ locales.en.cookies_analytics_desc }}</div>
                             </div>
                             <div class="form-check form-switch ms-2">
                                 <input class="form-check-input consent-analytics-toggle" type="checkbox" id="consentAnalytics">
@@ -642,7 +639,7 @@
                         <div class="in">
                             <div>
                                 <strong data-i18n="cookies_marketing_label">{{ locales.en.cookies_marketing_label }}</strong>
-                                <div class="text-muted" style="font-size:0.82em" data-i18n="cookies_marketing_desc">{{ locales.en.cookies_marketing_desc }}</div>
+                                <div class="text-muted cookie-desc" data-i18n="cookies_marketing_desc">{{ locales.en.cookies_marketing_desc }}</div>
                             </div>
                             <div class="form-check form-switch ms-2">
                                 <input class="form-check-input consent-marketing-toggle" type="checkbox" id="consentMarketing">
@@ -775,7 +772,7 @@
 
                 {% if activePage == 'bridge' %}
                 if (prefillBar) {
-                    prefillBar.style.display = '';
+                    prefillBar.classList.remove('is-hidden');
                     if (halfLabel && _walletBalance != null) {
                         halfLabel.textContent = i18nWallet.prefillHalf.replace('{bal}', (_walletBalance / 2).toFixed(2));
                     }
@@ -786,7 +783,7 @@
                 btn.onclick = function() { WalletConnect.connect(); };
                 _walletBalance = null;
                 {% if activePage == 'bridge' %}
-                if (prefillBar) prefillBar.style.display = 'none';
+                if (prefillBar) prefillBar.classList.add('is-hidden');
                 {% endif %}
             }
         }

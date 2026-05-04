@@ -147,16 +147,16 @@
         <div class="tier-progress-wrap">
             <span id="tier-progress-label" class="tier-progress-label"></span>
             <div class="progress">
-                <div id="tier-progress-bar" class="progress-bar" role="progressbar" aria-label="{{ locales.en.tier_progress_aria | default('Tier progress') }}" style="width: 0%"></div>
+                <div id="tier-progress-bar" class="progress-bar tier-progress-bar-empty" role="progressbar" aria-label="{{ locales.en.tier_progress_aria | default('Tier progress') }}"></div>
             </div>
         </div>
         <!-- * Tier progress bar -->
 
         <!-- App Bridge -->
         <div class="text-center mb-4">
-            <img src="assets/img/OTC.webp" alt="{{ locales.en.otc_img_alt }}" data-i18n-attr="alt:otc_img_alt" fetchpriority="high" style="width: 288px; height: 288px;">
+            <img src="assets/img/OTC.webp" alt="{{ locales.en.otc_img_alt }}" data-i18n-attr="alt:otc_img_alt" class="otc-img mx-auto" fetchpriority="high">
         </div>
-                    <center><h3>&nbsp;<span data-i18n="otc_heading">{{ locales.en.otc_heading }}</span></h3></center>
+                    <h3 class="text-center">&nbsp;<span data-i18n="otc_heading">{{ locales.en.otc_heading }}</span></h3>
                     <p>
                         &nbsp;<span data-i18n="otc_buy_text">{{ locales.en.otc_buy_text }}</span>
                     </p>
@@ -166,8 +166,8 @@
                         <li>&nbsp;<span data-i18n="otc_point3">{{ locales.en.otc_point3 }}</span></li>
                     </ul>
         <!-- Lazy-load placeholder — replaced by iframe on user interaction or idle -->
-        <div id="iframe-placeholder" style="height: 356px; width: 100%; aspect-ratio: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #f6fafd; border-radius: 8px;">
-            <img src="assets/img/loading-icon.webp" alt="" role="presentation" style="width: 64px; height: 64px; opacity: 0.6;">
+        <div id="iframe-placeholder" class="iframe-placeholder iframe-placeholder--medium">
+            <img src="assets/img/loading-icon.webp" alt="" role="presentation" class="iframe-placeholder__icon">
             <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button" data-i18n="open_exchange_btn">{{ locales.en.open_exchange_btn }}</button>
         </div>
         <script>
@@ -301,7 +301,7 @@
         })();
         </script></br></br>
         <!-- * App Bridge -->
-        <center>
+        <div class="text-center">
             <button id="send-to-chat-btn" class="btn btn-secondary btn-lg mt-2 mb-2"
                 data-send-to-chat-query-key="send_to_chat_query_otc"
                 data-send-to-chat-fallback-query="{{ locales.en.send_to_chat_query_otc }}"
@@ -309,11 +309,10 @@
                 onclick="sendToChatFromButton(this)">
                 {{ locales.en.send_to_chat_btn }}
             </button>
-        </center>
-        <center>
+        </div>
+        <div class="text-center mb-2">
             <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="{{ locales.en.cede_badge_alt }}" data-i18n-attr="alt:cede_badge_alt" loading="lazy" /></a>
-        </center>
-        </br>
+        </div>
     </div>
     <!-- * App Capsule -->
 
@@ -433,7 +432,7 @@
                         <div class="in">
                             <div>
                                 <strong data-i18n="cookies_necessary_label">{{ locales.en.cookies_necessary_label }}</strong>
-                                <div class="text-muted" style="font-size:0.82em" data-i18n="cookies_necessary_desc">{{ locales.en.cookies_necessary_desc }}</div>
+                                <div class="text-muted cookie-desc" data-i18n="cookies_necessary_desc">{{ locales.en.cookies_necessary_desc }}</div>
                             </div>
                             <div class="form-check form-switch ms-2">
                                 <input class="form-check-input" type="checkbox" id="consentNecessary" checked disabled>
@@ -447,7 +446,7 @@
                         <div class="in">
                             <div>
                                 <strong data-i18n="cookies_analytics_label">{{ locales.en.cookies_analytics_label }}</strong>
-                                <div class="text-muted" style="font-size:0.82em" data-i18n="cookies_analytics_desc">{{ locales.en.cookies_analytics_desc }}</div>
+                                <div class="text-muted cookie-desc" data-i18n="cookies_analytics_desc">{{ locales.en.cookies_analytics_desc }}</div>
                             </div>
                             <div class="form-check form-switch ms-2">
                                 <input class="form-check-input consent-analytics-toggle" type="checkbox" id="consentAnalytics">
@@ -461,7 +460,7 @@
                         <div class="in">
                             <div>
                                 <strong data-i18n="cookies_marketing_label">{{ locales.en.cookies_marketing_label }}</strong>
-                                <div class="text-muted" style="font-size:0.82em" data-i18n="cookies_marketing_desc">{{ locales.en.cookies_marketing_desc }}</div>
+                                <div class="text-muted cookie-desc" data-i18n="cookies_marketing_desc">{{ locales.en.cookies_marketing_desc }}</div>
                             </div>
                             <div class="form-check form-switch ms-2">
                                 <input class="form-check-input consent-marketing-toggle" type="checkbox" id="consentMarketing">

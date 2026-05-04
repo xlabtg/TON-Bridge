@@ -19,6 +19,11 @@
     <rect x="128" y="128" width="336" height="336" rx="48" ry="48" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="32"/>
     <path d="M384 128v-24a56.16 56.16 0 00-56-56H104a56.16 56.16 0 00-56 56v224a56.16 56.16 0 0056 56h24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
   </symbol>
+  <symbol id="gift-outline" viewBox="0 0 512 512">
+    <rect x="64" y="192" width="384" height="256" rx="32" ry="32" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
+    <path d="M256 192v256M448 192H64M112 192v-40a40 40 0 0140-40h208a40 40 0 0140 40v40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
+    <path d="M256 112s-20.8-64-72-64c-26.5 0-48 21.5-48 48s21.5 48 48 48h72M256 112s20.8-64 72-64c26.5 0 48 21.5 48 48s-21.5 48-48 48h-72" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
+  </symbol>
   <symbol id="chevron-back-outline" viewBox="0 0 512 512">
     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M328 112L184 256l144 144"/>
   </symbol>

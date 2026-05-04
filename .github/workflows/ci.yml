@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build
+  i18n-check:
+    name: i18n Key Parity
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,8 +29,132 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check i18n key parity
+        run: npm run check:i18n
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: i18n-check
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read .nvmrc
+        id: nvmrc
+        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.nvmrc.outputs.version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
       - name: Build
         run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: production
+
+      - name: Upload sourcemaps to Sentry
+        if: env.SENTRY_AUTH_TOKEN != ''
+        run: |
+          npx @sentry/cli releases new "${{ github.sha }}"
+          npx @sentry/cli releases files "${{ github.sha }}" upload-sourcemaps dist/ --url-prefix '~/'
+          npx @sentry/cli releases finalize "${{ github.sha }}"
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+
+  validate-manifest:
+    name: Validate PWA Manifest
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read .nvmrc
+        id: nvmrc
+        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.nvmrc.outputs.version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: production
+
+      - name: Validate PWA manifest
+        run: npm run validate:manifest
+
+  schema-smoke-test:
+    name: Affiliate Schema Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read .nvmrc
+        id: nvmrc
+        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.nvmrc.outputs.version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run affiliate schema smoke tests
+        run: npm run test:schema
+
+  auth-verify-test:
+    name: Auth-Verify Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read .nvmrc
+        id: nvmrc
+        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.nvmrc.outputs.version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run auth-verify unit tests
+        run: npm run test:auth-verify
 
   html-validate:
     name: HTML Validate
@@ -51,8 +175,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
       - name: Build
         run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: production
 
       - name: Validate HTML
         run: npx html-validate "dist/*.html"
@@ -81,9 +217,27 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: production
 
       - name: Run Playwright tests
         run: npm test
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: production
 
       - name: Upload screenshots
         if: always()
@@ -111,8 +265,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
       - name: Build
         run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: production
 
       - name: Run Lighthouse CI
         run: npx lhci autorun
@@ -122,7 +288,7 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
-    needs: [build, html-validate]
+    needs: [build, html-validate, validate-manifest]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       pages: write
@@ -145,8 +311,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
       - name: Build
         run: npm run build
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: production
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v4

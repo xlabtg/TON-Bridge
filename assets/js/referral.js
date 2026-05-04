@@ -1,7 +1,7 @@
 // Referral code module for TON Bridge.
 //
 // Alphabet excludes visually ambiguous characters: 0, O, 1, I, L.
-// Code is 8 chars, generated via CSPRNG, stored in Telegram CloudStorage.
+// Code is issued by /auth/verify; CloudStorage is only an offline fallback.
 (function () {
   var ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
   var CODE_LEN = 8;
@@ -23,34 +23,61 @@
     return 'https://t.me/' + BOT_USERNAME + '/' + APP_NAME + '?startapp=ref_' + code;
   }
 
+  function normalizeServerUser(user) {
+    if (!user || !user.ref_code) return null;
+    return {
+      code: String(user.ref_code).toUpperCase(),
+      url: user.ref_share_url || shareUrl(String(user.ref_code).toUpperCase()),
+    };
+  }
+
   // Load the user's ref code from CloudStorage; generate and persist if absent.
   // cb(err, code) — called with the code string on success.
   function loadOrCreate(cb) {
+    if (window.TonBridgeAuth && window.TonBridgeAuth.verify) {
+      window.TonBridgeAuth.verify().then(function (data) {
+        var serverReferral = normalizeServerUser(data && data.user);
+        if (serverReferral) {
+          cb(null, serverReferral.code, serverReferral.url);
+          return;
+        }
+        loadFallback(cb);
+      }).catch(function () {
+        loadFallback(cb);
+      });
+      return;
+    }
+
+    loadFallback(cb);
+  }
+
+  function loadFallback(cb) {
     var tg = window.Telegram && window.Telegram.WebApp;
     if (!tg || !tg.CloudStorage) {
       // Fallback: generate an ephemeral code (no persistence without CloudStorage).
-      cb(null, generateCode());
+      var ephemeral = generateCode();
+      cb(null, ephemeral, shareUrl(ephemeral));
       return;
     }
     tg.CloudStorage.getItem(STORAGE_KEY, function (err, stored) {
       if (!err && stored) {
-        cb(null, stored);
+        cb(null, stored, shareUrl(stored));
         return;
       }
       var code = generateCode();
       tg.CloudStorage.setItem(STORAGE_KEY, code, function (setErr) {
-        cb(setErr || null, code);
+        cb(setErr || null, code, shareUrl(code));
       });
     });
   }
 
   // Render the referral section into the element with id="referral-section".
   // Expects i18n strings on window.__referralI18n: { code_label, url_label, share_btn, copied }.
-  function renderSection(code) {
+  function renderSection(code, url) {
     var section = document.getElementById('referral-section');
     if (!section) return;
 
-    var url = shareUrl(code);
+    url = url || shareUrl(code);
     var i18n = window.__referralI18n || {};
 
     var codeLabel = i18n.code_label || 'Your referral code';
@@ -136,12 +163,12 @@
     shareUrl: shareUrl,
     loadOrCreate: loadOrCreate,
     init: function () {
-      loadOrCreate(function (err, code) {
+      loadOrCreate(function (err, code, url) {
         if (err) {
           console.error('[referral] failed to load/create code:', err);
           return;
         }
-        renderSection(code);
+        renderSection(code, url);
       });
     },
   };

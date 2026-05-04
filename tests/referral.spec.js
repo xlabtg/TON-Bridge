@@ -8,16 +8,22 @@ function distUrl(file) {
   return 'file://' + resolve(__dirname, '..', 'dist', file);
 }
 
+async function setStoredLang(page, lang) {
+  await page.addInitScript((value) => {
+    window.localStorage.setItem('pref:lang', value);
+  }, lang);
+}
+
 // Alphabet used by referral.js (mirrors the constant in the module)
 const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const CODE_LEN = 8;
 
-async function mockTelegramWebApp(page, { cloudStorage = {} } = {}) {
+async function mockTelegramWebApp(page, { cloudStorage = {}, initData = '' } = {}) {
   await page.route('https://telegram.org/js/telegram-web-app.js', route =>
     route.fulfill({ status: 200, contentType: 'application/javascript', body: '/* mocked */' })
   );
 
-  await page.addInitScript((initialStorage) => {
+  await page.addInitScript(({ initialStorage, initDataValue }) => {
     const store = Object.assign({}, initialStorage);
     const backButton = {
       _visible: false,
@@ -56,6 +62,7 @@ async function mockTelegramWebApp(page, { cloudStorage = {} } = {}) {
         onEvent() {},
         setHeaderColor() {},
         colorScheme: 'light',
+        initData: initDataValue,
         BackButton: backButton,
         MainButton: mainButton,
         CloudStorage: cloudStorage,
@@ -67,7 +74,7 @@ async function mockTelegramWebApp(page, { cloudStorage = {} } = {}) {
         },
       },
     };
-  }, cloudStorage);
+  }, { initialStorage: cloudStorage, initDataValue: initData });
 }
 
 test.describe('ReferralModule — unit-level (pure logic)', () => {
@@ -123,7 +130,8 @@ test.describe('ReferralModule — integration (settings page)', () => {
 
   test('Settings RU: referral section title is in Russian', async ({ page }) => {
     await mockTelegramWebApp(page);
-    await page.goto(distUrl('app-settings-ru.html'));
+    await setStoredLang(page, 'ru');
+    await page.goto(distUrl('app-settings.html'));
     await expect(page.locator('.listview-title', { hasText: 'Пригласить друзей' })).toBeVisible();
   });
 
@@ -166,6 +174,32 @@ test.describe('ReferralModule — integration (settings page)', () => {
 
     const code2 = await page.locator('#ref-code-display').innerText();
     expect(code2).toBe(code1);
+  });
+
+  test('Settings: uses server-issued ref_code from auth verify response', async ({ page }) => {
+    await page.route('**/auth/verify', route =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          token: 'header.payload.sig',
+          expiresAt: Math.floor(Date.now() / 1000) + 3600,
+          user: {
+            id: 42,
+            username: 'alice',
+            language_code: 'en',
+            ref_code: 'ZXCV2345',
+            ref_share_url: 'https://t.me/TONBridge_robot/app?startapp=ref_ZXCV2345',
+          },
+        }),
+      }),
+    );
+    await mockTelegramWebApp(page, { initData: 'query_id=AAA&auth_date=9999999999&hash=abc' });
+    await page.goto(distUrl('app-settings.html'));
+
+    await expect(page.locator('#ref-code-display')).toHaveText('ZXCV2345', { timeout: 5000 });
+    const stored = await page.evaluate(() => window.__tgCloudStorage._store['ref_code']);
+    expect(stored).toBeUndefined();
   });
 
   test('Settings: share button calls openTelegramLink with share URL', async ({ page }) => {

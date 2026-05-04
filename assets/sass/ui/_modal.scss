@@ -57,3 +57,9 @@
     transform: translate(0, 0) !important;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .modalbox .modal-dialog {
+    transition: none !important;
+  }
+}

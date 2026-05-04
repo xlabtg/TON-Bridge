@@ -50,5 +50,14 @@ namespace_id = "1401"
 #   wrangler secret put LEADERBOARD_CHANNEL_ID
 #   wrangler secret put ADMIN_SECRET
 #   wrangler secret put TONBANKCARD_API_KEY
+
+# Rate knobs (issue #55, Phase 6.12)
+# All values are validated on boot; cashback_bps + referral_bps must <= service_bps.
+# Use POST /admin/config to schedule runtime changes without a redeploy.
+SERVICE_BPS = "40"
 CASHBACK_BPS = "10"
 REFERRAL_BPS = "10"
+POINT_USD_VALUE = "0.00003"
+POINTS_PER_TBC = "10"
+MIN_REDEEM_POINTS = "100"
+DAILY_TURNOVER_CAP_USD = "50000"

@@ -14,7 +14,8 @@
     "validate:manifest": "node scripts/validate-manifest.js",
     "check:i18n": "node scripts/check-i18n-keys.js",
     "test:schema": "node --test worker/tests/affiliate-schema.test.js",
-    "test:auth-verify": "node --test worker/tests/auth-verify.test.js"
+    "test:auth-verify": "node --test worker/tests/auth-verify.test.js",
+    "test:unit": "node --test tests/usdOracle.test.js tests/swapsWriter.test.js"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.1.5",

@@ -1,0 +1,38 @@
+name = "ton-bridge-auth"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+# Cron triggers:
+# - every minute for status notification polling
+# - daily at 09:00 UTC for leaderboard digest
+[triggers]
+crons = ["* * * * *", "0 9 * * *"]
+
+# KV namespace (create with: wrangler kv:namespace create BRIDGE_KV)
+[[kv_namespaces]]
+binding = "BRIDGE_KV"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# KV namespace for leaderboard opt-in flags.
+# Create with: wrangler kv:namespace create LEADERBOARD_KV
+[[kv_namespaces]]
+binding = "LEADERBOARD_KV"
+id = "REPLACE_WITH_LEADERBOARD_KV_NAMESPACE_ID"
+
+# Rate limiter: 30 requests / minute / IP
+# See https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1401"
+
+  [ratelimits.simple]
+  limit = 30
+  period = 60
+
+[vars]
+# Non-secret configuration can go here.
+# Secrets (BOT_TOKEN, JWT_SECRET, CHANGENOW_API_KEY, LEADERBOARD_CHANNEL_ID) must be set via:
+#   wrangler secret put BOT_TOKEN
+#   wrangler secret put JWT_SECRET
+#   wrangler secret put CHANGENOW_API_KEY
+#   wrangler secret put LEADERBOARD_CHANNEL_ID

@@ -235,14 +235,14 @@ test.describe('Affiliate dashboard', () => {
   test('Affiliate EN: page loads and global section is present', async ({ page }) => {
     await mockAffiliatePage(page);
     await page.goto(distUrl('index4.html'));
-    await expect(page.locator('#volumeChart')).toBeAttached();
+    await expect(page.locator('#volumeChart .apexcharts-svg')).toBeVisible();
     await expect(page.locator('.appBottomMenu')).toBeVisible();
   });
 
   test('Affiliate RU: page loads and global section is present', async ({ page }) => {
     await mockAffiliatePage(page);
     await page.goto(distUrl('index4-ru.html'));
-    await expect(page.locator('#volumeChart')).toBeAttached();
+    await expect(page.locator('#volumeChart .apexcharts-svg')).toBeVisible();
     await expect(page.locator('.appBottomMenu')).toBeVisible();
   });
 

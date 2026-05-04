@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>Admin — TON Bridge</title>
+    <meta name="description" content="TON Bridge admin panel">
+    <meta name="robots" content="noindex, nofollow">
+    {# ADMIN_TELEGRAM_IDS is injected at build time; comma-separated numeric Telegram user IDs #}
+    <meta name="admin-ids" content="{{ adminIds | default('') }}">
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon/192x192.png">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="manifest" href="../__manifest.json">
+    <style>
+        .admin-stat-card { min-width: 120px; }
+        .admin-stat-value { font-size: 1.4rem; font-weight: 700; }
+        .admin-stat-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: .04em; }
+        .admin-section-title { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: .08em; padding: 8px 16px 4px; }
+        table.admin-table { font-size: 0.8rem; width: 100%; }
+        table.admin-table th { font-size: 0.7rem; text-transform: uppercase; letter-spacing: .05em; color: #888; font-weight: 600; }
+        .audit-table td { word-break: break-all; font-size: 0.75rem; }
+    </style>
+</head>
+
+<body>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- loader -->
+    <div id="loader">
+        <img src="../assets/img/loading-icon.png" alt="icon" class="loading-icon">
+    </div>
+    <!-- * loader -->
+
+    <!-- App Header -->
+    <div class="appHeader bg-primary text-light">
+        <div class="left">
+        </div>
+        <div class="pageTitle">
+            Admin
+        </div>
+    </div>
+    <!-- * App Header -->
+
+    <!-- Access Denied -->
+    <div id="access-denied" class="flex-column align-items-center justify-content-center" style="min-height:60vh; padding:32px; text-align:center;" hidden>
+        <ion-icon name="lock-closed-outline" style="font-size:64px; color:#dc3545;"></ion-icon>
+        <h2 class="mt-3">403 — Access Denied</h2>
+        <p class="text-muted">You are not authorised to view this page.<br>Contact the administrator if you believe this is an error.</p>
+        <a href="index.html" class="btn btn-primary mt-2">Back to App</a>
+    </div>
+    <!-- * Access Denied -->
+
+    <!-- Admin Content -->
+    <div id="admin-content" hidden>
+
+        <!-- App Capsule -->
+        <div id="appCapsule" style="padding-bottom: 80px;">
+
+            <!-- Turnover -->
+            <div class="admin-section-title">Platform Turnover</div>
+            <div class="d-flex flex-row flex-wrap gap-2 px-2 pb-2">
+                <div class="card admin-stat-card flex-fill">
+                    <div class="card-body p-2 text-center">
+                        <div class="admin-stat-value" id="stat-turnover-24h">—</div>
+                        <div class="admin-stat-label">24 h</div>
+                    </div>
+                </div>
+                <div class="card admin-stat-card flex-fill">
+                    <div class="card-body p-2 text-center">
+                        <div class="admin-stat-value" id="stat-turnover-7d">—</div>
+                        <div class="admin-stat-label">7 d</div>
+                    </div>
+                </div>
+                <div class="card admin-stat-card flex-fill">
+                    <div class="card-body p-2 text-center">
+                        <div class="admin-stat-value" id="stat-turnover-30d">—</div>
+                        <div class="admin-stat-label">30 d</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Points -->
+            <div class="admin-section-title">Points</div>
+            <div class="d-flex flex-row flex-wrap gap-2 px-2 pb-2">
+                <div class="card admin-stat-card flex-fill">
+                    <div class="card-body p-2 text-center">
+                        <div class="admin-stat-value" id="stat-points-outstanding">—</div>
+                        <div class="admin-stat-label">Outstanding</div>
+                    </div>
+                </div>
+                <div class="card admin-stat-card flex-fill">
+                    <div class="card-body p-2 text-center">
+                        <div class="admin-stat-value" id="stat-points-redeemed">—</div>
+                        <div class="admin-stat-label">Redeemed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TBC Paid -->
+            <div class="admin-section-title">TBC Paid Out</div>
+            <div class="d-flex flex-row flex-wrap gap-2 px-2 pb-2">
+                <div class="card admin-stat-card flex-fill">
+                    <div class="card-body p-2 text-center">
+                        <div class="admin-stat-value" id="stat-tbc-count">—</div>
+                        <div class="admin-stat-label">Payouts</div>
+                    </div>
+                </div>
+                <div class="card admin-stat-card flex-fill">
+                    <div class="card-body p-2 text-center">
+                        <div class="admin-stat-value" id="stat-tbc-total">—</div>
+                        <div class="admin-stat-label">Total TBC</div>
+                    </div>
+                </div>
+                <div class="card admin-stat-card flex-fill">
+                    <div class="card-body p-2 text-center">
+                        <div class="admin-stat-value" id="stat-tbc-usd">—</div>
+                        <div class="admin-stat-label">USD equiv.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fraud Flags -->
+            <div class="admin-section-title">Fraud Flags</div>
+            <div class="px-2 pb-2">
+                <div class="card">
+                    <div class="card-body p-2">
+                        <div class="table-responsive">
+                            <table class="admin-table table table-sm table-hover mb-1" id="fraud-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>User</th>
+                                        <th>Reason</th>
+                                        <th>Pts</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fraud-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between mt-1">
+                            <button id="fraud-prev" class="btn btn-sm btn-outline-secondary" disabled>&#8249; Prev</button>
+                            <span id="fraud-page-info" class="small text-muted"></span>
+                            <button id="fraud-next" class="btn btn-sm btn-outline-secondary">Next &#8250;</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top 20 Users -->
+            <div class="admin-section-title">Top Users by Lifetime Turnover</div>
+            <div class="px-2 pb-2">
+                <div class="card">
+                    <div class="card-body p-2">
+                        <div class="table-responsive">
+                            <table class="admin-table table table-sm table-hover mb-0" id="top-users-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>User ID</th>
+                                        <th>Lifetime USD</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top-users-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audit Log -->
+            <div class="admin-section-title">Audit Log</div>
+            <div class="px-2 pb-2">
+                <div class="card">
+                    <div class="card-body p-2">
+                        <div class="table-responsive">
+                            <table class="admin-table audit-table table table-sm table-hover mb-0" id="audit-table">
+                                <thead>
+                                    <tr>
+                                        <th>When</th>
+                                        <th>Who</th>
+                                        <th>Action</th>
+                                        <th>Before</th>
+                                        <th>After</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="audit-tbody">
+                                    <tr><td colspan="5" class="text-muted text-center small">No actions yet</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- * App Capsule -->
+
+    </div>
+    <!-- * Admin Content -->
+
+    <!-- ========= JS Files ========= -->
+    <script src="../assets/js/lib/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/ion-icon.js"></script>
+    <script src="../assets/js/base.js"></script>
+    <script src="../assets/js/admin.js"></script>
+
+</body>
+
+</html>

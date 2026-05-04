@@ -40,6 +40,7 @@ export default function(eleventyConfig) {
   eleventyConfig.addGlobalData('criticalCss', criticalCss);
   eleventyConfig.addGlobalData('baseUrl', baseUrl);
   eleventyConfig.addGlobalData('buildSha', buildSha);
+  eleventyConfig.addGlobalData('ADMIN_TELEGRAM_IDS', process.env.ADMIN_TELEGRAM_IDS || '');
 
   // Shortcode that embeds all locale data inline so the runtime loader
   // doesn't need a fetch() (works with file:// and avoids CORS issues).

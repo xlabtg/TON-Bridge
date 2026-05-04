@@ -3,7 +3,9 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/src/Installer.php';
 
-session_start();
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 $rootDir = dirname(__DIR__);
 $lockFile = __DIR__ . '/.installed';
@@ -34,7 +36,10 @@ $data = array_merge(
     tonbridge_installer_default_input(),
     $_SESSION['tonbridge_installer_data'] ?? []
 );
-$step = max(1, min(5, (int) ($_GET['step'] ?? ($_POST['step'] ?? 1))));
+$requestedStep = $_SERVER['REQUEST_METHOD'] === 'POST'
+    ? ($_POST['step'] ?? ($_GET['step'] ?? 1))
+    : ($_GET['step'] ?? 1);
+$step = max(1, min(5, (int) $requestedStep));
 $errors = [];
 $success = false;
 $writtenFiles = [];

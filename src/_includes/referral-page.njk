@@ -9,7 +9,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
     <title>{{ t.title_referral }}</title>
-    <meta name="description" content="TON Bridge Referral Program - Earn Telegram Stars">
+    {% set seoTitle = t.title_referral %}
+    {% set seoDesc = t.desc_referral %}
+    {% include "seo-head.njk" %}
     <meta name="keywords"
         content="ton bridge, referral, telegram stars, crypto, exchange" />
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">

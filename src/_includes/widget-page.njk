@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ locales.en.lang_attr }}">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -9,7 +9,14 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
     <title data-i18n="{% if activePage == 'bridge' %}title_bridge{% else %}title_exchange{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.title_bridge }}{% else %}{{ locales.en.title_exchange }}{% endif %}</title>
-    <meta name="description" content="TON Bridge HTML Mobile Template">
+    {% if activePage == 'bridge' %}
+    {% set seoTitle = locales.en.title_bridge %}
+    {% set seoDesc = locales.en.desc_bridge %}
+    {% else %}
+    {% set seoTitle = locales.en.title_exchange %}
+    {% set seoDesc = locales.en.desc_exchange %}
+    {% endif %}
+    {% include "seo-head.njk" %}
     <meta name="keywords"
         content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">

@@ -9,7 +9,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
     <title>{{ t.privacy_title }}</title>
-    <meta name="description" content="TON Bridge Privacy Policy">
+    {% set seoTitle = t.privacy_title %}
+    {% set seoDesc = t.desc_privacy %}
+    {% include "seo-head.njk" %}
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
     <link rel="stylesheet" href="assets/css/style.css">

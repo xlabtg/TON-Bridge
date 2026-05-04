@@ -1,3 +1,4 @@
+import { execSync } from 'child_process';
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -23,9 +24,22 @@ const criticalCss = existsSync(criticalCssPath)
   ? readFileSync(criticalCssPath, 'utf8').replace(/\/\*#\s*sourceMappingURL=[^\*]*\*\//g, '').trim()
   : '';
 
+function getBuildSha() {
+  try {
+    return execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
+  } catch {
+    return 'latest';
+  }
+}
+
+const baseUrl = process.env.BASE_URL || 'https://tonbankcard.com/bridge/TMA/00.html';
+const buildSha = process.env.BUILD_SHA || getBuildSha();
+
 export default function(eleventyConfig) {
   eleventyConfig.addGlobalData('locales', locales);
   eleventyConfig.addGlobalData('criticalCss', criticalCss);
+  eleventyConfig.addGlobalData('baseUrl', baseUrl);
+  eleventyConfig.addGlobalData('buildSha', buildSha);
 
   // Shortcode that embeds all locale data inline so the runtime loader
   // doesn't need a fetch() (works with file:// and avoids CORS issues).
@@ -38,7 +52,7 @@ export default function(eleventyConfig) {
     'node_modules/@tonconnect/ui/dist/tonconnect-ui.min.js': 'assets/js/vendor/tonconnect-ui.min.js'
   });
   eleventyConfig.addPassthroughCopy('__manifest.json');
-  eleventyConfig.addPassthroughCopy('__service-worker.js');
+  eleventyConfig.addPassthroughCopy('robots.txt');
   eleventyConfig.addPassthroughCopy('tonconnect-manifest.json');
 
   return {

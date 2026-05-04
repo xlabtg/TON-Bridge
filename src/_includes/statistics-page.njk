@@ -9,7 +9,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
     <title>{{ t.title_statistics }}</title>
-    <meta name="description" content="TON Bridge - Statistics Dashboard">
+    {% set seoTitle = t.title_statistics %}
+    {% set seoDesc = t.desc_statistics %}
+    {% include "seo-head.njk" %}
     <meta name="keywords" content="ton, blockchain, crypto, statistics, dashboard, web3" />
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">

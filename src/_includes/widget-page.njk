@@ -772,7 +772,7 @@
 
                 {% if activePage == 'bridge' %}
                 if (prefillBar) {
-                    prefillBar.style.display = '';
+                    prefillBar.classList.remove('is-hidden');
                     if (halfLabel && _walletBalance != null) {
                         halfLabel.textContent = i18nWallet.prefillHalf.replace('{bal}', (_walletBalance / 2).toFixed(2));
                     }
@@ -783,7 +783,7 @@
                 btn.onclick = function() { WalletConnect.connect(); };
                 _walletBalance = null;
                 {% if activePage == 'bridge' %}
-                if (prefillBar) prefillBar.style.display = 'none';
+                if (prefillBar) prefillBar.classList.add('is-hidden');
                 {% endif %}
             }
         }

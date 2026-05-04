@@ -1,4 +1,5 @@
 import leaderboardWorker from '../leaderboard.js';
+import { handleAdminReplay, runScheduledAccrual } from './accrualJob.js';
 
 /**
  * Cloudflare Worker — POST /auth/verify
@@ -451,6 +452,10 @@ export default {
       });
     }
 
+    if (request.method === 'POST' && url.pathname === '/admin/replay') {
+      return handleAdminReplay(request, url, env);
+    }
+
     if (new URL(request.url).pathname === '/optin') {
       return leaderboardWorker.fetch(request, env);
     }
@@ -461,6 +466,10 @@ export default {
   async scheduled(event, env, ctx) {
     if (env.BRIDGE_KV && env.BOT_TOKEN && env.CHANGENOW_API_KEY) {
       ctx.waitUntil(runNotificationCron(env.BRIDGE_KV, env.BOT_TOKEN, env.CHANGENOW_API_KEY));
+    }
+
+    if (event.cron === '* * * * *' && env.DB && env.CHANGENOW_API_KEY) {
+      ctx.waitUntil(runScheduledAccrual(env));
     }
 
     if (event.cron === '0 9 * * *') {

@@ -19,6 +19,18 @@ id = "REPLACE_WITH_KV_NAMESPACE_ID"
 binding = "LEADERBOARD_KV"
 id = "REPLACE_WITH_LEADERBOARD_KV_NAMESPACE_ID"
 
+# KV namespace for the accrual cursor.
+# Create with: wrangler kv:namespace create ACCRUAL_KV
+[[kv_namespaces]]
+binding = "ACCRUAL_KV"
+id = "REPLACE_WITH_ACCRUAL_KV_NAMESPACE_ID"
+
+# D1 database binding (created with: wrangler d1 create ton-bridge-affiliate)
+[[d1_databases]]
+binding = "DB"
+database_name = "ton-bridge-affiliate"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
 # Rate limiter: 30 requests / minute / IP
 # See https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/
 [[ratelimits]]
@@ -36,3 +48,6 @@ namespace_id = "1401"
 #   wrangler secret put JWT_SECRET
 #   wrangler secret put CHANGENOW_API_KEY
 #   wrangler secret put LEADERBOARD_CHANNEL_ID
+#   wrangler secret put ADMIN_SECRET
+CASHBACK_BPS = "10"
+REFERRAL_BPS = "10"

@@ -330,19 +330,7 @@ function buildOracle(env, _fetch) {
 export default {
   // Cron trigger: runs every 60 s (configured in wrangler.toml)
   async scheduled(_event, env, _ctx) {
-    const fromUnix = Number(await env.KV.get('accrual:cursor') ?? '0') || 0;
-    const oracle   = buildOracle(env);
-
-    await runAccrual({
-      db:           env.DB,
-      kv:           env.KV,
-      oracle,
-      apiKey:       env.CHANGENOW_API_KEY ?? NOW_API_KEY_DEFAULT,
-      fromUnix,
-      cashbackBps:  Number(env.CASHBACK_BPS  ?? CASHBACK_BPS_DEFAULT),
-      referralBps:  Number(env.REFERRAL_BPS  ?? REFERRAL_BPS_DEFAULT),
-      updateCursor: true,
-    });
+    await runScheduledAccrual(env);
   },
 
   // HTTP handler: only exposes the admin replay endpoint
@@ -356,6 +344,23 @@ export default {
     return new Response('Not found', { status: 404 });
   },
 };
+
+export async function runScheduledAccrual(env) {
+  const kv = env.ACCRUAL_KV ?? env.KV;
+  const fromUnix = Number(await kv?.get('accrual:cursor') ?? '0') || 0;
+  const oracle = buildOracle(env);
+
+  return runAccrual({
+    db: env.DB,
+    kv,
+    oracle,
+    apiKey: env.CHANGENOW_API_KEY ?? NOW_API_KEY_DEFAULT,
+    fromUnix,
+    cashbackBps: Number(env.CASHBACK_BPS ?? CASHBACK_BPS_DEFAULT),
+    referralBps: Number(env.REFERRAL_BPS ?? REFERRAL_BPS_DEFAULT),
+    updateCursor: true,
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Admin replay handler (extracted for testability)

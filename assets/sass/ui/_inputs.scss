@@ -123,8 +123,11 @@ textarea,
 .form-select {
   border: 0;
   box-shadow: 0 !important;
-  outline: 0 !important;
   background-color: transparent;
+  &:focus-visible {
+    outline: 3px solid $colorPrimary !important;
+    outline-offset: 2px;
+  }
 }
 .form-select-lg {
   height: 48px;

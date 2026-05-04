@@ -1,0 +1,46 @@
+{#- SEO / OpenGraph / Twitter Card meta tags.
+    Uses page front-matter:
+      canonical  - full canonical URL (auto-derived from baseUrl + permalink if omitted)
+      ogImage    - full URL to og:image (auto-derived from baseUrl + ogImagePath if omitted)
+      ogImagePath - relative path to og:image asset, e.g. "assets/img/og/index.png"
+      altUrl     - full URL to alternate-locale version of this page
+      defaultUrl - full URL for x-default hreflang (falls back to canonical)
+      ogType     - og:type (default "website")
+    Global data (eleventy.config.js):
+      baseUrl    - site root URL
+      buildSha   - git SHA for cache-busting
+    Template scope:
+      seoTitle   - page title for og:title (must be set before include)
+      seoDesc    - page description (must be set before include)
+-#}
+{% set _locale = t if t else locales.en %}
+{% set _canonical = canonical if canonical else (baseUrl + "/" + permalink) %}
+{% set _ogImagePath = ogImagePath if ogImagePath else ("assets/img/og/" + (permalink | replace(".html", "") | replace("/", "_")) + ".png") %}
+{% set _ogImage = ogImage if ogImage else (baseUrl + "/" + _ogImagePath + "?v=" + buildSha) %}
+<meta name="description" content="{{ seoDesc }}">
+<link rel="canonical" href="{{ _canonical }}">
+
+{# hreflang alternates – cross-link EN↔RU pages #}
+{% if altUrl %}<link rel="alternate" hreflang="{{ _locale.og_locale_alternate | replace('_', '-') | lower }}" href="{{ altUrl }}">{% endif %}
+<link rel="alternate" hreflang="{{ _locale.og_locale | replace('_', '-') | lower }}" href="{{ _canonical }}">
+<link rel="alternate" hreflang="x-default" href="{{ defaultUrl if defaultUrl else _canonical }}">
+
+{# Open Graph #}
+<meta property="og:type" content="{{ ogType if ogType else 'website' }}">
+<meta property="og:site_name" content="{{ _locale.og_site_name }}">
+<meta property="og:locale" content="{{ _locale.og_locale }}">
+{% if altUrl %}<meta property="og:locale:alternate" content="{{ _locale.og_locale_alternate }}">{% endif %}
+<meta property="og:title" content="{{ seoTitle }}">
+<meta property="og:description" content="{{ seoDesc }}">
+<meta property="og:url" content="{{ _canonical }}">
+<meta property="og:image" content="{{ _ogImage }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{ seoTitle }}">
+
+{# Twitter Card #}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ seoTitle }}">
+<meta name="twitter:description" content="{{ seoDesc }}">
+<meta name="twitter:image" content="{{ _ogImage }}">
+<meta name="twitter:image:alt" content="{{ seoTitle }}">

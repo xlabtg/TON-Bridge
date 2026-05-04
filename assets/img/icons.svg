@@ -40,6 +40,10 @@
     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="40" d="M187 396h138"/>
     <path d="M256 160a32 32 0 1132-32 32 32 0 01-32 32z"/>
   </symbol>
+  <symbol id="lock-closed-outline" viewBox="0 0 512 512">
+    <rect x="80" y="192" width="352" height="272" rx="48" ry="48" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
+    <path d="M144 192v-72a112 112 0 01224 0v72" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
+  </symbol>
   <symbol id="menu-outline" viewBox="0 0 512 512">
     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32" d="M80 160h352M80 256h352M80 352h352"/>
   </symbol>

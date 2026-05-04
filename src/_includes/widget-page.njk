@@ -694,8 +694,10 @@
     <script src="assets/js/utm.js"></script>
     <!-- Share to Story -->
     <script src="assets/js/share-to-story.js"></script>
+    {% if activePage == 'bridge' %}
     <!-- Wallet Connect -->
     <script src="assets/js/wallet-connect.js"></script>
+    {% endif %}
     <!-- Offline Indicator -->
     <script src="assets/js/offline.js"></script>
     <!-- Haptic Feedback -->
@@ -749,6 +751,7 @@
     </script>
 
     <script>
+        {% if activePage == 'bridge' %}
         var i18nWallet = {
             connectBtn: '{{ locales.en.wallet_connect_btn }}',
             disconnectBtn: '{{ locales.en.wallet_disconnect_btn }}',
@@ -776,25 +779,20 @@
                 btn.onclick = function() { WalletConnect.disconnect(); };
                 _walletBalance = state.balance ? parseFloat(state.balance) : null;
 
-                {% if activePage == 'bridge' %}
                 if (prefillBar) {
                     prefillBar.classList.remove('is-hidden');
                     if (halfLabel && _walletBalance != null) {
                         halfLabel.textContent = i18nWallet.prefillHalf.replace('{bal}', (_walletBalance / 2).toFixed(2));
                     }
                 }
-                {% endif %}
             } else {
                 btnLabel.textContent = i18nWallet.connectBtn;
                 btn.onclick = function() { WalletConnect.connect(); };
                 _walletBalance = null;
-                {% if activePage == 'bridge' %}
                 if (prefillBar) prefillBar.classList.add('is-hidden');
-                {% endif %}
             }
         }
 
-        {% if activePage == 'bridge' %}
         function walletPrefillHalf() {
             if (_walletBalance == null) return;
             prefillIframe((_walletBalance / 2).toFixed(2));
@@ -817,13 +815,13 @@
                 }
             }, 0);
         }
-        {% endif %}
 
         WalletConnect.onChange(updateWalletUI);
         WalletConnect.init('tonconnect-manifest.json', {
             sdkUrl: 'assets/js/vendor/tonconnect-ui.min.js',
             lazy: true
         });
+        {% endif %}
     </script>
     <!-- Address Book -->
     <script src="assets/js/address-book.js"></script>

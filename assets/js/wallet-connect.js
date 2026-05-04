@@ -3,6 +3,9 @@
 
 (function () {
     var STORAGE_KEY = 'tc_ton_address';
+    var PAYOUT_STORAGE_KEY = 'tbc_ton_address';
+    var PAYOUT_RATE_LIMIT_KEY = 'tbc_ton_address_updated_at';
+    var DAY_MS = 864e5;
     var TONCENTER_BASE = 'https://toncenter.com/api/v2/getAddressInformation?address=';
 
     var _ui = null;              // TonConnectUI instance
@@ -31,6 +34,32 @@
                 localStorage.setItem(STORAGE_KEY, addr || '');
             }
         } catch (_) {}
+    }
+
+    function getStoredPayoutAddress() {
+        return localStorage.getItem(PAYOUT_STORAGE_KEY) || '';
+    }
+
+    function savePayoutAddress(addr) {
+        localStorage.setItem(PAYOUT_STORAGE_KEY, addr || '');
+        localStorage.setItem(PAYOUT_RATE_LIMIT_KEY, String(Date.now()));
+    }
+
+    function removePayoutAddress() {
+        localStorage.removeItem(PAYOUT_STORAGE_KEY);
+        localStorage.removeItem(PAYOUT_RATE_LIMIT_KEY);
+    }
+
+    function isPayoutReplaceRateLimited() {
+        var ts = parseInt(localStorage.getItem(PAYOUT_RATE_LIMIT_KEY) || '0', 10);
+        return ts > 0 && (Date.now() - ts) < DAY_MS;
+    }
+
+    function looksLikeExchangeAddress(addr) {
+        return !!addr && (
+            addr.indexOf('EQBfAN7LfaUYgXZNw5Wc7GBgkEX2yhuJ5ka9X9V7M') === 0 ||
+            addr.indexOf('EQCzL4bHKkTfn9e5rW0') === 0
+        );
     }
 
     function loadAddress(cb) {
@@ -63,6 +92,44 @@
         for (var i = 0; i < _listeners.length; i++) {
             try { _listeners[i](state); } catch (_) {}
         }
+    }
+
+    function notifyPayoutLinked(addr) {
+        window.dispatchEvent(new CustomEvent('tbc:wallet-linked', { detail: { address: addr } }));
+    }
+
+    function confirmReplacePayout(message, cb) {
+        var tg = window.Telegram && window.Telegram.WebApp;
+        if (tg && tg.showConfirm) {
+            tg.showConfirm(message, cb);
+        } else {
+            cb(confirm(message));
+        }
+    }
+
+    function setPayoutAddress(addr, options) {
+        options = options || {};
+        addr = (addr || '').trim();
+        if (!addr) return false;
+
+        var stored = getStoredPayoutAddress();
+        if (stored && stored !== addr) {
+            if (isPayoutReplaceRateLimited()) {
+                alert(options.rateLimitError || 'You can replace your payout address only once every 24 hours.');
+                return false;
+            }
+            confirmReplacePayout(options.replaceConfirm || 'Replace existing payout address?', function (ok) {
+                if (ok) {
+                    savePayoutAddress(addr);
+                    notifyPayoutLinked(addr);
+                }
+            });
+            return true;
+        }
+
+        savePayoutAddress(addr);
+        notifyPayoutLinked(addr);
+        return true;
     }
 
     function loadSdk(cb) {
@@ -179,6 +246,11 @@
         },
 
         shortenAddress: shortenAddress,
+        setPayoutAddress: setPayoutAddress,
+        getPayoutAddress: getStoredPayoutAddress,
+        removePayoutAddress: removePayoutAddress,
+        isPayoutReplaceRateLimited: isPayoutReplaceRateLimited,
+        looksLikeExchangeAddress: looksLikeExchangeAddress,
     };
 
     window.WalletConnect = WalletConnect;

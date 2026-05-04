@@ -262,6 +262,69 @@ test.describe('Wallet Connect — widget pages', () => {
         expect(disconnected).toBe(true);
     });
 
+    test('Settings EN: connected wallet can be saved as payout address', async ({ page }) => {
+        await setupMocks(page);
+        await page.goto(distUrl('app-settings.html'));
+
+        await simulateConnectSettings(page, TEST_ADDRESS);
+        await page.locator('#wallet-payout-save-btn').click();
+
+        expect(await page.evaluate(() => WalletConnect.getPayoutAddress())).toBe(TEST_ADDRESS);
+        await expect(page.locator('#wallet-payout-connected-row')).not.toHaveClass(/d-none/);
+        await expect(page.locator('#wallet-payout-address-display')).toHaveAttribute('title', TEST_ADDRESS);
+    });
+
+    test('Settings EN: payout address persists after wallet disconnect', async ({ page }) => {
+        await setupMocks(page);
+        await page.goto(distUrl('app-settings.html'));
+
+        await simulateConnectSettings(page, TEST_ADDRESS);
+        await page.locator('#wallet-payout-save-btn').click();
+        await page.evaluate(() => {
+            if (window.__tcStatusChange) window.__tcStatusChange(null);
+        });
+
+        expect(await page.evaluate(() => WalletConnect.getPayoutAddress())).toBe(TEST_ADDRESS);
+        await expect(page.locator('#wallet-payout-disconnect-note')).not.toHaveClass(/d-none/);
+    });
+
+    test('Settings EN: payout replacement is rate limited for 24 hours', async ({ page }) => {
+        await setupMocks(page);
+        await page.goto(distUrl('app-settings.html'));
+
+        const replacement = 'UQC2DP7aXAP5uOKQXOiMSMR0w2jJ9Q4exampleAddressXYZ';
+        await page.evaluate((addr) => {
+            WalletConnect.setPayoutAddress(addr);
+            localStorage.setItem('tbc_ton_address_updated_at', String(Date.now()));
+        }, TEST_ADDRESS);
+        await page.evaluate((addr) => {
+            WalletConnect.setPayoutAddress(addr, {
+                rateLimitError: 'rate limited',
+                replaceConfirm: 'replace?'
+            });
+        }, replacement);
+
+        expect(await page.evaluate(() => WalletConnect.getPayoutAddress())).toBe(TEST_ADDRESS);
+        expect(await page.evaluate(() => WalletConnect.isPayoutReplaceRateLimited())).toBe(true);
+    });
+
+    test('Settings EN: CEX payout warning is shown for known exchange prefix', async ({ page }) => {
+        await setupMocks(page);
+        await page.goto(distUrl('app-settings.html'));
+
+        const cexAddress = 'EQBfAN7LfaUYgXZNw5Wc7GBgkEX2yhuJ5ka9X9V7MSomeAddr';
+        await page.evaluate((addr) => {
+            WalletConnect.setPayoutAddress(addr);
+            document.getElementById('wallet-payout-connected-row').classList.remove('d-none');
+            document.getElementById('wallet-payout-exchange-warning').classList.toggle(
+                'd-none',
+                !WalletConnect.looksLikeExchangeAddress(addr)
+            );
+        }, cexAddress);
+
+        await expect(page.locator('#wallet-payout-exchange-warning')).not.toHaveClass(/d-none/);
+    });
+
     test('tonconnect-manifest.json contains required fields', async ({ page }) => {
         const manifestPath = resolve(__dirname, '..', 'dist', 'tonconnect-manifest.json');
         const { readFileSync } = await import('fs');

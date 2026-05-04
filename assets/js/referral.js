@@ -112,7 +112,7 @@
         '<button id="ref-share-btn" class="btn btn-primary btn-block">' +
           '<ion-icon name="share-social-outline"></ion-icon> ' + shareBtnText +
         '</button>' +
-        '<button id="ref-copy-btn" class="btn btn-secondary btn-block mt-1">' +
+        '<button id="ref-copy-btn" class="btn btn-dark btn-block mt-1">' +
           '<ion-icon name="copy-outline"></ion-icon> ' + (i18n.copy_btn || 'Copy link') +
         '</button>' +
         '<span id="ref-copied-msg" style="display:none;color:green;margin-left:8px">' + copiedText + '</span>' +

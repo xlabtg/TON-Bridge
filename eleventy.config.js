@@ -35,12 +35,24 @@ function getBuildSha() {
 const baseUrl = process.env.BASE_URL || 'https://tonbankcard.com/bridge/TMA/00.html';
 const buildSha = process.env.BUILD_SHA || getBuildSha();
 
+function jsStringValue(value) {
+  return JSON.stringify(String(value ?? ''));
+}
+
+function injectPlaceholders(source, replacements) {
+  return Object.entries(replacements).reduce(
+    (out, [placeholder, value]) => out.split(placeholder).join(value),
+    source
+  );
+}
+
 export default function(eleventyConfig) {
   eleventyConfig.addGlobalData('locales', locales);
   eleventyConfig.addGlobalData('criticalCss', criticalCss);
   eleventyConfig.addGlobalData('baseUrl', baseUrl);
   eleventyConfig.addGlobalData('buildSha', buildSha);
   eleventyConfig.addGlobalData('ADMIN_TELEGRAM_IDS', process.env.ADMIN_TELEGRAM_IDS || '');
+  eleventyConfig.addFilter('jsString', jsStringValue);
 
   // Shortcode that embeds all locale data inline so the runtime loader
   // doesn't need a fetch() (works with file:// and avoids CORS issues).
@@ -61,18 +73,27 @@ export default function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy('robots.txt');
   eleventyConfig.addPassthroughCopy('tonconnect-manifest.json');
 
-  // After the build, overwrite the passthrough-copied sentry.js with a version
-  // that has Sentry env vars injected from the build environment.
+  // After the build, overwrite passthrough-copied runtime assets with versions
+  // that have environment-specific public configuration injected.
   eleventyConfig.on('eleventy.after', ({ dir }) => {
-    const src = readFileSync(join(__dirname, 'assets/js/sentry.js'), 'utf8');
-    const out = src
+    const destDir = join(__dirname, dir.output, 'assets', 'js');
+    mkdirSync(destDir, { recursive: true });
+
+    const sentrySrc = readFileSync(join(__dirname, 'assets/js/sentry.js'), 'utf8');
+    const sentryOut = sentrySrc
       .replace('__SENTRY_DSN__', process.env.SENTRY_DSN || '')
       .replace('__SENTRY_RELEASE__', process.env.SENTRY_RELEASE || process.env.GITHUB_SHA || '')
       .replace('__SENTRY_ENVIRONMENT__', process.env.SENTRY_ENVIRONMENT || 'production')
       .replace('__SENTRY_TRACES_SAMPLE_RATE__', process.env.SENTRY_TRACES_SAMPLE_RATE || '0.1');
-    const destDir = join(__dirname, dir.output, 'assets', 'js');
-    mkdirSync(destDir, { recursive: true });
-    writeFileSync(join(destDir, 'sentry.js'), out);
+    writeFileSync(join(destDir, 'sentry.js'), sentryOut);
+
+    const baseSrc = readFileSync(join(__dirname, 'assets/js/base.js'), 'utf8');
+    const baseOut = injectPlaceholders(baseSrc, {
+      "'%%TG_ANALYTICS_TOKEN%%'": jsStringValue(process.env.TG_ANALYTICS_TOKEN || ''),
+      "'%%TG_ANALYTICS_APP_NAME%%'": jsStringValue(process.env.TG_ANALYTICS_APP_NAME || ''),
+      "'%%YANDEX_METRIKA_ID%%'": jsStringValue(process.env.YANDEX_METRIKA_ID || ''),
+    });
+    writeFileSync(join(destDir, 'base.js'), baseOut);
   });
 
   return {

@@ -26,9 +26,14 @@ const pages = [
   'orders-ru.html',
   'privacy.html',
   'privacy-ru.html',
+  'program.html',
+  'program-ru.html',
+  'redeem.html',
+  'redeem-ru.html',
   'referral.html',
   'referral-ru.html',
   'app-settings.html',
+  'admin/index.html',
 ];
 
 test.describe('CSP meta tag', () => {
@@ -56,9 +61,16 @@ test.describe('SRI hashes on external scripts', () => {
     '2.html',
     'orders.html',
     'orders-ru.html',
+    'program.html',
+    'program-ru.html',
+    'redeem.html',
+    'redeem-ru.html',
+    'admin/index.html',
   ];
 
   const pagesWithTgAnalytics = [
+    'redeem.html',
+    'redeem-ru.html',
     'referral.html',
     'referral-ru.html',
   ];
@@ -82,8 +94,39 @@ test.describe('SRI hashes on external scripts', () => {
   for (const file of pages) {
     test(`${file} uses self-hosted ionicons`, () => {
       const html = readFileSync(distPath(file), 'utf8');
-      expect(html).toContain('src="assets/js/ion-icon.js"');
+      expect(html).toMatch(/src="(?:\.\.\/)?assets\/js\/ion-icon\.js"/);
       expect(html).not.toContain('https://unpkg.com/ionicons');
     });
   }
+});
+
+test.describe('Analytics configuration is injected at build time', () => {
+  const builtFiles = [
+    'assets/js/base.js',
+    'redeem.html',
+    'redeem-ru.html',
+    'referral.html',
+    'referral-ru.html',
+  ];
+
+  const legacyAnalyticsToken = 'eyJhcHBfbmFtZSI6IlRPTkJyaWRnZV9yb2JvdCIsImFwcF91cmwiOiJodHRwczovL3QubWUvVE9OQnJpZGdlX3JvYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vdG9uYmFua2NhcmQuY29tL2JyaWRnZS9UTUEvMDAuaHRtbCJ9!PQ40y7Tz3lZti6uDVlApq+BcGxi8tR9WEsH6Hyu+mD0=';
+
+  for (const file of builtFiles) {
+    test(`${file} does not contain the legacy committed analytics token`, () => {
+      const source = readFileSync(distPath(file), 'utf8');
+      expect(source).not.toContain(legacyAnalyticsToken);
+      expect(source).not.toContain("appName: 'TONBridge_robot'");
+      expect(source).not.toContain('appName: "TONBridge_robot"');
+    });
+  }
+
+  test('base.js receives configured analytics values from the build environment', () => {
+    const source = readFileSync(distPath('assets/js/base.js'), 'utf8');
+    expect(source).toContain('test-token');
+    expect(source).toContain('test-app');
+    expect(source).toContain('12345');
+    expect(source).not.toContain('%%TG_ANALYTICS_TOKEN%%');
+    expect(source).not.toContain('%%TG_ANALYTICS_APP_NAME%%');
+    expect(source).not.toContain('%%YANDEX_METRIKA_ID%%');
+  });
 });

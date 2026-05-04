@@ -45,8 +45,8 @@
     <script>
         function initAnalytics() {
           window.telegramAnalytics.init({
-            token: 'eyJhcHBfbmFtZSI6IlRPTkJyaWRnZV9yb2JvdCIsImFwcF91cmwiOiJodHRwczovL3QubWUvVE9OQnJpZGdlX3JvYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vdG9uYmFua2NhcmQuY29tL2JyaWRnZS9UTUEvMDAuaHRtbCJ9!PQ40y7Tz3lZti6uDVlApq+BcGxi8tR9WEsH6Hyu+mD0=',
-            appName: 'TONBridge_robot',
+            token: {{ env.TG_ANALYTICS_TOKEN | jsString | safe }},
+            appName: {{ env.TG_ANALYTICS_APP_NAME | jsString | safe }},
           });
         }
     </script>

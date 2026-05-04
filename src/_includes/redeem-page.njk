@@ -15,6 +15,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="manifest" href="__manifest.json">
+    <meta http-equiv="Content-Security-Policy-Report-Only" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://ton-bridge-worker.tonbankcard.workers.dev https://api.telegram.org https://tganalytics.xyz https://mc.yandex.ru; report-uri /csp-report">
     <style>
         .redeem-balance-card {
             background: var(--bs-primary, #1bb2da);
@@ -97,7 +98,7 @@
 </head>
 
 <body>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js" integrity="sha384-1XuC9S4cgk6RH1oCsL2diDRwLiiivu/oZHNfxYUitEFuiKpP5ceNbzu220KKrcK+" crossorigin="anonymous"></script>
     <script>
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
@@ -109,14 +110,16 @@
 	<script
     async
     src="https://tganalytics.xyz/index.js"
+    integrity="sha384-njlroka3F7BclV9FXjiHDU9ZSrhSwNVRewye4d5rpWXYvery9PUnnhuAZAHfLyJ+"
+    crossorigin="anonymous"
     onload="initAnalytics()"
     type="text/javascript"
 ></script>
 <script>
     function initAnalytics() {
       window.telegramAnalytics.init({
-        token: 'eyJhcHBfbmFtZSI6IlRPTkJyaWRnZV9yb2JvdCIsImFwcF91cmwiOiJodHRwczovL3QubWUvVE9OQnJpZGdlX3JvYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vdG9uYmFua2NhcmQuY29tL2JyaWRnZS9UTUEvMDAuaHRtbCJ9!PQ40y7Tz3lZti6uDVlApq+BcGxi8tR9WEsH6Hyu+mD0=',
-        appName: 'TONBridge_robot',
+        token: {{ env.TG_ANALYTICS_TOKEN | jsString | safe }},
+        appName: {{ env.TG_ANALYTICS_APP_NAME | jsString | safe }},
       });
     }
 </script>
@@ -478,14 +481,15 @@
    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-   ym(98019798, "init", {
+   var metrikaId = {{ env.YANDEX_METRIKA_ID | jsString | safe }};
+   ym(Number(metrikaId) || metrikaId, "init", {
         clickmap:true,
         trackLinks:true,
         accurateTrackBounce:true,
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/{{ env.YANDEX_METRIKA_ID }}" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
 </body>
 

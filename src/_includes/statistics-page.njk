@@ -187,6 +187,87 @@
             {{ t.stats_last_updated }}: <span id="last-updated-val">{{ t.stats_never }}</span>
         </div>
 
+        <!-- Affiliate account -->
+        <div class="stats-section" id="affiliate-account-section">
+            <div class="stats-section-title">{{ t.affiliate_my_section }}</div>
+
+            <div id="affiliate-loading" class="text-center py-3">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 mb-0 text-muted">{{ t.affiliate_loading }}</p>
+            </div>
+
+            <div id="affiliate-error" class="text-center py-3" style="display:none;">
+                <ion-icon name="alert-circle-outline" style="font-size:2em;color:#e17055;"></ion-icon>
+                <p class="mt-2 mb-0">{{ t.affiliate_error }}</p>
+            </div>
+
+            <div id="affiliate-unauthenticated" class="text-center py-3" style="display:none;">
+                <ion-icon name="person-circle-outline" style="font-size:3em;color:#1bb2da;"></ion-icon>
+                <p class="mt-2 mb-3">{{ t.affiliate_connect_cta }}</p>
+                <a href="/auth/verify" class="btn btn-primary btn-block">{{ t.affiliate_connect_btn }}</a>
+            </div>
+
+            <div id="affiliate-data" style="display:none;">
+                <div class="row g-2 mb-3" id="affiliate-stats-row">
+                    <div class="col-6">
+                        <div class="volume-card">
+                            <div class="vc-label">{{ t.affiliate_turnover_label }}</div>
+                            <div class="vc-value" id="stat-turnover">—</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="volume-card">
+                            <div class="vc-label">{{ t.affiliate_points_earned_label }}</div>
+                            <div class="vc-value" id="stat-points-earned">—</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="volume-card">
+                            <div class="vc-label">{{ t.affiliate_points_balance_label }}</div>
+                            <div class="vc-value" id="stat-points-balance">—</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="volume-card">
+                            <div class="vc-label">{{ t.affiliate_tbc_label }}</div>
+                            <div class="vc-value" id="stat-tbc">—</div>
+                            <div class="vc-label" id="stat-usd">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-section-title">{{ t.affiliate_swaps_section }}</div>
+                <div class="table-responsive mb-3">
+                    <table class="data-table" id="swaps-table">
+                        <thead>
+                            <tr>
+                                <th>{{ t.affiliate_swaps_date }}</th>
+                                <th>{{ t.affiliate_swaps_pair }}</th>
+                                <th>{{ t.affiliate_swaps_amount }}</th>
+                                <th>{{ t.affiliate_swaps_points }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="swaps-body"></tbody>
+                    </table>
+                </div>
+
+                <div class="stats-section-title">{{ t.affiliate_referrals_section }}</div>
+                <div class="table-responsive">
+                    <table class="data-table" id="referrals-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>{{ t.affiliate_referrals_user }}</th>
+                                <th>{{ t.affiliate_referrals_turnover }}</th>
+                                <th>{{ t.affiliate_referrals_points }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="referrals-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
     <!-- * App Capsule -->
 
@@ -293,6 +374,8 @@
         var LOCALE = '{{ t.lang_attr }}';
         var CACHE_KEY = 'stats_cache_v1';
         var CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+        var AFFILIATE_CACHE_KEY = 'affiliate_me_cache';
+        var AFFILIATE_CACHE_TTL = 60 * 1000;
 
         var STRINGS = {
             loading: '{{ t.stats_loading }}',
@@ -492,10 +575,134 @@
             });
         }
 
+        function truncateUser(uid) {
+            var s = String(uid);
+            if (s.length <= 6) return s;
+            return s.slice(0, 3) + '...' + s.slice(-2);
+        }
+
+        function formatDate(iso) {
+            try {
+                return new Date(iso).toLocaleDateString(LOCALE === 'ru' ? 'ru-RU' : 'en-US');
+            } catch (e) {
+                return iso;
+            }
+        }
+
+        function renderAffiliateStats(data) {
+            var balance = data.points_balance || 0;
+            var tbc = (balance / 10).toFixed(2);
+            var usd = (parseFloat(tbc) * 0.0003).toFixed(4);
+            document.getElementById('stat-turnover').textContent = '$' + (data.lifetime_turnover_usd || 0).toFixed(2);
+            document.getElementById('stat-points-earned').textContent = (data.lifetime_points_earned || 0).toLocaleString();
+            document.getElementById('stat-points-balance').textContent = balance.toLocaleString();
+            document.getElementById('stat-tbc').textContent = tbc + ' TBC';
+            document.getElementById('stat-usd').textContent = '~ $' + usd;
+        }
+
+        function renderSwaps(swaps) {
+            var tbody = document.getElementById('swaps-body');
+            tbody.innerHTML = '';
+            if (!swaps || !swaps.length) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">—</td></tr>';
+                return;
+            }
+            swaps.slice(0, 10).forEach(function (swap) {
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td>' + formatDate(swap.created_at) + '</td>' +
+                    '<td>' + (swap.from_currency || '?') + ' -> ' + (swap.to_currency || '?') + '</td>' +
+                    '<td>$' + (swap.turnover_usd || 0).toFixed(2) + '</td>' +
+                    '<td>' + (swap.points_awarded || 0).toLocaleString() + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderReferrals(referrals) {
+            var tbody = document.getElementById('referrals-body');
+            tbody.innerHTML = '';
+            if (!referrals || !referrals.length) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">—</td></tr>';
+                return;
+            }
+            referrals.forEach(function (referral, index) {
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td>' + (index + 1) + '</td>' +
+                    '<td>' + truncateUser(referral.user_id) + '</td>' +
+                    '<td>$' + (referral.turnover_usd || 0).toFixed(2) + '</td>' +
+                    '<td>' + (referral.referral_points || 0).toLocaleString() + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function showAffiliateSection(id) {
+            ['affiliate-loading', 'affiliate-error', 'affiliate-unauthenticated', 'affiliate-data'].forEach(function (sectionId) {
+                document.getElementById(sectionId).style.display = sectionId === id ? '' : 'none';
+            });
+        }
+
+        function applyAffiliateData(data) {
+            renderAffiliateStats(data);
+            renderSwaps(data.last_swaps);
+            renderReferrals(data.referral_leaderboard);
+            showAffiliateSection('affiliate-data');
+        }
+
+        function fetchAffiliate() {
+            fetch('/me/affiliate', { credentials: 'include' })
+                .then(function (res) {
+                    if (res.status === 401 || res.status === 403) {
+                        showAffiliateSection('affiliate-unauthenticated');
+                        return null;
+                    }
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                })
+                .then(function (data) {
+                    if (!data) return;
+                    var cached = { ts: Date.now(), data: data };
+                    try {
+                        if (Telegram.WebApp.CloudStorage) {
+                            Telegram.WebApp.CloudStorage.setItem(AFFILIATE_CACHE_KEY, JSON.stringify(cached), function () {});
+                        }
+                    } catch (e) {}
+                    applyAffiliateData(data);
+                })
+                .catch(function () {
+                    showAffiliateSection('affiliate-error');
+                });
+        }
+
+        function initAffiliate() {
+            try {
+                if (Telegram.WebApp.CloudStorage) {
+                    Telegram.WebApp.CloudStorage.getItem(AFFILIATE_CACHE_KEY, function (err, val) {
+                        if (!err && val) {
+                            try {
+                                var cached = JSON.parse(val);
+                                if (cached && cached.ts && Date.now() - cached.ts < AFFILIATE_CACHE_TTL) {
+                                    applyAffiliateData(cached.data);
+                                    return;
+                                }
+                            } catch (e) {}
+                        }
+                        fetchAffiliate();
+                    });
+                    return;
+                }
+            } catch (e) {}
+            fetchAffiliate();
+        }
+
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
+            document.addEventListener('DOMContentLoaded', function () {
+                init();
+                initAffiliate();
+            });
         } else {
             init();
+            initAffiliate();
         }
     })();
     </script>

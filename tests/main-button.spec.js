@@ -401,3 +401,135 @@ test.describe('Lazy-load iframe', () => {
     await page.screenshot({ path: 'tests/screenshots/otc-en.png', fullPage: false });
   });
 });
+
+test.describe('Affiliate dashboard', () => {
+  async function mockAffiliatePage(page) {
+    await mockTelegramWebApp(page);
+    // When served from file://, fetch('/api/stats') and fetch('/me/affiliate')
+    // fail with network errors. Inject mocks for both relative endpoints.
+    await page.addInitScript(() => {
+      window.__affiliateMockStatus = 401;
+      window.__affiliateMockData = null;
+      window.__statsMockData = {
+        volume24h: 1.23,
+        volume7d: 8.76,
+        volume30d: 30.02,
+        topPairs: [{ from: 'ton', to: 'usdtton', volumeBtc: 0.44 }],
+        avgCompletionMin: 4.5,
+        bridgesPerHour: [{ hour: 10, count: 2 }, { hour: 11, count: 3 }],
+      };
+    });
+    await page.addInitScript(() => {
+      const origFetch = window.fetch;
+      window.fetch = function(url, opts) {
+        if (typeof url === 'string' && url.includes('/api/stats')) {
+          return Promise.resolve(new Response(JSON.stringify(window.__statsMockData), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }));
+        }
+        if (typeof url === 'string' && url.includes('/me/affiliate')) {
+          const status = window.__affiliateMockStatus;
+          const body = window.__affiliateMockData ? JSON.stringify(window.__affiliateMockData) : JSON.stringify({ error: 'Unauthorized' });
+          return Promise.resolve(new Response(body, { status, headers: { 'Content-Type': 'application/json' } }));
+        }
+        return origFetch.apply(this, arguments);
+      };
+    });
+  }
+
+  async function mockAffiliateAuth(page) {
+    await mockTelegramWebApp(page);
+    const mockData = {
+      lifetime_turnover_usd: 1234.56,
+      lifetime_points_earned: 40740,
+      points_balance: 40000,
+      last_swaps: [
+        { created_at: '2025-04-01T10:00:00Z', from_currency: 'TON', to_currency: 'BTC', turnover_usd: 100, points_awarded: 3300 },
+        { created_at: '2025-04-02T11:00:00Z', from_currency: 'ETH', to_currency: 'TON', turnover_usd: 200, points_awarded: 6600 },
+      ],
+      referral_leaderboard: [
+        { user_id: '123456789', turnover_usd: 500, referral_points: 1650 },
+        { user_id: '987654321', turnover_usd: 300, referral_points: 990 },
+      ],
+    };
+    await page.addInitScript((data) => {
+      window.__affiliateMockStatus = 200;
+      window.__affiliateMockData = data;
+      window.__statsMockData = {
+        volume24h: 1.23,
+        volume7d: 8.76,
+        volume30d: 30.02,
+        topPairs: [{ from: 'ton', to: 'usdtton', volumeBtc: 0.44 }],
+        avgCompletionMin: 4.5,
+        bridgesPerHour: [{ hour: 10, count: 2 }, { hour: 11, count: 3 }],
+      };
+    }, mockData);
+    await page.addInitScript(() => {
+      const origFetch = window.fetch;
+      window.fetch = function(url, opts) {
+        if (typeof url === 'string' && url.includes('/api/stats')) {
+          return Promise.resolve(new Response(JSON.stringify(window.__statsMockData), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }));
+        }
+        if (typeof url === 'string' && url.includes('/me/affiliate')) {
+          const status = window.__affiliateMockStatus;
+          const body = JSON.stringify(window.__affiliateMockData);
+          return Promise.resolve(new Response(body, { status, headers: { 'Content-Type': 'application/json' } }));
+        }
+        return origFetch.apply(this, arguments);
+      };
+    });
+  }
+
+  test('Affiliate EN: page loads and global section is present', async ({ page }) => {
+    await mockAffiliatePage(page);
+    await page.goto(distUrl('index4.html'));
+    await expect(page.locator('#bphChart')).toBeVisible();
+    await expect(page.locator('.appBottomMenu')).toBeVisible();
+  });
+
+  test('Affiliate RU: page loads and global section is present', async ({ page }) => {
+    await mockAffiliatePage(page);
+    await page.goto(distUrl('index4-ru.html'));
+    await expect(page.locator('#bphChart')).toBeVisible();
+    await expect(page.locator('.appBottomMenu')).toBeVisible();
+  });
+
+  test('Affiliate EN: unauthenticated CTA is shown on 401', async ({ page }) => {
+    await mockAffiliatePage(page);
+    await page.goto(distUrl('index4.html'));
+    await expect(page.locator('#affiliate-unauthenticated')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('#affiliate-data')).toBeHidden();
+  });
+
+  test('Affiliate EN: authenticated data section is shown on 200', async ({ page }) => {
+    await mockAffiliateAuth(page);
+    await page.goto(distUrl('index4.html'));
+    await expect(page.locator('#affiliate-data')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('#affiliate-unauthenticated')).toBeHidden();
+    const turnover = await page.locator('#stat-turnover').textContent();
+    expect(turnover).toContain('1234.56');
+  });
+
+  test('Affiliate EN: Statistics tab in bottom nav is active', async ({ page }) => {
+    await mockAffiliatePage(page);
+    await page.goto(distUrl('index4.html'));
+    const statsLink = page.locator('.appBottomMenu a[href="index4.html"]');
+    await expect(statsLink).toHaveClass(/active/);
+  });
+
+  test('Screenshot: Affiliate dashboard EN', async ({ page }) => {
+    await mockAffiliatePage(page);
+    await page.goto(distUrl('index4.html'));
+    await page.screenshot({ path: 'tests/screenshots/affiliate-en.png', fullPage: false });
+  });
+
+  test('Screenshot: Affiliate dashboard RU', async ({ page }) => {
+    await mockAffiliatePage(page);
+    await page.goto(distUrl('index4-ru.html'));
+    await page.screenshot({ path: 'tests/screenshots/affiliate-ru.png', fullPage: false });
+  });
+});

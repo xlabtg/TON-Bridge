@@ -5,7 +5,7 @@
     var STORAGE_KEY = 'tc_ton_address';
     var PAYOUT_STORAGE_KEY = 'tbc_ton_address';
     var PAYOUT_RATE_LIMIT_KEY = 'tbc_ton_address_updated_at';
-    var PAYOUT_RATE_LIMIT_MS = 24 * 60 * 60 * 1000;
+    var DAY_MS = 864e5;
     var TONCENTER_BASE = 'https://toncenter.com/api/v2/getAddressInformation?address=';
 
     var _ui = null;              // TonConnectUI instance
@@ -52,18 +52,14 @@
 
     function isPayoutReplaceRateLimited() {
         var ts = parseInt(localStorage.getItem(PAYOUT_RATE_LIMIT_KEY) || '0', 10);
-        return ts > 0 && (Date.now() - ts) < PAYOUT_RATE_LIMIT_MS;
+        return ts > 0 && (Date.now() - ts) < DAY_MS;
     }
 
     function looksLikeExchangeAddress(addr) {
-        var knownCexPrefixes = [
-            'EQBfAN7LfaUYgXZNw5Wc7GBgkEX2yhuJ5ka9X9V7M',
-            'EQCzL4bHKkTfn9e5rW0',
-        ];
-        for (var i = 0; i < knownCexPrefixes.length; i++) {
-            if (addr && addr.startsWith(knownCexPrefixes[i])) return true;
-        }
-        return false;
+        return !!addr && (
+            addr.indexOf('EQBfAN7LfaUYgXZNw5Wc7GBgkEX2yhuJ5ka9X9V7M') === 0 ||
+            addr.indexOf('EQCzL4bHKkTfn9e5rW0') === 0
+        );
     }
 
     function loadAddress(cb) {
@@ -106,9 +102,9 @@
         var tg = window.Telegram && window.Telegram.WebApp;
         if (tg && tg.showConfirm) {
             tg.showConfirm(message, cb);
-            return;
+        } else {
+            cb(confirm(message));
         }
-        cb(window.confirm(message));
     }
 
     function setPayoutAddress(addr, options) {

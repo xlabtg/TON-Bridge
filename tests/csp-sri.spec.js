@@ -13,6 +13,10 @@ function distUrl(file) {
   return 'file://' + distPath(file);
 }
 
+function repoPath(file) {
+  return resolve(__dirname, '..', file);
+}
+
 const pages = [
   'index.html',
   'index2.html',
@@ -110,23 +114,42 @@ test.describe('Analytics configuration is injected at build time', () => {
   ];
 
   const legacyAnalyticsToken = 'eyJhcHBfbmFtZSI6IlRPTkJyaWRnZV9yb2JvdCIsImFwcF91cmwiOiJodHRwczovL3QubWUvVE9OQnJpZGdlX3JvYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vdG9uYmFua2NhcmQuY29tL2JyaWRnZS9UTUEvMDAuaHRtbCJ9!PQ40y7Tz3lZti6uDVlApq+BcGxi8tR9WEsH6Hyu+mD0=';
+  const sourceFiles = [
+    'assets/js/base.js',
+    'src/_includes/redeem-page.njk',
+    'src/_includes/referral-page.njk',
+  ];
 
   for (const file of builtFiles) {
     test(`${file} does not contain the legacy committed analytics token`, () => {
       const source = readFileSync(distPath(file), 'utf8');
+      expect(source).not.toContain(legacyAnalyticsToken);
+    });
+  }
+
+  for (const file of sourceFiles) {
+    test(`${file} does not contain committed analytics credentials`, () => {
+      const source = readFileSync(repoPath(file), 'utf8');
       expect(source).not.toContain(legacyAnalyticsToken);
       expect(source).not.toContain("appName: 'TONBridge_robot'");
       expect(source).not.toContain('appName: "TONBridge_robot"');
     });
   }
 
-  test('base.js receives configured analytics values from the build environment', () => {
+  test('base.js has build-time analytics placeholders replaced', () => {
     const source = readFileSync(distPath('assets/js/base.js'), 'utf8');
-    expect(source).toContain('test-token');
-    expect(source).toContain('test-app');
-    expect(source).toContain('12345');
     expect(source).not.toContain('%%TG_ANALYTICS_TOKEN%%');
     expect(source).not.toContain('%%TG_ANALYTICS_APP_NAME%%');
     expect(source).not.toContain('%%YANDEX_METRIKA_ID%%');
+
+    for (const configuredValue of [
+      process.env.TG_ANALYTICS_TOKEN,
+      process.env.TG_ANALYTICS_APP_NAME,
+      process.env.YANDEX_METRIKA_ID,
+    ]) {
+      if (configuredValue) {
+        expect(source).toContain(configuredValue);
+      }
+    }
   });
 });

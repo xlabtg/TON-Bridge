@@ -56,6 +56,13 @@ assert_true($errors === [], 'valid installer input should pass without a live da
 assert_true($config['base_url'] === 'https://example.com/bridge', 'base URL should be normalized');
 assert_true($config['telegram_bot_username'] === 'ExampleBridgeBot', 'bot username should be preserved');
 
+[$prefixedLinkConfig, $prefixedLinkErrors] = tonbridge_installer_validate([
+    ...valid_installer_input(),
+    'changenow_link_id' => 'link_id=f300d9f2b6f88e',
+], false);
+assert_true($prefixedLinkErrors === [], 'ChangeNOW link_id query parameter form should pass validation');
+assert_true($prefixedLinkConfig['changenow_link_id'] === 'f300d9f2b6f88e', 'ChangeNOW link_id should be normalized to the partner token');
+
 [$badConfig, $badErrors] = tonbridge_installer_validate([
     ...valid_installer_input(),
     'telegram_bot_username' => 'bad bot name',

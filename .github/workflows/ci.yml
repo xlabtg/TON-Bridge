@@ -210,7 +210,7 @@ jobs:
           extensions: mbstring, openssl, pdo_mysql
 
       - name: Run installer tests
-        run: php tests/installer.test.php
+        run: php tests/installer.test.php && php tests/installer-navigation.test.php
 
   html-validate:
     name: HTML Validate

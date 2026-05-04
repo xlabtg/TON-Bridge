@@ -117,8 +117,36 @@ function tonbridge_installer_normalize_input(array $input): array
     $normalized['mysql_port'] = (string) (int) $normalized['mysql_port'];
     $normalized['mysql_create_schema'] = !empty($merged['mysql_create_schema']) ? '1' : '0';
     $normalized['admin_telegram_ids'] = tonbridge_installer_normalize_admin_ids((string) $normalized['admin_telegram_ids']);
+    $normalized['changenow_link_id'] = tonbridge_installer_normalize_changenow_link_id((string) $normalized['changenow_link_id']);
 
     return $normalized;
+}
+
+function tonbridge_installer_normalize_changenow_link_id(string $value): string
+{
+    $value = trim($value);
+    if ($value === '') {
+        return '';
+    }
+
+    $query = null;
+    $parts = parse_url($value);
+    if (is_array($parts) && isset($parts['query'])) {
+        $query = $parts['query'];
+    } elseif (str_starts_with($value, '?')) {
+        $query = ltrim($value, '?');
+    } elseif (str_starts_with($value, 'link_id=')) {
+        $query = $value;
+    }
+
+    if ($query !== null) {
+        parse_str($query, $params);
+        if (isset($params['link_id']) && is_scalar($params['link_id'])) {
+            return trim((string) $params['link_id']);
+        }
+    }
+
+    return $value;
 }
 
 function tonbridge_installer_validate(array $input, bool $testDatabase = true): array

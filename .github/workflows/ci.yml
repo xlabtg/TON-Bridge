@@ -164,6 +164,12 @@ jobs:
 
       - name: Run Playwright tests
         run: npm test
+        env:
+          TG_ANALYTICS_TOKEN: ${{ secrets.TG_ANALYTICS_TOKEN }}
+          TG_ANALYTICS_APP_NAME: ${{ secrets.TG_ANALYTICS_APP_NAME }}
+          YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
+          CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
 
       - name: Upload screenshots
         if: always()

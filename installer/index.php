@@ -32,10 +32,7 @@ if (empty($_SESSION['tonbridge_installer_csrf'])) {
 }
 
 $csrf = $_SESSION['tonbridge_installer_csrf'];
-$data = array_merge(
-    tonbridge_installer_default_input(),
-    $_SESSION['tonbridge_installer_data'] ?? []
-);
+$data = tonbridge_installer_normalize_input($_SESSION['tonbridge_installer_data'] ?? []);
 $requestedStep = $_SERVER['REQUEST_METHOD'] === 'POST'
     ? ($_POST['step'] ?? ($_GET['step'] ?? 1))
     : ($_GET['step'] ?? 1);
@@ -50,10 +47,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit('Invalid installer session token.');
     }
 
+    $submittedStep = $step;
     $posted = $_POST;
     unset($posted['csrf'], $posted['step'], $posted['action'], $posted['language']);
-    $posted['mysql_create_schema'] = isset($_POST['mysql_create_schema']) ? '1' : '0';
-    $data = array_merge($data, $posted);
+    if ($submittedStep === 4 || array_key_exists('mysql_create_schema', $_POST)) {
+        $posted['mysql_create_schema'] = isset($_POST['mysql_create_schema']) ? '1' : '0';
+    }
+    $data = tonbridge_installer_normalize_input(array_merge($data, $posted));
     $_SESSION['tonbridge_installer_data'] = $data;
 
     $action = (string) ($_POST['action'] ?? 'next');

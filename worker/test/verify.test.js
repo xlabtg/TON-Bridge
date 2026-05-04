@@ -18,7 +18,12 @@ if (typeof globalThis.crypto === 'undefined') {
 }
 
 // Dynamically import after the polyfill is in place.
-const { validateInitData } = await import('../src/index.js');
+const {
+  buildReferralShareUrl,
+  generateRefCode,
+  validateInitData,
+  default: worker,
+} = await import('../src/index.js');
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Fixture generator
@@ -123,5 +128,139 @@ describe('validateInitData', () => {
 
     const result = await validateInitData(params.toString(), BOT_TOKEN);
     assert.equal(result.user, null);
+  });
+});
+
+describe('/auth/verify referral issuance', () => {
+  function createMockDb(existingRows = new Map()) {
+    const rows = new Map(existingRows);
+    const inserts = [];
+    const updates = [];
+
+    return {
+      rows,
+      inserts,
+      updates,
+      prepare(sql) {
+        return {
+          bind(...args) {
+            return {
+              async first() {
+                const telegramId = Number(args[0]);
+                return rows.get(telegramId) || null;
+              },
+              async run() {
+                if (/^UPDATE users SET last_seen/i.test(sql)) {
+                  updates.push({ lastSeen: args[0], telegramId: Number(args[1]) });
+                  return { success: true };
+                }
+
+                if (/^INSERT INTO users/i.test(sql)) {
+                  const [telegramId, refCode, createdAt, lastSeen] = args;
+                  for (const row of rows.values()) {
+                    if (row.ref_code === refCode) {
+                      throw new Error('UNIQUE constraint failed: users.ref_code');
+                    }
+                  }
+
+                  const row = {
+                    telegram_id: Number(telegramId),
+                    ref_code: refCode,
+                    referred_by: null,
+                    ton_address: null,
+                    created_at: createdAt,
+                    last_seen: lastSeen,
+                  };
+                  rows.set(Number(telegramId), row);
+                  inserts.push(row);
+                  return { success: true };
+                }
+
+                throw new Error(`unexpected SQL: ${sql}`);
+              },
+            };
+          },
+        };
+      },
+    };
+  }
+
+  async function verifyWithDb(db, initData) {
+    const request = new Request('https://worker.example/auth/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ initData }),
+    });
+
+    return worker.fetch(request, {
+      BOT_TOKEN,
+      JWT_SECRET: 'test-jwt-secret-that-is-long-enough',
+      DB: db,
+    });
+  }
+
+  it('generateRefCode returns 8 chars from the unambiguous alphabet', () => {
+    const alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    for (let i = 0; i < 100; i += 1) {
+      const code = generateRefCode();
+      assert.equal(code.length, 8);
+      assert.match(code, /^[A-Z2-9]+$/);
+      assert.equal([...code].every(ch => alphabet.includes(ch)), true);
+      assert.doesNotMatch(code, /[01OIL]/);
+    }
+  });
+
+  it('creates a users row and returns ref_code plus canonical share URL', async () => {
+    const db = createMockDb();
+    const initData = await buildValidInitData({ user: JSON.stringify({ id: 777, username: 'carol' }) });
+    const response = await verifyWithDb(db, initData);
+
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(db.inserts.length, 1);
+    assert.equal(body.user.ref_code, db.inserts[0].ref_code);
+    assert.equal(body.user.ref_share_url, buildReferralShareUrl(body.user.ref_code));
+    assert.match(body.user.ref_share_url, /^https:\/\/t\.me\/TONBridge_robot\/app\?startapp=ref_[A-Z2-9]{8}$/);
+  });
+
+  it('reuses an existing user ref_code and updates last_seen', async () => {
+    const db = createMockDb(new Map([
+      [888, { telegram_id: 888, ref_code: 'ABCD2345', referred_by: null, ton_address: null }],
+    ]));
+    const initData = await buildValidInitData({ user: JSON.stringify({ id: 888, username: 'dave' }) });
+    const response = await verifyWithDb(db, initData);
+
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.user.ref_code, 'ABCD2345');
+    assert.equal(db.inserts.length, 0);
+    assert.equal(db.updates.length, 1);
+  });
+
+  it('regenerates the ref_code on a DB uniqueness collision', async () => {
+    const db = createMockDb(new Map([
+      [1, { telegram_id: 1, ref_code: 'AAAAAAAA', referred_by: null, ton_address: null }],
+    ]));
+    const originalRandomValues = crypto.getRandomValues.bind(crypto);
+    let call = 0;
+
+    crypto.getRandomValues = (bytes) => {
+      const fill = call === 0 ? 0 : 1;
+      bytes.fill(fill);
+      call += 1;
+      return bytes;
+    };
+
+    try {
+      const initData = await buildValidInitData({ user: JSON.stringify({ id: 999, username: 'erin' }) });
+      const response = await verifyWithDb(db, initData);
+      const body = await response.json();
+
+      assert.equal(response.status, 200);
+      assert.equal(body.user.ref_code, 'BBBBBBBB');
+      assert.equal(call, 2);
+    } finally {
+      crypto.getRandomValues = originalRandomValues;
+    }
   });
 });

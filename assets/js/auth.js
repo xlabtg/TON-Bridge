@@ -102,6 +102,14 @@
     return _user;
   }
 
+  function getReferral() {
+    if (!_user || !_user.ref_code) return null;
+    return {
+      code: _user.ref_code,
+      url: _user.ref_share_url,
+    };
+  }
+
   // Start verification as soon as the script loads.
   verify();
 
@@ -109,5 +117,6 @@
     verify: verify,
     getToken: getToken,
     getUser: getUser,
+    getReferral: getReferral,
   };
 })();

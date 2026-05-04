@@ -18,6 +18,9 @@ const MAX_AUTH_DATE_AGE_S = 24 * 60 * 60; // 24 h
 const TOKEN_TTL_S = 60 * 60;              // 1 h
 const MAX_LAST_SEEN_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 const NOTIFICATION_BATCH_SIZE = 10;
+const REF_CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+const REF_CODE_LENGTH = 8;
+const REF_CODE_MAX_ATTEMPTS = 5;
 
 export const POLLING_STATES = new Set(['confirming', 'exchanging', 'sending']);
 export const TERMINAL_STATES = new Set(['finished', 'failed', 'refunded']);
@@ -156,6 +159,75 @@ export function getNotificationText(state, lang = 'en') {
 
 export function buildDeepLink(orderId) {
   return `https://t.me/TONBridge_robot/app?startapp=order_${orderId}`;
+}
+
+export function buildReferralShareUrl(refCode) {
+  return `https://t.me/TONBridge_robot/app?startapp=ref_${refCode}`;
+}
+
+export function generateRefCode() {
+  const bytes = new Uint8Array(REF_CODE_LENGTH);
+  crypto.getRandomValues(bytes);
+  let code = '';
+  for (const byte of bytes) {
+    code += REF_CODE_ALPHABET[byte % REF_CODE_ALPHABET.length];
+  }
+  return code;
+}
+
+async function getOrCreateUser(db, user, nowS, logger = console) {
+  if (!db || !user || !user.id) return null;
+
+  const telegramId = Number(user.id);
+  const existing = await db
+    .prepare('SELECT telegram_id, ref_code, referred_by, ton_address FROM users WHERE telegram_id = ?')
+    .bind(telegramId)
+    .first();
+
+  if (existing) {
+    await db
+      .prepare('UPDATE users SET last_seen = ? WHERE telegram_id = ?')
+      .bind(nowS, telegramId)
+      .run();
+    return existing;
+  }
+
+  for (let attempt = 1; attempt <= REF_CODE_MAX_ATTEMPTS; attempt += 1) {
+    const refCode = generateRefCode();
+    try {
+      await db
+        .prepare('INSERT INTO users (telegram_id, ref_code, created_at, last_seen) VALUES (?, ?, ?, ?)')
+        .bind(telegramId, refCode, nowS, nowS)
+        .run();
+
+      const created = await db
+        .prepare('SELECT telegram_id, ref_code, referred_by, ton_address FROM users WHERE telegram_id = ?')
+        .bind(telegramId)
+        .first();
+
+      if (created && created.ref_code === refCode) {
+        return created;
+      }
+
+      if (created) {
+        return created;
+      }
+    } catch (err) {
+      const message = err && err.message ? err.message : String(err);
+      const isRefCodeCollision = /unique|constraint|ref_code/i.test(message);
+      if (!isRefCodeCollision || attempt === REF_CODE_MAX_ATTEMPTS) {
+        logger.error('failed to create user referral code', {
+          telegramId,
+          attempt,
+          error: message,
+        });
+        throw err;
+      }
+    }
+  }
+
+  logger.error('failed to create unique referral code after max attempts', { telegramId });
+  throw new Error('ref_code collision limit reached');
 }
 
 export function shouldNotify(previousState, currentState, alreadyNotified) {
@@ -328,10 +400,18 @@ export default {
       const expiresAt = nowS + TOKEN_TTL_S;
 
       const { id, username, language_code } = parsed.user || {};
+      let dbUser = null;
+      try {
+        dbUser = await getOrCreateUser(env.DB, parsed.user, nowS);
+      } catch {
+        return new Response(null, { status: 500, headers: cors });
+      }
+
       const payload = {
         sub: String(id || ''),
         username: username || '',
         language_code: language_code || '',
+        ref_code: dbUser ? dbUser.ref_code : '',
         iat: nowS,
         exp: expiresAt,
       };
@@ -353,7 +433,13 @@ export default {
       const responseBody = JSON.stringify({
         token,
         expiresAt,
-        user: { id, username, language_code },
+        user: {
+          id,
+          username,
+          language_code,
+          ref_code: dbUser ? dbUser.ref_code : null,
+          ref_share_url: dbUser ? buildReferralShareUrl(dbUser.ref_code) : null,
+        },
       });
 
       return new Response(responseBody, {

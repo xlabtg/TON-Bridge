@@ -22,6 +22,11 @@
 
 <body>
     <div id="offline-indicator">You are offline</div>
+    <script src="https://telegram.org/js/telegram-web-app.js" integrity="sha384-1XuC9S4cgk6RH1oCsL2diDRwLiiivu/oZHNfxYUitEFuiKpP5ceNbzu220KKrcK+" crossorigin="anonymous"></script>
+    <script>
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+    </script>
 
     <!-- loader -->
     <div id="loader" aria-hidden="true">
@@ -130,6 +135,9 @@
     <ul class="listview image-listview text inset no-line" id="address-book-manage-list">
         <li><div class="item"><div class="in" data-i18n="ab_empty">{{ locales.en.ab_empty }}</div></div></li>
     </ul>
+
+    <div class="listview-title mt-1" data-i18n="referral_section_title">{{ locales.en.referral_section_title }}</div>
+    <div id="referral-section"></div>
 
     <div class="listview-title mt-1" data-i18n="settings_security_section">{{ locales.en.settings_security_section }}</div>
     <ul class="listview image-listview text inset no-line" id="biometric-section">
@@ -417,6 +425,9 @@
     <script src="assets/js/i18n.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Auth + Referral -->
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/referral.js"></script>
     <!-- Sentry error reporting -->
     <script src="assets/js/sentry.js"></script>
     <!-- Wallet Connect -->
@@ -461,6 +472,25 @@
         document.getElementById('leaderboardOptinSwitch').addEventListener('change', function () {
             haptic.selection();
         });
+    </script>
+    <script>
+        function applyReferralI18n(t) {
+            window.__referralI18n = {
+                code_label: t.referral_code_label || '{{ locales.en.referral_code_label }}',
+                url_label: t.referral_url_label || '{{ locales.en.referral_url_label }}',
+                share_btn: t.referral_share_btn || '{{ locales.en.referral_share_btn }}',
+                copy_btn: t.referral_copy_btn || '{{ locales.en.referral_copy_btn }}',
+                copied: t.referral_copied || '{{ locales.en.referral_copied }}',
+                share_text: t.referral_share_text || '{{ locales.en.referral_share_text }}'
+            };
+        }
+
+        applyReferralI18n(window.__i18nData.en);
+        document.addEventListener('i18n:applied', function(e) {
+            applyReferralI18n(e.detail.t || window.__i18nData.en);
+            ReferralModule.init();
+        });
+        ReferralModule.init();
     </script>
     <script>
         var i18nWallet = {

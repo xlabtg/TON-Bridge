@@ -3,23 +3,25 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>{% if stepsType == 'bridge' %}{{ t.title_intro_bridge_steps }}{% else %}{{ t.title_intro_exchange_steps }}{% endif %}</title>
+    <title data-i18n="{% if stepsType == 'bridge' %}title_intro_bridge_steps{% else %}title_intro_exchange_steps{% endif %}">{% if stepsType == 'bridge' %}{{ locales.en.title_intro_bridge_steps }}{% else %}{{ locales.en.title_intro_exchange_steps }}{% endif %}</title>
     <meta name="description" content="TON Bridge HTML Mobile Template">
     <meta name="keywords" content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
-    <link rel="stylesheet" href="assets/css/style.css">
+    {% include "performance-head.njk" %}
     <link rel="manifest" href="__manifest.json">
-    <meta http-equiv="Content-Security-Policy-Report-Only" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://unpkg.com https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.telegram.org https://tganalytics.xyz; report-uri /csp-report">
+    <meta http-equiv="Content-Security-Policy-Report-Only" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://changenow.io; connect-src 'self' https://*.changenow.io https://api.telegram.org https://tganalytics.xyz; report-uri /csp-report">
 </head>
 
 <body>
+    <div id="offline-indicator">You are offline</div>
     <div id="viewport"></div>
 <script src="https://telegram.org/js/telegram-web-app.js" integrity="sha384-1XuC9S4cgk6RH1oCsL2diDRwLiiivu/oZHNfxYUitEFuiKpP5ceNbzu220KKrcK+" crossorigin="anonymous"></script>
+    <script src="assets/js/auth.js"></script>
     <script>
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
@@ -30,25 +32,9 @@
 
         Telegram.WebApp.setHeaderColor('secondary_bg_color');
     </script>
-	<script
-    async
-    src="https://tganalytics.xyz/index.js"
-    integrity="sha384-njlroka3F7BclV9FXjiHDU9ZSrhSwNVRewye4d5rpWXYvery9PUnnhuAZAHfLyJ+"
-    crossorigin="anonymous"
-    onload="initAnalytics()"
-    type="text/javascript"
-></script>
-<script>
-    function initAnalytics() {
-      window.telegramAnalytics.init({
-        token: 'eyJhcHBfbmFtZSI6IlRPTkJyaWRnZV9yb2JvdCIsImFwcF91cmwiOiJodHRwczovL3QubWUvVE9OQnJpZGdlX3JvYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vdG9uYmFua2NhcmQuY29tL2JyaWRnZS9UTUEvMDAuaHRtbCJ9!PQ40y7Tz3lZti6uDVlApq+BcGxi8tR9WEsH6Hyu+mD0=', // SDK Auth token received via @DataChief_bot
-        appName: 'TONBridge_robot', // The analytics identifier you entered in @DataChief_bot
-      });
-    }
-</script>
     <!-- loader -->
     <div id="loader">
-        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+        <img src="assets/img/loading-icon.webp" alt="icon" class="loading-icon">
     </div>
     <!-- * loader -->
 
@@ -69,16 +55,16 @@
             <div class="container">
                 <!-- Welcome message -->
                 <div class="section-head text-center">
-                    <h2 class="title title-lg">{% if stepsType == 'bridge' %}{{ t.intro_bridge_steps_title }}{% else %}{{ t.intro_exchange_steps_title }}{% endif %}</h2>
-                    <p>{% if stepsType == 'bridge' %}{{ t.intro_bridge_steps_subtitle }}{% else %}{{ t.intro_exchange_steps_subtitle }}{% endif %}</p>
+                    <h2 class="title title-lg" data-i18n="{% if stepsType == 'bridge' %}intro_bridge_steps_title{% else %}intro_exchange_steps_title{% endif %}">{% if stepsType == 'bridge' %}{{ locales.en.intro_bridge_steps_title }}{% else %}{{ locales.en.intro_exchange_steps_title }}{% endif %}</h2>
+                    <p data-i18n="{% if stepsType == 'bridge' %}intro_bridge_steps_subtitle{% else %}intro_exchange_steps_subtitle{% endif %}">{% if stepsType == 'bridge' %}{{ locales.en.intro_bridge_steps_subtitle }}{% else %}{{ locales.en.intro_exchange_steps_subtitle }}{% endif %}</p>
                 </div>
 
                 <!-- 3 steps -->
                 <div id="how_it_works" class="section-head">
-                    <h2 class="title title-lg animated" data-animate="fadeInUp" data-delay=".6">{% if stepsType == 'bridge' %}{{ t.intro_bridge_steps_heading }}{% else %}{{ t.intro_exchange_steps_heading }}{% endif %}</h2>
+                    <h2 class="title title-lg animated" data-animate="fadeInUp" data-delay=".6" data-i18n="{% if stepsType == 'bridge' %}intro_bridge_steps_heading{% else %}intro_exchange_steps_heading{% endif %}">{% if stepsType == 'bridge' %}{{ locales.en.intro_bridge_steps_heading }}{% else %}{{ locales.en.intro_exchange_steps_heading }}{% endif %}</h2>
                 </div>
                 <div class="nk-block nk-block-features mgb-m30">
-                    <p>{% if stepsType == 'bridge' %}{{ t.intro_bridge_steps_lead | safe }}{% else %}{{ t.intro_exchange_steps_lead | safe }}{% endif %}</p>
+                    <p data-i18n="{% if stepsType == 'bridge' %}intro_bridge_steps_lead{% else %}intro_exchange_steps_lead{% endif %}">{% if stepsType == 'bridge' %}{{ locales.en.intro_bridge_steps_lead }}{% else %}{{ locales.en.intro_exchange_steps_lead }}{% endif %}</p>
                     <div class="row">
                         <div class="col-lg-4">
                             <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
@@ -86,8 +72,8 @@
                                     <center><ion-icon name="wallet-outline" style="font-size: 100px;"></ion-icon></center>
                                 </div>
                                 <div class="feature-text">
-                                    <h3 class="title title-lg">{% if stepsType == 'bridge' %}{{ t.intro_bridge_steps_s1_title }}{% else %}{{ t.intro_exchange_steps_s1_title }}{% endif %}</h3>
-                                    <p>{% if stepsType == 'bridge' %}{{ t.intro_bridge_steps_s1_desc | safe }}{% else %}{{ t.intro_exchange_steps_s1_desc | safe }}{% endif %}</p>
+                                    <h3 class="title title-lg" data-i18n="{% if stepsType == 'bridge' %}intro_bridge_steps_s1_title{% else %}intro_exchange_steps_s1_title{% endif %}">{% if stepsType == 'bridge' %}{{ locales.en.intro_bridge_steps_s1_title }}{% else %}{{ locales.en.intro_exchange_steps_s1_title }}{% endif %}</h3>
+                                    <p data-i18n="{% if stepsType == 'bridge' %}intro_bridge_steps_s1_desc{% else %}intro_exchange_steps_s1_desc{% endif %}">{% if stepsType == 'bridge' %}{{ locales.en.intro_bridge_steps_s1_desc }}{% else %}{{ locales.en.intro_exchange_steps_s1_desc }}{% endif %}</p>
                                 </div>
                             </div>
                         </div>
@@ -97,8 +83,8 @@
             {% if stepsType == 'bridge' %}<center><img src="https://tonbankcard.com/bridge/TMA2/assets/img/ton-logo.png" alt="TON Logo" style="font-size: 100px; height: 100px;"></center></br>{% else %}<center><ion-icon name="code-download" style="font-size: 100px;"></ion-icon></center>{% endif %}
         </div>
         <div class="feature-text">
-            <h3 class="title title-lg">{% if stepsType == 'bridge' %}{{ t.intro_bridge_steps_s2_title }}{% else %}{{ t.intro_exchange_steps_s2_title }}{% endif %}</h3>
-            <p>{% if stepsType == 'bridge' %}{{ t.intro_bridge_steps_s2_desc }}{% else %}{{ t.intro_exchange_steps_s2_desc }}{% endif %}</p>
+            <h3 class="title title-lg" data-i18n="{% if stepsType == 'bridge' %}intro_bridge_steps_s2_title{% else %}intro_exchange_steps_s2_title{% endif %}">{% if stepsType == 'bridge' %}{{ locales.en.intro_bridge_steps_s2_title }}{% else %}{{ locales.en.intro_exchange_steps_s2_title }}{% endif %}</h3>
+            <p data-i18n="{% if stepsType == 'bridge' %}intro_bridge_steps_s2_desc{% else %}intro_exchange_steps_s2_desc{% endif %}">{% if stepsType == 'bridge' %}{{ locales.en.intro_bridge_steps_s2_desc }}{% else %}{{ locales.en.intro_exchange_steps_s2_desc }}{% endif %}</p>
         </div>
     </div>
 </div>
@@ -108,8 +94,8 @@
                                     <center><ion-icon name="checkmark-done-outline" style="font-size: 100px;"></ion-icon></center>
                                 </div>
                                 <div class="feature-text">
-                                    <h3 class="title title-lg">{% if stepsType == 'bridge' %}{{ t.intro_bridge_steps_s3_title }}{% else %}{{ t.intro_exchange_steps_s3_title }}{% endif %}</h3>
-                                    <p>{% if stepsType == 'bridge' %}{{ t.intro_bridge_steps_s3_desc }}{% else %}{{ t.intro_exchange_steps_s3_desc | safe }}{% endif %}</p>
+                                    <h3 class="title title-lg" data-i18n="{% if stepsType == 'bridge' %}intro_bridge_steps_s3_title{% else %}intro_exchange_steps_s3_title{% endif %}">{% if stepsType == 'bridge' %}{{ locales.en.intro_bridge_steps_s3_title }}{% else %}{{ locales.en.intro_exchange_steps_s3_title }}{% endif %}</h3>
+                                    <p data-i18n="{% if stepsType == 'bridge' %}intro_bridge_steps_s3_desc{% else %}intro_exchange_steps_s3_desc{% endif %}">{% if stepsType == 'bridge' %}{{ locales.en.intro_bridge_steps_s3_desc }}{% else %}{{ locales.en.intro_exchange_steps_s3_desc }}{% endif %}</p>
                                 </div>
                             </div>
                         </div>
@@ -117,7 +103,7 @@
                 </div>
                 <!-- "START" button -->
                 <div class="text-center mt-4">
-                    <a href="{% if stepsType == 'bridge' %}{{ t.intro_bridge_steps_target }}{% else %}{{ t.intro_exchange_steps_target }}{% endif %}" class="btn btn-primary btn-lg">{% if stepsType == 'bridge' %}{{ t.intro_bridge_steps_btn }}{% else %}{{ t.intro_exchange_steps_btn }}{% endif %}</a>
+                    <a href="{% if stepsType == 'bridge' %}index.html{% else %}index2.html{% endif %}" class="btn btn-primary btn-lg" data-i18n="{% if stepsType == 'bridge' %}intro_bridge_steps_btn{% else %}intro_exchange_steps_btn{% endif %}">{% if stepsType == 'bridge' %}{{ locales.en.intro_bridge_steps_btn }}{% else %}{{ locales.en.intro_exchange_steps_btn }}{% endif %}</a>
                 </div>
             </div>
         </section>
@@ -125,31 +111,24 @@
 
     <!-- Bootstrap -->
     <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
-    <!-- Ionicons -->
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js" integrity="sha384-xYx1P7dxspoifaKXuLoaPybset7M4RzoZPDVwB+CrVVobxN3h90OQGVoHYHtCr9G" crossorigin="anonymous"></script>
+    <!-- Ionicons (self-hosted sprite) -->
+    <script src="assets/js/ion-icon.js" defer></script>
+    <!-- i18n inline data + loader -->
+    <script src="assets/js/prefs.js"></script>
+    {% i18nDataScript %}
+    <script src="assets/js/i18n.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- UTM attribution from directory listings -->
+    <script src="assets/js/utm.js"></script>
+    <!-- Offline Indicator -->
+    <script src="assets/js/offline.js"></script>
     <!-- Telegram BackButton -->
     <script src="assets/js/back-button.js"></script>
-    <script>wireBackButton();</script>
-
-<!-- Yandex.Metrika counter -->
-<script type="text/javascript" >
-   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-   m[i].l=1*new Date();
-   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-
-   ym(98019798, "init", {
-        clickmap:true,
-        trackLinks:true,
-        accurateTrackBounce:true,
-        webvisor:true
-   });
-</script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
+    <script>
+        wireBackButton();
+        i18n.init();
+    </script>
 
 </body>
 

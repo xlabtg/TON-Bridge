@@ -15,19 +15,20 @@ function distUrl(file) {
 
 const pages = [
   'index.html',
-  'index-ru.html',
   'index2.html',
-  'index2-ru.html',
   'index3.html',
-  'index3-ru.html',
+  'index4.html',
+  'index4-ru.html',
   '0.html',
-  '0-ru.html',
   '1.html',
-  '1-ru.html',
   '2.html',
-  '2-ru.html',
+  'orders.html',
+  'orders-ru.html',
+  'privacy.html',
+  'privacy-ru.html',
+  'referral.html',
+  'referral-ru.html',
   'app-settings.html',
-  'app-settings-ru.html',
 ];
 
 test.describe('CSP meta tag', () => {
@@ -43,15 +44,23 @@ test.describe('CSP meta tag', () => {
 test.describe('SRI hashes on external scripts', () => {
   const TELEGRAM_SRI = 'sha384-1XuC9S4cgk6RH1oCsL2diDRwLiiivu/oZHNfxYUitEFuiKpP5ceNbzu220KKrcK+';
   const TGANALYTICS_SRI = 'sha384-njlroka3F7BclV9FXjiHDU9ZSrhSwNVRewye4d5rpWXYvery9PUnnhuAZAHfLyJ+';
-  const IONICONS_SRI = 'sha384-xYx1P7dxspoifaKXuLoaPybset7M4RzoZPDVwB+CrVVobxN3h90OQGVoHYHtCr9G';
 
   const pagesWithTelegram = [
-    'index.html', 'index-ru.html',
-    'index2.html', 'index2-ru.html',
-    'index3.html', 'index3-ru.html',
-    '0.html', '0-ru.html',
-    '1.html', '1-ru.html',
-    '2.html', '2-ru.html',
+    'index.html',
+    'index2.html',
+    'index3.html',
+    'index4.html',
+    'index4-ru.html',
+    '0.html',
+    '1.html',
+    '2.html',
+    'orders.html',
+    'orders-ru.html',
+  ];
+
+  const pagesWithTgAnalytics = [
+    'referral.html',
+    'referral-ru.html',
   ];
 
   for (const file of pagesWithTelegram) {
@@ -60,17 +69,21 @@ test.describe('SRI hashes on external scripts', () => {
       expect(html).toContain(TELEGRAM_SRI);
       expect(html).toContain('crossorigin="anonymous"');
     });
+  }
 
+  for (const file of pagesWithTgAnalytics) {
     test(`${file} has SRI on tganalytics.xyz/index.js`, () => {
       const html = readFileSync(distPath(file), 'utf8');
       expect(html).toContain(TGANALYTICS_SRI);
+      expect(html).toContain('crossorigin="anonymous"');
     });
   }
 
   for (const file of pages) {
-    test(`${file} has SRI on ionicons.js`, () => {
+    test(`${file} uses self-hosted ionicons`, () => {
       const html = readFileSync(distPath(file), 'utf8');
-      expect(html).toContain(IONICONS_SRI);
+      expect(html).toContain('src="assets/js/ion-icon.js"');
+      expect(html).not.toContain('https://unpkg.com/ionicons');
     });
   }
 });

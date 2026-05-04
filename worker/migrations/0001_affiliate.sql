@@ -42,7 +42,7 @@ CREATE TABLE redemptions (
   user_id       INTEGER NOT NULL REFERENCES users(telegram_id),
   points_spent  INTEGER NOT NULL,
   tbc_amount    INTEGER NOT NULL,             -- 1 TBC = 10 points
-  status        TEXT NOT NULL,                -- requested|paid|failed
+  status        TEXT NOT NULL,                -- requested|paid|failed|queued
   on_chain_tx   TEXT,
   created_at    INTEGER NOT NULL,
   settled_at    INTEGER

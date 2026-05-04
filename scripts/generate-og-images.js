@@ -69,6 +69,12 @@ const pageSpecs = [
     "en"
   ],
   [
+    "redeem.png",
+    "title_redeem",
+    "Convert TBC points into token payouts",
+    "en"
+  ],
+  [
     "orders.png",
     "title_orders",
     "Track exchange order statuses",
@@ -114,6 +120,12 @@ const pageSpecs = [
     "privacy-ru.png",
     "privacy_title",
     "Данные, согласия, аналитика и приватность",
+    "ru"
+  ],
+  [
+    "redeem-ru.png",
+    "title_redeem",
+    "Обменивайте баллы TBC на выплаты токенами",
     "ru"
   ]
 ];

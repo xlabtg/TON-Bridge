@@ -49,5 +49,6 @@ namespace_id = "1401"
 #   wrangler secret put CHANGENOW_API_KEY
 #   wrangler secret put LEADERBOARD_CHANNEL_ID
 #   wrangler secret put ADMIN_SECRET
+#   wrangler secret put TONBANKCARD_API_KEY
 CASHBACK_BPS = "10"
 REFERRAL_BPS = "10"

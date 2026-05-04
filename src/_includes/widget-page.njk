@@ -18,6 +18,7 @@
     {% set includeRateTickerCss = activePage == 'bridge' %}
     {% include "performance-head.njk" %}
     <link rel="manifest" href="__manifest.json">
+    <meta http-equiv="Content-Security-Policy-Report-Only" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://changenow.io; connect-src 'self' https://*.changenow.io https://api.telegram.org https://tganalytics.xyz; report-uri /csp-report">
     <style>
         .social-proof-pill {
             display: inline-flex;
@@ -62,7 +63,7 @@
 <body>
     <div id="offline-indicator">You are offline</div>
     <div id="viewport"></div>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js" integrity="sha384-1XuC9S4cgk6RH1oCsL2diDRwLiiivu/oZHNfxYUitEFuiKpP5ceNbzu220KKrcK+" crossorigin="anonymous"></script>
     <script src="assets/js/auth.js"></script>
     <script>
         Telegram.WebApp.ready();

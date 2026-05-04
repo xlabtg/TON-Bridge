@@ -8,6 +8,7 @@ import { validateInitData } from './validateInitData.js';
 const MIN_REDEEM_POINTS = 100;
 const POINTS_PER_TBC    = 10;
 const MAX_PER_DAY       = 5;
+const SECONDS_PER_DAY   = 24 * 60 * 60;
 
 export async function handleRedeem(request, env) {
     // Parse body
@@ -67,10 +68,11 @@ export async function handleRedeem(request, env) {
     if (inflight && Number(inflight.c) > 0) return jsonError('in_flight', 429);
 
     // --- Rate limit: 5 per day ---
-    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const nowS = Math.floor(Date.now() / 1000);
+    const dayStartS = nowS - (nowS % SECONDS_PER_DAY);
     const daily = await db.prepare(
-        "SELECT COUNT(*) AS c FROM redemptions WHERE user_id=? AND date(created_at)=?"
-    ).bind(telegram_id, today).first();
+        'SELECT COUNT(*) AS c FROM redemptions WHERE user_id=? AND created_at >= ?'
+    ).bind(telegram_id, dayStartS).first();
     if (daily && Number(daily.c) >= MAX_PER_DAY) return jsonError('rate_limit', 429);
 
     // --- Check ton_address ---
@@ -85,11 +87,11 @@ export async function handleRedeem(request, env) {
     // --- Atomic insert: redemptions row + negative ledger entry ---
     const insertResult = await db.batch([
         db.prepare(
-            "INSERT INTO redemptions (user_id, points_spent, tbc_amount, status) VALUES (?,?,?,?)"
-        ).bind(telegram_id, pts, tbc_amount, initialStatus),
+            "INSERT INTO redemptions (user_id, points_spent, tbc_amount, status, created_at) VALUES (?,?,?,?,?)"
+        ).bind(telegram_id, pts, tbc_amount, initialStatus, nowS),
         db.prepare(
-            "INSERT INTO point_ledger (user_id, role, delta_points, memo) VALUES (?,?,?,?)"
-        ).bind(telegram_id, 'redemption', -pts, `redeem:${tbc_amount}tbc`)
+            "INSERT INTO point_ledger (user_id, role, delta_points, memo, created_at) VALUES (?,?,?,?,?)"
+        ).bind(telegram_id, 'redemption', -pts, `redeem:${tbc_amount}tbc`, nowS)
     ]);
 
     // Get the new redemption id from the first statement's result
@@ -109,19 +111,19 @@ export async function handleRedeem(request, env) {
         }, env);
 
         await db.prepare(
-            "UPDATE redemptions SET status='paid', settled_at=datetime('now') WHERE id=?"
-        ).bind(redemptionId).run();
+            "UPDATE redemptions SET status='paid', settled_at=? WHERE id=?"
+        ).bind(Math.floor(Date.now() / 1000), redemptionId).run();
 
         return jsonResponse({ ok: true, queued: false, tbc_amount, redemption_id: redemptionId }, 200);
     } catch (err) {
         // Roll back: flip status to failed + insert compensating positive-delta ledger row
         await db.batch([
             db.prepare(
-                "UPDATE redemptions SET status='failed', settled_at=datetime('now') WHERE id=?"
-            ).bind(redemptionId),
+                "UPDATE redemptions SET status='failed', settled_at=? WHERE id=?"
+            ).bind(Math.floor(Date.now() / 1000), redemptionId),
             db.prepare(
-                "INSERT INTO point_ledger (user_id, role, delta_points, memo) VALUES (?,?,?,?)"
-            ).bind(telegram_id, 'admin_grant', pts, `refund:redemption#${redemptionId}`)
+                "INSERT INTO point_ledger (user_id, role, delta_points, memo, created_at) VALUES (?,?,?,?,?)"
+            ).bind(telegram_id, 'admin_grant', pts, `refund:redemption#${redemptionId}`, Math.floor(Date.now() / 1000))
         ]);
 
         console.error('TONBANKCARD payout failed:', err.message);

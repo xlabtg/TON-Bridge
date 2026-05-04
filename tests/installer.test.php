@@ -110,4 +110,17 @@ rmdir($tmpRoot . '/assets');
 array_map('unlink', glob($tmpRoot . '/*.html'));
 rmdir($tmpRoot);
 
+$_SERVER['REQUEST_METHOD'] = 'GET';
+$_GET = ['step' => '2', 'language' => 'ru'];
+$_POST = [];
+$_SESSION = [];
+ob_start();
+require __DIR__ . '/../installer/index.php';
+$russianInstaller = ob_get_clean();
+assert_contains('<html lang="ru">', $russianInstaller, 'installer should render Russian language attribute');
+assert_contains('Приложение и Telegram', $russianInstaller, 'installer should translate the application step title');
+assert_contains('Не добавляйте /installer.', $russianInstaller, 'installer should document how to fill the public app URL');
+assert_contains('English', $russianInstaller, 'language selector should include English option text');
+assert_contains('Русский', $russianInstaller, 'language selector should include Russian option text');
+
 echo "Installer tests passed.\n";

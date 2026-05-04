@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="{{ t.lang_attr }}">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>{{ t.title_orders }}</title>
+    <meta name="description" content="TON Bridge HTML Mobile Template">
+    <meta name="keywords"
+        content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
+    <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
+    {% include "performance-head.njk" %}
+    <link rel="stylesheet" href="assets/css/orders.css">
+    <link rel="manifest" href="__manifest.json">
+    <meta http-equiv="Content-Security-Policy-Report-Only" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://cdn.jsdelivr.net https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://changenow.io; connect-src 'self' https://*.changenow.io https://api.telegram.org https://tganalytics.xyz; report-uri /csp-report">
+</head>
+
+<body>
+    <div id="offline-indicator">You are offline</div>
+    <div id="viewport"></div>
+    <script src="https://telegram.org/js/telegram-web-app.js" integrity="sha384-1XuC9S4cgk6RH1oCsL2diDRwLiiivu/oZHNfxYUitEFuiKpP5ceNbzu220KKrcK+" crossorigin="anonymous"></script>
+    <script>
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+
+        Telegram.WebApp.onEvent('themeChanged', function() {
+            document.documentElement.className = Telegram.WebApp.colorScheme;
+        });
+
+        Telegram.WebApp.setHeaderColor('secondary_bg_color');
+
+        // Pass i18n strings to orders.js
+        window._i18n = {
+            status_new:        '{{ t.status_new }}',
+            status_waiting:    '{{ t.status_waiting }}',
+            status_confirming: '{{ t.status_confirming }}',
+            status_exchanging: '{{ t.status_exchanging }}',
+            status_sending:    '{{ t.status_sending }}',
+            status_finished:   '{{ t.status_finished }}',
+            status_failed:     '{{ t.status_failed }}',
+            status_refunded:   '{{ t.status_refunded }}',
+            orders_empty:      '{{ t.orders_empty }}',
+            orders_empty_cta:  '{{ t.orders_empty_cta }}',
+            orders_bridge_href:'index{{ t.suffix }}.html'
+        };
+    </script>
+    <!-- loader -->
+    <div id="loader">
+        <img src="assets/img/loading-icon.webp" alt="icon" class="loading-icon">
+    </div>
+    <!-- * loader -->
+
+    <!-- App Header -->
+    <div class="appHeader">
+        <div class="left">
+        </div>
+        <div class="pageTitle">
+            {{ t.orders_page_title }}
+        </div>
+    </div>
+    <!-- * App Header -->
+
+    <!-- App Capsule -->
+    <div id="appCapsule">
+
+        <!-- Loading spinner -->
+        <div id="orders-loading" class="orders-loading" style="display:flex;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">{{ t.orders_loading }}</span>
+            </div>
+        </div>
+
+        <!-- Empty state -->
+        <div id="orders-empty" class="orders-empty-state" style="display:none;">
+            <ion-icon name="receipt-outline" class="orders-empty-icon"></ion-icon>
+            <p>{{ t.orders_empty }}</p>
+            <a href="index{{ t.suffix }}.html" class="btn btn-primary">{{ t.orders_empty_cta }}</a>
+        </div>
+
+        <!-- Orders list -->
+        <ul id="orders-list" class="orders-list listview flush transparent no-line image-listview"></ul>
+
+        <!-- Load more button (fallback for non-scroll environments) -->
+        <div id="orders-load-more" class="orders-load-more" style="display:none;">
+            <button class="btn btn-outline-primary btn-sm">{{ t.orders_load_more }}</button>
+        </div>
+
+    </div>
+    <!-- * App Capsule -->
+
+    <!-- App Bottom Menu -->
+    <div class="appBottomMenu">
+        <a href="index{{ t.suffix }}.html" class="item">
+            <div class="col">
+                <ion-icon name="sync"></ion-icon>
+                <strong>{{ t.nav_bridge }}</strong>
+            </div>
+        </a>
+        <a href="index2{{ t.suffix }}.html" class="item">
+            <div class="col">
+                <ion-icon name="swap-horizontal-outline"></ion-icon>
+                <strong>{{ t.nav_exchange }}</strong>
+            </div>
+        </a>
+        <a href="index3{{ t.suffix }}.html" class="item">
+            <div class="col">
+                <ion-icon name="cash-outline"></ion-icon>
+                <strong>{{ t.nav_otc }}</strong>
+            </div>
+        </a>
+        <a href="orders{{ t.suffix }}.html" class="item active">
+            <div class="col">
+                <ion-icon name="receipt-outline"></ion-icon>
+                <strong>{{ t.nav_orders }}</strong>
+            </div>
+        </a>
+        <a href="app-settings{{ t.suffix }}.html" class="item">
+            <div class="col">
+                <ion-icon name="settings-outline"></ion-icon>
+                <strong>{{ t.nav_settings }}</strong>
+            </div>
+        </a>
+    </div>
+    <!-- * App Bottom Menu -->
+
+    <!-- ========= JS Files =========  -->
+    <!-- Bootstrap -->
+    <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
+    <!-- Ionicons (self-hosted sprite) -->
+    <script src="assets/js/ion-icon.js" defer></script>
+    <!-- Splide -->
+    <script src="assets/js/plugins/splide/splide.min.js"></script>
+    <!-- Base Js File -->
+    <script src="assets/js/base.js"></script>
+    <!-- Offline Indicator -->
+    <script src="assets/js/offline.js"></script>
+    <!-- Telegram BackButton -->
+    <script src="assets/js/back-button.js"></script>
+    <!-- Orders logic -->
+    <script src="assets/js/orders.js"></script>
+</body>
+
+</html>

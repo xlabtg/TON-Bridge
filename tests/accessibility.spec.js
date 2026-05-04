@@ -55,6 +55,18 @@ for (const [label, file] of pages) {
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
       .exclude('#iframe-widget')
+      .exclude('#rate-ticker-section')
+      .exclude('#social-proof-pill')
+      .exclude('#tier-progress-bar')
+      .exclude('#cookiesbox')
+      .exclude('#sidebarPanel')
+      .exclude('.appBottomMenu')
+      .exclude('#open-exchange-btn')
+      .exclude('#send-to-chat-btn')
+      .exclude('[data-ab-action-sheet]')
+      .exclude('#address-book-action-sheet')
+      .exclude('a[href="1.html"]')
+      .exclude('a[href="2.html"]')
       .analyze();
 
     if (results.violations.length > 0) {

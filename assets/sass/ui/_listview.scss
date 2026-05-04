@@ -15,7 +15,7 @@
   line-height: 1.3em;
   .text-muted {
     font-size: $fontSizeSub;
-    color: $colorLight !important;
+    color: $colorText !important;
   }
   .text-small{
     font-size: $fontSizeSub;
@@ -23,7 +23,7 @@
   }
   .text-xsmall{
     font-size: $fontSizeCaption;
-    color: $colorLight;
+    color: $colorText;
   }
   > li {
     padding: 11px 16px;

@@ -228,7 +228,7 @@ function checkConcentrationFlag(inviterId, referralTurnoverLast30d) {
       concentration: concentration,
       threshold: threshold,
       totalTurnoverUsd: totalTurnover,
-      topRefereeeTurnoverUsd: topVolume,
+      topRefereeTurnoverUsd: topVolume,
       windowDays: ANTI_FRAUD_CONFIG.concentration_window_days,
     });
   }

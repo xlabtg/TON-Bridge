@@ -12,8 +12,11 @@
   justify-content: center;
   border-top: 1px solid $colorLine;
   padding-left: 4px;
-  padding-right: 4px;
-  padding-bottom: env(safe-area-inset-bottom);
+    padding-right: 4px;
+    padding-bottom: env(safe-area-inset-bottom);
+    > [role="tablist"] {
+        display: contents;
+    }
   &.no-border{
     border: 0 !important;
     box-shadow: 0 !important;

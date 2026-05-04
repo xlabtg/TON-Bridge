@@ -101,7 +101,7 @@ Tasks are ordered so each builds on the previous one. Estimates are rough develo
 - [ ] **4.5 Achievement / level system** ([#33](https://github.com/xlabtg/TON-Bridge/issues/33)) — persisted in `CloudStorage` (Bronze: 1 trade, Silver: 10, Gold: 100). Unlock cosmetic themes; users want to share level-ups via 4.2. *(1 d)*
 - [ ] **4.6 Group-chat sharing flow** ([#34](https://github.com/xlabtg/TON-Bridge/issues/34)) — add a "Send to chat" button using `Telegram.WebApp.switchInlineQuery` so a user can paste a quote into any chat as an inline result. *(1 d)*
 - [ ] **4.7 Leaderboard channel** ([#35](https://github.com/xlabtg/TON-Bridge/issues/35)) — daily auto-post of top bridges to a public channel; the channel post links back to `/app?startapp=…`. *(0.5 d)*
-- [ ] **4.8 Add directory listings** ([#36](https://github.com/xlabtg/TON-Bridge/issues/36)) — TON App, ton.app, tonapps.com, dappradar — each with a unique UTM so we can attribute. *(0.5 d)*
+- [x] **4.8 Add directory listings** ([#36](https://github.com/xlabtg/TON-Bridge/issues/36)) — TON App, ton.app, tonapps.com, dappradar — each with a unique UTM so we can attribute. *(0.5 d)*
 
 ### Phase 5 — Trust, security, accessibility, polish
 

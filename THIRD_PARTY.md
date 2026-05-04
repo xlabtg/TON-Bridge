@@ -1,11 +1,92 @@
-# Third-Party Integrations & Heuristics
+# Third-Party Attributions
 
-This document explains third-party integrations and any heuristics or
-workarounds that rely on undocumented or indirect platform behaviour.
+This project builds on several third-party libraries, templates, integrations,
+and platform heuristics. Their licenses, terms, and relevant implementation
+notes are listed below.
 
 ---
 
-## Telegram account-age heuristic (Phase 6, guardrail d)
+## Finapp — Wallet & Banking HTML Mobile Template
+
+- **Author:** Bragher
+- **Source:** https://themeforest.net/item/finapp-wallet-banking-html-mobile-template/25738217
+- **Version used:** 2.2.1
+- **License:** ThemeForest Regular / Extended License (Envato Market License)
+
+The Finapp template provides the core UI framework, CSS/Sass architecture, and JavaScript base for this application. A commercial license for Finapp has been purchased by the team. The license ID is stored in the team password manager (not in this repository). Per the Envato Market terms, redistribution of the template source files is not permitted.
+
+---
+
+## Bootstrap
+
+- **Author:** The Bootstrap Authors
+- **Source:** https://getbootstrap.com
+- **License:** MIT License — https://github.com/twbs/bootstrap/blob/main/LICENSE
+
+Bundled as `assets/js/lib/bootstrap.bundle.min.js`.
+
+---
+
+## Ionicons
+
+- **Author:** Ionic Team
+- **Source:** https://ionic.io/ionicons
+- **License:** MIT License — https://github.com/ionic-team/ionicons/blob/main/LICENSE
+
+Loaded from CDN (`unpkg.com/ionicons@5.5.2`).
+
+---
+
+## Splide
+
+- **Author:** Naotoshi Fujita
+- **Source:** https://splidejs.com
+- **License:** MIT License — https://github.com/Splidejs/splide/blob/master/LICENSE
+
+Bundled as `assets/js/plugins/splide/splide.min.js`.
+
+---
+
+## ApexCharts
+
+- **Author:** ApexCharts
+- **Source:** https://apexcharts.com
+- **License:** MIT License — https://github.com/apexcharts/apexcharts.js/blob/master/LICENSE
+
+Bundled as `assets/js/plugins/apexcharts/apexcharts.min.js`.
+
+---
+
+## ChangeNOW Exchange Widget
+
+- **Author:** ChangeNOW
+- **Source:** https://changenow.io
+- **License:** Proprietary — subject to ChangeNOW Terms of Service
+
+The exchange widget is embedded via iframe from `changenow.io`. All exchange operations are performed by ChangeNOW under their own terms and privacy policy.
+
+The `link_id` query parameter is appended to all ChangeNOW widget URLs to
+attribute swaps to the TON-Bridge affiliate account. The point accrual job
+(issue #48) polls the ChangeNOW partner API for swaps in `finished` state
+attributed to this `link_id`.
+
+Only `finished` swaps trigger point accrual (guardrail a). Intermediate
+states (`waiting`, `confirming`, `exchanging`, `sending`) do not trigger
+payouts — see `assets/js/anti-fraud.js: isEligibleForReferralBonus()`.
+
+---
+
+## Telegram Web App SDK
+
+- **Author:** Telegram
+- **Source:** https://core.telegram.org/bots/webapps
+- **License:** Proprietary — subject to Telegram Terms of Service
+
+Used for Telegram Mini App integration (theme sync, navigation, haptic feedback).
+
+---
+
+## Telegram account-age heuristic
 
 **Problem:** Telegram does not expose the date a user account was created via
 any public API available to Mini Apps or bots.
@@ -70,16 +151,3 @@ waiting the full 7 days.
 - Community research on ID ranges:
   <https://github.com/telegramdesktop/tdesktop/issues/> (various threads on
   ID allocation).
-
----
-
-## ChangeNOW partner API
-
-The `link_id` query parameter is appended to all ChangeNOW widget URLs to
-attribute swaps to the TON-Bridge affiliate account. The point accrual job
-(issue #48) polls the ChangeNOW partner API for swaps in `finished` state
-attributed to this `link_id`.
-
-Only `finished` swaps trigger point accrual (guardrail a). Intermediate
-states (`waiting`, `confirming`, `exchanging`, `sending`) do not trigger
-payouts — see `assets/js/anti-fraud.js: isEligibleForReferralBonus()`.

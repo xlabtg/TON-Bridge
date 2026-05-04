@@ -62,6 +62,20 @@ jobs:
           YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
           CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
           BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: production
+
+      - name: Upload sourcemaps to Sentry
+        if: env.SENTRY_AUTH_TOKEN != ''
+        run: |
+          npx @sentry/cli releases new "${{ github.sha }}"
+          npx @sentry/cli releases files "${{ github.sha }}" upload-sourcemaps dist/ --url-prefix '~/'
+          npx @sentry/cli releases finalize "${{ github.sha }}"
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
 
   validate-manifest:
     name: Validate PWA Manifest
@@ -93,6 +107,9 @@ jobs:
           YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
           CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
           BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: production
 
       - name: Validate PWA manifest
         run: npm run validate:manifest
@@ -127,6 +144,9 @@ jobs:
           YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
           CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
           BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: production
 
       - name: Validate HTML
         run: npx html-validate "dist/*.html"
@@ -161,6 +181,9 @@ jobs:
           YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
           CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
           BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: production
 
       - name: Run Playwright tests
         run: npm test
@@ -170,6 +193,9 @@ jobs:
           YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
           CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
           BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: production
 
       - name: Upload screenshots
         if: always()
@@ -208,6 +234,9 @@ jobs:
           YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
           CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
           BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: production
 
       - name: Run Lighthouse CI
         run: npx lhci autorun
@@ -251,6 +280,9 @@ jobs:
           YANDEX_METRIKA_ID: ${{ secrets.YANDEX_METRIKA_ID }}
           CHANGENOW_LINK_ID: ${{ secrets.CHANGENOW_LINK_ID }}
           BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: production
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v4

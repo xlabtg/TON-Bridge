@@ -58,6 +58,11 @@
         transform: translate(0, 0) !important;
         top: 10px;
     }
+    @media (prefers-reduced-motion: reduce) {
+        .modal-dialog {
+            transition: none !important;
+        }
+    }
     .modal-content {
         position: relative;
         z-index: 1;

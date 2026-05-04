@@ -101,3 +101,9 @@
     }
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-box {
+    transition: none;
+  }
+}

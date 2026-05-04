@@ -1,0 +1,118 @@
+// Achievement / tier system styles
+
+// Tier badge shown in the app header
+.tier-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: $fontSizeCaption;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 20px;
+    letter-spacing: 0.01em;
+    vertical-align: middle;
+    margin-left: 6px;
+    line-height: 1.4;
+    white-space: nowrap;
+
+    &.tier-bronze  { background: #cd7f32; color: #fff; }
+    &.tier-silver  { background: #a8a9ad; color: #fff; }
+    &.tier-gold    { background: #ffd700; color: #333; }
+    &.tier-platinum { background: linear-gradient(135deg, #e5e4e2 0%, #a0b0c0 100%); color: #333; }
+}
+
+// Progress bar toward next tier
+.tier-progress-wrap {
+    padding: 12px 16px 4px;
+    .tier-progress-label {
+        font-size: $fontSizeCaption;
+        color: $colorText;
+        margin-bottom: 4px;
+        display: block;
+    }
+    .progress {
+        height: 6px;
+        border-radius: 6px;
+        background: $colorLine;
+        overflow: hidden;
+        .progress-bar {
+            background: $colorPrimary;
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+    }
+}
+
+// Tier-up celebration modal overlay
+.tier-celebration-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.55);
+    align-items: center;
+    justify-content: center;
+
+    &.show {
+        display: flex;
+    }
+
+    .tier-celebration-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 36px 28px 28px;
+        max-width: 320px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+
+    .tier-celebration-icon {
+        font-size: 64px;
+        line-height: 1;
+        display: block;
+        margin-bottom: 12px;
+    }
+
+    .tier-celebration-title {
+        font-size: $fontSizeHeadingLarge;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: $colorHeading;
+    }
+
+    .tier-celebration-sub {
+        font-size: $fontSizeSub;
+        color: $colorText;
+        margin-bottom: 24px;
+    }
+
+    .tier-celebration-share {
+        display: block;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .tier-celebration-close {
+        display: block;
+        width: 100%;
+        color: $colorText;
+        background: transparent;
+        border: 1px solid $colorLine;
+    }
+}
+
+// Dark mode overrides
+.dark {
+    .tier-celebration-overlay .tier-celebration-card {
+        background: $darkmode_contentBackground;
+        .tier-celebration-title { color: $darkmode_colorHeading; }
+        .tier-celebration-sub   { color: $darkmode_colorText; }
+        .tier-celebration-close { border-color: $darkmode_colorLine; color: $darkmode_colorText; }
+    }
+
+    .tier-progress-wrap {
+        .tier-progress-label { color: $darkmode_colorText; }
+        .progress { background: $darkmode_colorLine; }
+    }
+}

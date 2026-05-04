@@ -1,0 +1,19 @@
+/* TEAM */
+Organization: xlabtg
+GitHub: https://github.com/xlabtg
+Contact: https://t.me/tonbankcard
+
+/* THANKS */
+Bragher — Finapp Bootstrap Mobile Template (https://themeforest.net/user/bragher)
+The Bootstrap Authors — Bootstrap CSS Framework (https://getbootstrap.com)
+Ionic Team — Ionicons (https://ionic.io/ionicons)
+Naotoshi Fujita — Splide slider (https://splidejs.com)
+ApexCharts — ApexCharts.js (https://apexcharts.com)
+ChangeNOW — Exchange widget (https://changenow.io)
+Telegram — Web App SDK (https://core.telegram.org/bots/webapps)
+
+/* SITE */
+Last update: 2024
+Language: English / Russian
+Doctype: HTML5
+IDE: VS Code

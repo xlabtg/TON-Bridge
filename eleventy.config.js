@@ -54,6 +54,9 @@ export default function(eleventyConfig) {
   });
   eleventyConfig.addPassthroughCopy('__manifest.json');
   eleventyConfig.addPassthroughCopy('__service-worker.js');
+  eleventyConfig.addPassthroughCopy('.htaccess');
+  eleventyConfig.addPassthroughCopy('config');
+  eleventyConfig.addPassthroughCopy('installer');
   eleventyConfig.addPassthroughCopy('humans.txt');
   eleventyConfig.addPassthroughCopy('robots.txt');
   eleventyConfig.addPassthroughCopy('tonconnect-manifest.json');

@@ -198,6 +198,20 @@ jobs:
       - name: Run rate config unit tests
         run: npm run test:rate-config
 
+  php-installer-tests:
+    name: PHP Installer Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, openssl, pdo_mysql
+
+      - name: Run installer tests
+        run: php tests/installer.test.php
+
   html-validate:
     name: HTML Validate
     runs-on: ubuntu-latest

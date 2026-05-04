@@ -24,7 +24,6 @@
         .admin-section-title { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: .08em; padding: 8px 16px 4px; }
         table.admin-table { font-size: 0.8rem; width: 100%; }
         table.admin-table th { font-size: 0.7rem; text-transform: uppercase; letter-spacing: .05em; color: #888; font-weight: 600; }
-        /* initial visibility is controlled by d-none Bootstrap class added in markup */
         .audit-table td { word-break: break-all; font-size: 0.75rem; }
     </style>
 </head>
@@ -49,7 +48,7 @@
     <!-- * App Header -->
 
     <!-- Access Denied -->
-    <div id="access-denied" class="d-none flex-column align-items-center justify-content-center" style="min-height:60vh; padding:32px; text-align:center;">
+    <div id="access-denied" class="flex-column align-items-center justify-content-center" style="min-height:60vh; padding:32px; text-align:center;" hidden>
         <ion-icon name="lock-closed-outline" style="font-size:64px; color:#dc3545;"></ion-icon>
         <h2 class="mt-3">403 — Access Denied</h2>
         <p class="text-muted">You are not authorised to view this page.<br>Contact the administrator if you believe this is an error.</p>
@@ -58,7 +57,7 @@
     <!-- * Access Denied -->
 
     <!-- Admin Content -->
-    <div id="admin-content" class="d-none">
+    <div id="admin-content" hidden>
 
         <!-- App Capsule -->
         <div id="appCapsule" style="padding-bottom: 80px;">

@@ -36,12 +36,12 @@
     function show(id) {
         var el = document.getElementById(id);
         if (!el) return;
-        el.classList.remove('d-none');
+        el.hidden = false;
     }
     function hide(id) {
         var el = document.getElementById(id);
         if (!el) return;
-        el.classList.add('d-none');
+        el.hidden = true;
     }
 
     // ---------------------------------------------------------------------------

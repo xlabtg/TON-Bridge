@@ -44,3 +44,9 @@
     right: 0;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .panelbox .modal-dialog {
+    transition: none !important;
+  }
+}

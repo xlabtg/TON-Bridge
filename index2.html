@@ -1,27 +1,47 @@
-
 <!doctype html>
 <html lang="en">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport"
-        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+        content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>TON Bridge</title>
+    <title data-i18n="title_exchange">TON Bridge</title>
     <meta name="description" content="TON Bridge HTML Mobile Template">
     <meta name="keywords"
         content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
+
+
+    <!-- Preconnect to third-party origins -->
+<link rel="preconnect" href="https://changenow.io" crossorigin>
+<link rel="preconnect" href="https://widget-api.changenow.io" crossorigin>
+<link rel="preconnect" href="https://tganalytics.xyz" crossorigin>
+<link rel="preconnect" href="https://mc.yandex.ru" crossorigin>
+<link rel="preconnect" href="https://telegram.org" crossorigin>
+<!-- Critical above-the-fold CSS inlined -->
+<style>*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{font-family:"Poppins",sans-serif;font-size:15px;line-height:1.6rem;letter-spacing:.004em;color:#958d9e;background:#ededf5;width:100%;height:100%;overflow-x:hidden;margin:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}a{color:#6236ff;outline:0 !important;text-decoration:none}::-webkit-scrollbar{width:0}#loader{position:fixed;left:0;top:0;right:0;bottom:0;z-index:99999;background:#6236ff;display:flex;align-items:center;justify-content:center;user-select:none}#loader .loading-icon{width:42px;height:auto}#loader.hidden{display:none}.lhci-audit #loader{display:none !important}.appHeader{height:56px;display:flex;justify-content:center;align-items:center;position:fixed;top:env(safe-area-inset-top);left:0;right:0;z-index:999;background:#fff;color:#27173e;border-bottom:1px solid #dcdce9}.appHeader::before{content:"";height:env(safe-area-inset-top);position:fixed;top:0;left:0;right:0;width:100%;z-index:99999;background:#fff}.appHeader.bg-primary{border:0}.appHeader.bg-primary::before{background:#6236ff !important}.appHeader.text-light{color:#fff}.appHeader .left,.appHeader .right{height:56px;display:flex;align-items:center;position:absolute}.appHeader .left{left:10px;top:0}.appHeader .right{right:10px;top:0}.appHeader .pageTitle{font-size:17px;font-weight:500;padding:0 10px}.appHeader .logo{max-height:24px}.appHeader .headerButton{min-width:36px;height:56px;display:flex;align-items:center;justify-content:center;padding:10px;color:#6236ff}.appHeader .headerButton.text-light{color:#fff}#appCapsule{padding:56px 0;margin-bottom:env(safe-area-inset-bottom);margin-top:env(safe-area-inset-top)}.appBottomMenu{min-height:56px;position:fixed;z-index:999;width:100%;bottom:0;left:0;right:0;background:#fff;display:flex;align-items:center;justify-content:center;border-top:1px solid #dcdce9;padding-left:4px;padding-right:4px;padding-bottom:env(safe-area-inset-bottom)}.appBottomMenu .item{font-size:9px;letter-spacing:0;text-align:center;width:100%;height:56px;line-height:1.2em;display:flex;align-items:center;justify-content:center;position:relative;color:#27173e}.appBottomMenu .item::before{content:"";display:block;height:2px;border-radius:0 0 10px 10px;background:rgba(0,0,0,0);position:absolute;left:4px;right:4px;top:0}.appBottomMenu .item.active::before{background:#6236ff}.appBottomMenu .item.active ion-icon,.appBottomMenu .item.active strong{color:#6236ff !important;font-weight:500}.appBottomMenu .item .col{width:100%;padding:0 4px;text-align:center}.appBottomMenu .item ion-icon{display:block;font-size:24px;line-height:1em;color:#27173e;margin:1px auto 3px}.appBottomMenu .item strong{margin-top:4px;display:block;color:#27173e;font-weight:400}</style>
+<!-- Full stylesheets loaded asynchronously -->
+<link rel="preload" href="assets/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preload" href="assets/css/tg-theme.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+<noscript>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/tg-theme.css">
+
+</noscript>
+
     <link rel="manifest" href="__manifest.json">
 </head>
 
 <body>
+    <div id="offline-indicator">You are offline</div>
     <div id="viewport"></div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="assets/js/auth.js"></script>
     <script>
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
@@ -32,11 +52,30 @@
 
         Telegram.WebApp.setHeaderColor('secondary_bg_color');
 
+        // Apply themeParams CSS variables on first load
+        (function() {
+            var params = Telegram.WebApp.themeParams || {};
+            var root = document.documentElement;
+            for (var key in params) {
+                if (Object.prototype.hasOwnProperty.call(params, key)) {
+                    root.style.setProperty('--tg-theme-' + key.replace(/_/g, '-'), params[key]);
+                }
+            }
+        })();
+
         (function() {
             var tg = Telegram.WebApp;
             var mainButton = tg.MainButton;
-            var buttonText = 'Confirm exchange';
-            mainButton.setText(buttonText);
+            var _activePage = 'exchange';
+
+            function updateMainButtonText(t) {
+                var key = _activePage === 'bridge' ? 'main_button_bridge' : 'main_button_exchange';
+                if (t && t[key]) mainButton.setText(t[key]);
+            }
+
+            document.addEventListener('i18n:applied', function(e) {
+                updateMainButtonText(e.detail.t);
+            });
 
             window.addEventListener('message', function(event) {
                 if (!event.data || typeof event.data !== 'object') return;
@@ -45,6 +84,12 @@
                     var step = event.data.step || event.data.value || '';
                     if (step === 'initial' || step === 'success' || step === 'finish') {
                         mainButton.hide();
+                        if (step === 'finish' || step === 'success') {
+                            haptic.notification('success');
+                        }
+                    } else if (step === 'failed' || step === 'error' || step === 'refunded') {
+                        haptic.notification('error');
+                        mainButton.show();
                     } else {
                         mainButton.show();
                     }
@@ -52,7 +97,12 @@
             });
 
             mainButton.onClick(function() {
+                haptic.impact('medium');
                 var iframe = document.getElementById('iframe-widget');
+                if (!iframe && typeof window.openExchangeWidget === 'function') {
+                    window.openExchangeWidget();
+                    return;
+                }
                 if (iframe && iframe.contentWindow) {
                     iframe.contentWindow.postMessage({ type: 'submit' }, '*');
                 }
@@ -72,26 +122,26 @@
 <script>
     function initAnalytics() {
       window.telegramAnalytics.init({
-        token: 'eyJhcHBfbmFtZSI6IlRPTkJyaWRnZV9yb2JvdCIsImFwcF91cmwiOiJodHRwczovL3QubWUvVE9OQnJpZGdlX3JvYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vdG9uYmFua2NhcmQuY29tL2JyaWRnZS9UTUEvMDAuaHRtbCJ9!PQ40y7Tz3lZti6uDVlApq+BcGxi8tR9WEsH6Hyu+mD0=', // SDK Auth token received via @DataChief_bot
-        appName: 'TONBridge_robot', // The analytics identifier you entered in @DataChief_bot
+        token: 'local-placeholder', // SDK Auth token received via @DataChief_bot
+        appName: 'local-app', // The analytics identifier you entered in @DataChief_bot
       });
     }
 </script>
     <!-- loader -->
     <div id="loader">
-        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+        <img src="assets/img/loading-icon.webp" alt="icon" class="loading-icon">
     </div>
     <!-- * loader -->
 
     <!-- App Header -->
     <div class="appHeader bg-primary text-light">
         <div class="left">
-            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel">
+            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel" aria-label="Menu" data-i18n-attr="aria-label:menu_title">
                 <ion-icon name="menu-outline"></ion-icon>
             </a>
         </div>
         <div class="pageTitle">
-            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo">
+            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo" width="143" height="24" loading="eager" decoding="async">
         </div>
     </div>
     <!-- * App Header -->
@@ -99,37 +149,185 @@
     <!-- App Capsule -->
     <div id="appCapsule">
 
-		<!-- App Bridge -->
-<!-- img -->
-            <div class="text-center mb-4">
-                <img src="https://exchange.tonbankcard.com/images/header/gfx-a-1.png" alt="Intro Image" class="intro-img" width="300" height="300">
-            </div>
-<!-- Security and Privacy -->
 
-                    <h3>&nbsp;Security and privacy</h3>
+
+		<!-- App Bridge -->
+            <div class="text-center mb-4" style="height: calc(300px + 9px);">
+                <img src="assets/img/gfx-a-1.webp" alt="Intro Image" fetchpriority="high" style="width: 300px; height: 300px;">
+            </div>
+
+                    <h3>&nbsp;<span data-i18n="exchange_heading">Security and privacy</span></h3>
                     <p>
-                        &nbsp;TONBANKCARD preserves your privacy and  guarantees security.
-                        We are not a custodial  exchange service:
+                        &nbsp;<span data-i18n="exchange_intro_line1">TONBANKCARD preserves your privacy and  guarantees security.</span>
+                        <span data-i18n="exchange_intro_line2">We are not a custodial  exchange service:</span>
                     </p>
                     <ul class="list-unstyled">
-                        <li>&nbsp;- We do not save your data</li>
-                        <li>&nbsp;- We do not control your funds</li>
-                        <li>&nbsp;- We do not force you to register</li>
+                        <li>&nbsp;<span data-i18n="exchange_point1">- We do not save your data</span></li>
+                        <li>&nbsp;<span data-i18n="exchange_point2">- We do not control your funds</span></li>
+                        <li>&nbsp;<span data-i18n="exchange_point3">- We do not force you to register</span></li>
                     </ul>
-        <iframe id="iframe-widget" title="Exchange Widget" class="embed-widget embed-widget--tall" src="https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=0.1&amountFiat&backgroundColor=f6fafd&darkMode=false&from=btc&horizontal=false&isFiat=false&lang=en-EN&link_id=3cc0024a18fd9d&locales=true&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false"></iframe>
-        <script defer type="text/javascript" src="https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js"></script>
+        </br>
+        <!-- Lazy-load placeholder — replaced by iframe on user interaction or idle -->
+        <div id="iframe-placeholder" style="height: 450px; width: 100%; aspect-ratio: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #f6fafd; border-radius: 8px;">
+            <img src="assets/img/loading-icon.webp" alt="logo" style="width: 64px; height: 64px; opacity: 0.6;">
+            <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button" data-i18n="open_exchange_btn">Open exchange</button>
+        </div>
+        <script>
+        (function() {
+            var BASE_IFRAME_SRC = 'https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=0.1&amountFiat&backgroundColor=f6fafd&darkMode=false&from=btc&horizontal=false&isFiat=false&lang=en-EN&link_id=00000000000000&locales=true&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false';
+            var STEPPER_SRC = 'https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js';
+            var IFRAME_HEIGHT = '450px';
+            var I18N_LANG_KEY = 'widget_lang';
+            var FALLBACK_LANG = 'en-EN';
+            var idleTimer = null;
+            var idleCallbackId = null;
+            var interactionEvents = ['pointerdown', 'keydown', 'touchstart', 'wheel'];
+            var injected = false;
+            var selectedFrom = 'btc';
+
+            function stripHash(value) {
+                return value ? value.trim().replace(/^#/, '') : '';
+            }
+
+            function cssVar(name) {
+                return window.getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+            }
+
+            function widgetLang() {
+                if (window.i18n && typeof i18n.t === 'function') {
+                    return i18n.t(I18N_LANG_KEY, FALLBACK_LANG);
+                }
+                return FALLBACK_LANG;
+            }
+
+            function buildIframeSrc() {
+                var url = new URL(BASE_IFRAME_SRC, window.location.href);
+                var primaryColor = stripHash(cssVar('--tg-theme-button-color') || cssVar('--tg-theme-link-color') || '#1bb2da');
+                var backgroundColor = stripHash(cssVar('--tg-theme-bg-color') || '#f6fafd');
+                var colorScheme = cssVar('--tg-color-scheme') || (document.documentElement.className === 'dark' ? 'dark' : 'light');
+
+                url.searchParams.set('from', selectedFrom);
+                url.searchParams.set('lang', widgetLang());
+                url.searchParams.set('primaryColor', primaryColor);
+                url.searchParams.set('backgroundColor', backgroundColor);
+                url.searchParams.set('darkMode', colorScheme === 'dark' ? 'true' : 'false');
+                return url.toString();
+            }
+
+            function removeInteractionListeners() {
+                interactionEvents.forEach(function(eventName) {
+                    window.removeEventListener(eventName, armIdlePreload, { passive: true });
+                });
+            }
+
+            function cancelIdlePreload() {
+                if (idleTimer) {
+                    clearTimeout(idleTimer);
+                    idleTimer = null;
+                }
+                if (idleCallbackId && typeof cancelIdleCallback === 'function') {
+                    cancelIdleCallback(idleCallbackId);
+                    idleCallbackId = null;
+                }
+            }
+
+            function injectIframe() {
+                if (injected) return;
+
+                var placeholder = document.getElementById('iframe-placeholder');
+                if (!placeholder) return;
+                injected = true;
+                cancelIdlePreload();
+                removeInteractionListeners();
+
+                var iframe = document.createElement('iframe');
+                iframe.id = 'iframe-widget';
+                iframe.title = 'ChangeNOW exchange widget';
+                iframe.src = buildIframeSrc();
+                iframe.loading = 'lazy';
+                iframe.setAttribute('importance', 'high');
+                iframe.setAttribute('data-i18n-iframe-lang', I18N_LANG_KEY);
+                iframe.style.cssText = 'height: ' + IFRAME_HEIGHT + '; width: 100%; border: none; display: block;';
+
+                placeholder.parentNode.replaceChild(iframe, placeholder);
+
+                if (!document.querySelector('script[data-changenow-stepper]')) {
+                    var script = document.createElement('script');
+                    script.defer = true;
+                    script.src = STEPPER_SRC;
+                    script.setAttribute('data-changenow-stepper', 'true');
+                    document.body.appendChild(script);
+                }
+            }
+
+            function preloadWhenIdle() {
+                if (injected) return;
+                if (typeof requestIdleCallback === 'function') {
+                    idleCallbackId = requestIdleCallback(injectIframe, { timeout: 2000 });
+                } else {
+                    injectIframe();
+                }
+            }
+
+            function armIdlePreload() {
+                if (injected) return;
+                cancelIdlePreload();
+                idleTimer = setTimeout(preloadWhenIdle, 2000);
+            }
+
+            function initLazyWidget() {
+                var btn = document.getElementById('open-exchange-btn');
+                if (btn) btn.addEventListener('click', injectIframe);
+                interactionEvents.forEach(function(eventName) {
+                    window.addEventListener(eventName, armIdlePreload, { passive: true });
+                });
+                armIdlePreload();
+            }
+
+            window.setExchangeWidgetFrom = function(from) {
+                if (!from) return;
+                selectedFrom = from;
+
+                var iframe = document.getElementById('iframe-widget');
+                if (!iframe || !iframe.src) return;
+
+                try {
+                    var url = new URL(iframe.src, window.location.href);
+                    url.searchParams.set('from', selectedFrom);
+                    iframe.src = url.toString();
+                } catch (e) {}
+            };
+            window.openExchangeWidget = injectIframe;
+            window.addEventListener('beforeunload', function() {
+                var iframe = document.getElementById('iframe-widget');
+                if (iframe) {
+                    iframe.src = 'about:blank';
+                    iframe.remove();
+                }
+            });
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initLazyWidget);
+            } else {
+                initLazyWidget();
+            }
+        })();
+        </script>
         <!-- * App Bridge -->
-        <div class="text-center mb-2">
-            <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy" width="240" height="60"></a>
-        </div>
-        <div class="info-action-row mb-4">
-            <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
-                <div class="feature-icon dot text-center">
-                    <ion-icon name="information-outline" class="feature-icon-md"></ion-icon>
-                </div>
-            </div>
-            <a href="2.html" class="btn btn-primary btn-lg">Instruction</a>
-        </div>
+<center><a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy"/></a></center></br></br>
+<center>
+<table>
+<tr><td>
+                        <div class="col-lg-4">
+                            <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
+                                <div class="feature-icon dot">
+                                    <center><ion-icon name="information-outline" style="font-size: 64px;"></center>
+                                </div>
+                            </div>
+                        </div></td><td><a href="2.html" class="btn btn-primary btn-lg" data-i18n="exchange_instruction_btn">Instruction</a></td></tr>
+</table>
+
+</center></br></br>
     </div>
     <!-- * App Capsule -->
 
@@ -138,31 +336,37 @@
         <a href="index.html" class="item">
             <div class="col">
                 <ion-icon name="sync"></ion-icon>
-                <strong>Bridge</strong>
+                <strong data-i18n="nav_bridge">Bridge</strong>
             </div>
         </a>
         <a href="index2.html" class="item active">
             <div class="col">
                 <ion-icon name="swap-horizontal-outline"></ion-icon>
-                <strong>Exchange</strong>
+                <strong data-i18n="nav_exchange">Exchange</strong>
             </div>
         </a>
         <a href="index3.html" class="item">
             <div class="col">
                 <ion-icon name="cash-outline"></ion-icon>
-                <strong>OTC</strong>
+                <strong data-i18n="nav_otc">OTC</strong>
+            </div>
+        </a>
+        <a href="orders.html" class="item">
+            <div class="col">
+                <ion-icon name="receipt-outline"></ion-icon>
+                <strong data-i18n="nav_orders">Orders</strong>
             </div>
         </a>
         <!-- <a href="index4.html" class="item">
             <div class="col">
                 <ion-icon name="stats-chart"></ion-icon>
-                <strong>Statistics</strong>
+                <strong data-i18n="nav_statistics">Statistics</strong>
             </div>
         </a> -->
         <a href="app-settings.html" class="item">
             <div class="col">
                 <ion-icon name="settings-outline"></ion-icon>
-                <strong>Settings</strong>
+                <strong data-i18n="nav_settings">Settings</strong>
             </div>
         </a>
     </div>
@@ -175,24 +379,14 @@
                 <div class="modal-body p-0">
 
 <!-- menu -->
-<div class="listview-title mt-1">Menu</div>
+<div class="listview-title mt-1" data-i18n="menu_title">Menu</div>
 <ul class="listview flush transparent no-line image-listview">
-    <li>
-        <a href="app-settings.html" class="item">
-            <div class="icon-box bg-primary">
-                <ion-icon name="settings-outline"></ion-icon>
-            </div>
-            <div class="in">
-                Settings
-            </div>
-        </a>
-    </li>
     <li>
         <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_bot');" class="item">
             <div class="icon-box bg-primary">
                 <ion-icon name="chatbubble-outline"></ion-icon>
             </div>
-            <div class="in">
+            <div class="in" data-i18n="menu_support">
                 Support
             </div>
         </a>
@@ -200,24 +394,24 @@
 </ul>
 
                      <!-- community section -->
-<div class="listview-title mt-1">Community</div>
+<div class="listview-title mt-1" data-i18n="community_title">Community</div>
 <ul class="listview flush transparent no-line image-listview">
     <li>
-        <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard');" class="item">
+        <a href="#" class="item" id="community-group-link">
             <div class="icon-box bg-secondary">
                 <ion-icon name="people-circle-outline"></ion-icon>
             </div>
-            <div class="in">
+            <div class="in" data-i18n="community_group">
                 Telegram Group
             </div>
         </a>
     </li>
     <li>
-        <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_chat');" class="item">
+        <a href="#" class="item" id="community-chat-link">
             <div class="icon-box bg-secondary">
                 <ion-icon name="chatbubbles-outline"></ion-icon>
             </div>
-            <div class="in">
+            <div class="in" data-i18n="community_chat">
                 Telegram Chat
             </div>
         </a>
@@ -234,15 +428,15 @@
     <div id="cookiesbox" class="offcanvas offcanvas-bottom cookies-box" tabindex="-1" data-bs-scroll="true"
         data-bs-backdrop="false">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title">We use cookies</h5>
+            <h5 class="offcanvas-title" data-i18n="cookies_title">We use cookies</h5>
         </div>
         <div class="offcanvas-body">
             <div>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla non lacinia quam. Nulla facilisi.
-                <a href="#" class="text-secondary"><u>Learn more</u></a>
+                <span data-i18n="cookies_body">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla non lacinia quam. Nulla facilisi.</span>
+                <a href="#" class="text-secondary"><u data-i18n="cookies_learn_more">Learn more</u></a>
             </div>
             <div class="buttons">
-                <a href="#" class="btn btn-primary btn-block" data-bs-dismiss="offcanvas">I understand</a>
+                <a href="#" class="btn btn-primary btn-block" data-bs-dismiss="offcanvas" data-i18n="cookies_accept">I understand</a>
             </div>
         </div>
     </div>
@@ -250,14 +444,51 @@
     <!-- ========= JS Files =========  -->
     <!-- Bootstrap -->
     <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
-    <!-- Ionicons -->
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <!-- Ionicons (self-hosted sprite) -->
+    <script src="assets/js/ion-icon.js" defer></script>
     <!-- Splide -->
     <script src="assets/js/plugins/splide/splide.min.js"></script>
+
+    <!-- i18n inline data + loader -->
+    <script src="assets/js/prefs.js"></script>
+    <script>window.__i18nData = {"en":{"lang_attr":"en","title_bridge":"TON Bridge","title_exchange":"TON Bridge","title_otc":"TON Bridge - OTC","title_intro_bridge":"TON Bridge - Welcome","title_intro_bridge_steps":"TON Bridge - Welcome 2","title_intro_exchange_steps":"TON Bridge - Welcome 2","title_settings":"TON Bridge","nav_bridge":"Bridge","nav_exchange":"Exchange","nav_otc":"OTC","nav_orders":"Orders","nav_statistics":"Statistics","nav_settings":"Settings","menu_title":"Menu","menu_settings":"Settings","menu_support":"Support","community_title":"Community","community_group":"Telegram Group","community_chat":"Telegram Chat","community_group_link":"https://t.me/tonbankcard","community_chat_link":"https://t.me/tonbankcard_chat","cookies_title":"We use cookies","cookies_body":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla non lacinia quam. Nulla facilisi.","cookies_learn_more":"Learn more","cookies_accept":"I understand","widget_lang":"en-EN","otc_widget_lang":"en-US","bridge_heading":"Security and privacy","bridge_intro_line1":"TONBANKCARD preserves your privacy and  guarantees security.","bridge_intro_line2":"We are not a custodial  exchange service:","bridge_point1":"- We do not save your data","bridge_point2":"- We do not control your funds","bridge_point3":"- We do not force you to register","bridge_instruction_btn":"Instruction","exchange_heading":"Security and privacy","exchange_intro_line1":"TONBANKCARD preserves your privacy and  guarantees security.","exchange_intro_line2":"We are not a custodial  exchange service:","exchange_point1":"- We do not save your data","exchange_point2":"- We do not control your funds","exchange_point3":"- We do not force you to register","exchange_instruction_btn":"Instruction","ticker_aria_label":"Asset price ticker","main_button_bridge":"Continue","main_button_exchange":"Confirm exchange","main_button_otc":"Confirm exchange","open_exchange_btn":"Open exchange","otc_heading":"PrimeFlow OTC","otc_buy_text":"Buy TON from $1 million Without Losses:","otc_point1":"- Fixed rate","otc_point2":"- Zero slippage","otc_point3":"- CEX + DEX Aggregation","title_orders":"TON Bridge - Orders","orders_page_title":"Orders","orders_loading":"Loading…","orders_empty":"No orders yet. Start a swap on the Bridge or Exchange tab.","orders_empty_cta":"Go to Bridge","orders_load_more":"Load more","status_new":"New","status_waiting":"Waiting","status_confirming":"Confirming","status_exchanging":"Exchanging","status_sending":"Sending","status_finished":"Finished","status_failed":"Failed","status_refunded":"Refunded","settings_title_label":"Settings","settings_theme_section":"Theme","settings_dark_mode_label":"Dark Mode","settings_lang_section":"Language","settings_lang_label":"Language (EN/RU)","settings_security_section":"Security","settings_biometric_label":"Require biometrics for trades above threshold","settings_biometric_unavailable_hint":"Biometric authentication is not available on this device","settings_biometric_threshold_label":"Threshold (USD)","biometric_reason":"Confirm exchange","biometric_failure_toast":"Biometric authentication failed. Trade cancelled.","intro_bridge_heading":"TON Bridge","intro_bridge_p1":"Discover TON Bridge by TONBANKCARD – a reliable bridge between the TON and BSC blockchains.\n                        Learn how to quickly and securely carry out cryptocurrency transactions between these two\n                        popular blockchain platforms using TON Bridge.","intro_bridge_p2_bold":"In addition, TON Bridge supports the exchange of cryptocurrencies in 200 blockchains, including TON, TRX, ETH, Arbitrum, Solana, NEAR, EOS, ALGO, KCS, Polygon, Polkadot, OP, KAVAFVM, OMNI, XTL, AVAX C and BSC. Users can now exchange over 1200+ cryptocurrencies between these popular networks with maximum convenience.","intro_bridge_btn":"Start Exchange","intro_bridge_steps_title":"Welcome","intro_bridge_steps_subtitle":"Exchange TON between different blockchains in just 3 simple steps!","intro_bridge_steps_heading":"3 Easy Steps","intro_bridge_steps_lead":"Exchange any amount of TON. Start with 1 TON or trade as much as you like - there is no upper limit.","intro_bridge_steps_s1_title":"Step 1 - Specify the TON amount","intro_bridge_steps_s1_desc":"Select the amount of TON to see how much you'll get in another blockchain.","intro_bridge_steps_s2_title":"Step 2 - Make the deposit","intro_bridge_steps_s2_desc":"Check the details and send the funds to the specified deposit address.","intro_bridge_steps_s3_title":"Step 3 - Receive TON (1000+ cryptocurrencies)","intro_bridge_steps_s3_desc":"Your funds will be processed, and you will receive TON (1000+ cryptocurrencies) on another blockchain from 200 available networks.","intro_bridge_steps_btn":"Start Exchange","intro_exchange_steps_title":"Instructions for use","intro_exchange_steps_subtitle":"Exchange cryptocurrency between different blockchains in just 3 simple steps!","intro_exchange_steps_heading":"3 Easy Steps","intro_exchange_steps_lead":"Exchange any coin for any other. Start with less than $10 and trade as much cryptocurrency as you want - there is no upper limit.","intro_exchange_steps_s1_title":"Step 1 - Select Currency","intro_exchange_steps_s1_desc":"In the list of more than 1000+ cryptocurrencies, we support 200 blockchains, you will definitely find what you need.","intro_exchange_steps_s2_title":"Step 2 - Make a deposit","intro_exchange_steps_s2_desc":"Check all the details of the exchange, find out the approximate time of the transaction and send your funds to our address for a one-time deposit.","intro_exchange_steps_s3_title":"Step 3 - Get Cryptocurrency","intro_exchange_steps_s3_desc":"Our users do not need to worry about the safety of their personal data. We provide complete anonymity.","intro_exchange_steps_btn":"Start Exchange"},"ru":{"lang_attr":"ru","title_bridge":"TON Bridge RU","title_exchange":"TON Bridge RU","title_otc":"TON Bridge - OTC","title_intro_bridge":"TON Bridge - Welcome","title_intro_bridge_steps":"TON Bridge - Welcome 2","title_intro_exchange_steps":"TON Bridge - Welcome 2","title_settings":"TON Bridge","nav_bridge":"Мост","nav_exchange":"Обмен","nav_otc":"OTC","nav_orders":"Заказы","nav_statistics":"Статистика","nav_settings":"Настройки","menu_title":"Меню","menu_settings":"Настройки","menu_support":"Поддержка","community_title":"Сообщество","community_group":"Группа в Telegram","community_chat":"Чат в Telegram","community_group_link":"https://t.me/tonbankcard_ru","community_chat_link":"https://t.me/tonbankcard_chat_ru","cookies_title":"Мы используем файлы cookie","cookies_body":"Закон, который должен соблюдать каждый, - это закон, который объединяет элиту. Ничего не значит для лацинии. Ничего не значит для облегчения.","cookies_learn_more":"Учить больше","cookies_accept":"Я понимаю","widget_lang":"ru-RU","otc_widget_lang":"ru-RU","bridge_heading":"Безопасность и конфиденциальность","bridge_intro_line1":"TONBANKCARD сохраняет вашу  конфиденциальность и гарантирует безопасность.","bridge_intro_line2":"Мы не являемся службой кастодиального обмена:","bridge_point1":"- Мы не сохраняем ваши данные","bridge_point2":"- Мы не контролируем ваши средства","bridge_point3":"- Мы не заставляем вас регистрироваться","bridge_instruction_btn":"Инструкция","exchange_heading":"Безопасность и конфиденциальность","exchange_intro_line1":"TONBANKCARD сохраняет вашу  конфиденциальность и гарантирует безопасность.","exchange_intro_line2":"Мы не являемся службой кастодиального обмена:","exchange_point1":"- Мы не сохраняем ваши данные","exchange_point2":"- Мы не контролируем ваши средства","exchange_point3":"- Мы не заставляем вас регистрироваться","exchange_instruction_btn":"Инструкция","ticker_aria_label":"Тикер курсов активов","main_button_bridge":"Продолжить","main_button_exchange":"Подтвердить обмен","main_button_otc":"Подтвердить обмен","open_exchange_btn":"Открыть обмен","otc_heading":"PrimeFlow OTC","otc_buy_text":"Купите TON от 1 миллиона долларов без потерь:","otc_point1":"- Фиксированная ставка","otc_point2":"- Нулевое проскальзывание","otc_point3":"- Агрегация CEX + DEX","title_orders":"TON Bridge - Заказы","orders_page_title":"Заказы","orders_loading":"Загрузка…","orders_empty":"Заказов пока нет. Начните обмен на вкладке «Мост» или «Обмен».","orders_empty_cta":"Перейти к Мосту","orders_load_more":"Загрузить ещё","status_new":"Новый","status_waiting":"Ожидание","status_confirming":"Подтверждение","status_exchanging":"Обмен","status_sending":"Отправка","status_finished":"Завершён","status_failed":"Ошибка","status_refunded":"Возврат","settings_title_label":"Настройки","settings_theme_section":"Тема","settings_dark_mode_label":"Темный режим","settings_lang_section":"Язык","settings_lang_label":"Язык (RU/EN)","settings_security_section":"Безопасность","settings_biometric_label":"Требовать биометрию для сделок выше порога","settings_biometric_unavailable_hint":"Биометрическая аутентификация недоступна на этом устройстве","settings_biometric_threshold_label":"Порог (USD)","biometric_reason":"Подтвердить обмен","biometric_failure_toast":"Биометрическая аутентификация не пройдена. Сделка отменена.","intro_bridge_heading":"TON Bridge","intro_bridge_p1":"Откройте для себя TON Bridge от TONBANKCARD – надежный мост между блокчейнами TON и BSC.\n                        Узнайте, как быстро и безопасно проводить криптовалютные транзакции между двумя популярными\n                        блокчейн-платформами с помощью TON Bridge.","intro_bridge_p2_bold":"Кроме того, TON Bridge поддерживает обмен криптовалют  в 200 блокчейнах, включая TON, TRX, ETH, Arbitrum, Solana, NEAR, EOS, ALGO, KCS, Polygon, Polkadot, OP, KAVAFVM, OMNI, XTL, AVAX C и BSC. Теперь пользователи могут проводить обмены более 1200+ криптовалют между этими популярными сетями с максимальной удобностью.","intro_bridge_btn":"Начать обмен","intro_bridge_steps_title":"Инструкция по использованию","intro_bridge_steps_subtitle":"Обменяйте TON между разными блокчейнами всего за 3 простых шага!","intro_bridge_steps_heading":"Простые 3 шага","intro_bridge_steps_lead":"Обменивайте любое количество TON. Начните с 1 TON или обменивайте столько, сколько хотите - верхнего предела нет.","intro_bridge_steps_s1_title":"Шаг 1 - Укажите объем TON","intro_bridge_steps_s1_desc":"Выберите количество TON, чтобы узнать, сколько получите в другом блокчейне.","intro_bridge_steps_s2_title":"Шаг 2 - Внесите депозит","intro_bridge_steps_s2_desc":"Проверьте детали и отправьте средства на указанный адрес для депозита.","intro_bridge_steps_s3_title":"Шаг 3 - Получите TON (1000+ криптовалют)","intro_bridge_steps_s3_desc":"Ваши средства будут обработаны, и вы получите TON (1000+ криптовалют) на другой блокчейн из 200.","intro_bridge_steps_btn":"Приступить к обмену","intro_exchange_steps_title":"Инструкция по использованию","intro_exchange_steps_subtitle":"Обменяйте криптовалюту между разными блокчейнами всего за 3 простых шага!","intro_exchange_steps_heading":"Простые 3 шага","intro_exchange_steps_lead":"Обменяйте любую монету на любую другую. Начните с менее чем 10 долларов и торгуйте столько криптовалютой, сколько захотите - верхнего предела нет.","intro_exchange_steps_s1_title":"Шаг 1 - Выберите валюту","intro_exchange_steps_s1_desc":"В списке из более чем 1000+ криптовалют, поддерживаем 200 блокчейнов, вы обязательно найдете то, что вам нужно.","intro_exchange_steps_s2_title":"Шаг 2 - Внесите депозит","intro_exchange_steps_s2_desc":"Проверьте все детали обмена, узнайте приблизительное время транзакции и отправьте свои средства на адрес для единовременного пополнения.","intro_exchange_steps_s3_title":"Шаг 3 - Получите криптовалюту","intro_exchange_steps_s3_desc":"Нашим пользователям не нужно беспокоиться о сохранности своих персональных данных. Мы обеспечиваем полную анонимность.","intro_exchange_steps_btn":"Приступить к обмену"}};</script>
+    <script src="assets/js/i18n.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Offline Indicator -->
+    <script src="assets/js/offline.js"></script>
+    <!-- Haptic Feedback -->
+    <script src="assets/js/haptic.js"></script>
+    <script>
+        // Tab-bar taps
+        document.querySelectorAll('.appBottomMenu .item').forEach(function (el) {
+            el.addEventListener('click', function () { haptic.impact('light'); });
+        });
+    </script>
+    <!-- Telegram Theme Integration -->
+    <script src="assets/js/tg-theme.js"></script>
+    <!-- Telegram SettingsButton -->
+    <script src="assets/js/settings-button.js"></script>
+    <script>wireSettingsButton('app-settings.html');</script>
+
 
     <script>
+        // Wire community links after translations are applied
+        document.addEventListener('i18n:applied', function(e) {
+            var t = e.detail.t;
+            var groupLink = document.getElementById('community-group-link');
+            var chatLink = document.getElementById('community-chat-link');
+            if (groupLink && t.community_group_link) {
+                groupLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_group_link + "');";
+            }
+            if (chatLink && t.community_chat_link) {
+                chatLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_chat_link + "');";
+            }
+        });
+
+        // Initialise i18n on boot
+        i18n.init();
+
         // Add to Home with 2 seconds delay.
         AddtoHome("2000", "once");
     </script>
@@ -269,16 +500,15 @@
    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-   ym(98019798, "init", {
+   ym(1234567, "init", {
         clickmap:true,
         trackLinks:true,
         accurateTrackBounce:true,
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/98019798" class="ym-noscript" alt=""></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/1234567" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
 </body>
 
 </html>
-

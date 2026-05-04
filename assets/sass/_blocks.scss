@@ -800,6 +800,10 @@
   height: auto;
 }
 
+.intro-img-frame {
+  min-height: 209px;
+}
+
 .otc-img {
   display: block;
   width: 288px;
@@ -835,4 +839,78 @@
 .ym-noscript {
   position: absolute;
   left: -9999px;
+}
+
+.tier-progress-bar-empty {
+  width: 0%;
+}
+
+.wallet-connect-btn {
+  font-size: 11px;
+  height: 28px;
+  padding: 0 8px;
+}
+
+.wallet-connect-btn__icon {
+  font-size: 16px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.rate-ticker-section {
+  display: block;
+  min-height: 128px;
+  margin: 12px 0 8px;
+  overflow: hidden;
+}
+
+.wallet-prefill-bar {
+  padding: 0 8px 8px;
+}
+
+.is-hidden,
+.address-book-chips-wrap--hidden {
+  display: none;
+}
+
+.wallet-prefill-chip {
+  cursor: pointer;
+}
+
+.wallet-prefill-chip--spaced {
+  margin-right: 6px;
+}
+
+.address-book-chips-wrap--hidden {
+  padding: 0 4px 8px;
+}
+
+.iframe-placeholder {
+  width: 100%;
+  aspect-ratio: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: #f6fafd;
+  border-radius: 8px;
+}
+
+.iframe-placeholder--tall {
+  height: 450px;
+}
+
+.iframe-placeholder--medium {
+  height: 356px;
+}
+
+.iframe-placeholder__icon {
+  width: 64px;
+  height: 64px;
+  opacity: 0.6;
+}
+
+.cookie-desc {
+  font-size: 0.82em;
 }

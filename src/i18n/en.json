@@ -13,9 +13,12 @@
   "nav_orders": "Orders",
   "nav_statistics": "Statistics",
   "nav_settings": "Settings",
+  "nav_aria_label": "Main navigation",
   "menu_title": "Menu",
   "menu_settings": "Settings",
   "menu_support": "Support",
+  "menu_open_aria_label": "Open menu",
+  "menu_sidebar_aria_label": "Navigation menu",
   "community_title": "Community",
   "community_group": "Telegram Group",
   "community_chat": "Telegram Chat",
@@ -216,5 +219,10 @@
   "privacy_pdp_body": "Where Russian Federal Law No. 152-FZ applies, we process personal data for stated service purposes, apply minimization, and use consent where required.",
   "privacy_contact_heading": "Contact",
   "privacy_contact_body": "For privacy requests, contact:",
-  "privacy_contact_email": "privacy@tonbankcard.com"
+  "privacy_contact_email": "privacy@tonbankcard.com",
+  "logo_alt": "TON Bridge logo",
+  "iframe_widget_title": "Currency exchange widget",
+  "iframe_otc_title": "OTC exchange widget",
+  "cede_badge_alt": "Cede.store - Top Bridge in Ton App",
+  "otc_img_alt": "OTC exchange illustration"
 }

@@ -137,25 +137,25 @@
         })();
     </script>
     <!-- loader -->
-    <div id="loader">
-        <img src="assets/img/loading-icon.webp" alt="icon" class="loading-icon">
+    <div id="loader" aria-hidden="true">
+        <img src="assets/img/loading-icon.webp" alt="" role="presentation" class="loading-icon">
     </div>
     <!-- * loader -->
 
     <!-- App Header -->
     <div class="appHeader bg-primary text-light">
         <div class="left">
-            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel" aria-label="{{ locales.en.menu_title }}" data-i18n-attr="aria-label:menu_title">
-                <ion-icon name="menu-outline"></ion-icon>
+            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel" aria-label="{{ locales.en.menu_open_aria_label }}" data-i18n-attr="aria-label:menu_open_aria_label" aria-controls="sidebarPanel" aria-expanded="false">
+                <ion-icon name="menu-outline" aria-hidden="true"></ion-icon>
             </a>
         </div>
         <div class="pageTitle">
-            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo" width="143" height="24" loading="eager" decoding="async">
+            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="{{ locales.en.logo_alt }}" data-i18n-attr="alt:logo_alt" class="logo" width="143" height="24" loading="eager" decoding="async">
             <span id="tier-badge" class="tier-badge"></span>
         </div>
         <div class="right">
             <button id="wallet-btn" class="headerButton btn btn-sm btn-outline-light rounded" onclick="WalletConnect.connect()" style="font-size:11px;height:28px;padding:0 8px;">
-                <ion-icon name="wallet-outline" style="font-size:16px;margin-right:4px;vertical-align:middle;"></ion-icon>
+                <ion-icon name="wallet-outline" style="font-size:16px;margin-right:4px;vertical-align:middle;" aria-hidden="true"></ion-icon>
                 <span id="wallet-btn-label" data-i18n="wallet_connect_btn">{{ locales.en.wallet_connect_btn }}</span>
             </button>
         </div>
@@ -243,7 +243,7 @@
 
 		<!-- App {{ sectionLabel }} -->
             <div class="text-center mb-4" style="height: calc({{ imgH }} + 9px);">
-                <img src="{{ imgSrc }}" alt="Intro Image" fetchpriority="high" style="width: {{ imgW }}; height: {{ imgH }};">
+                <img src="{{ imgSrc }}" alt="{{ imgAlt | default(sectionLabel + ' illustration') }}" fetchpriority="high" style="width: {{ imgW }}; height: {{ imgH }};">
             </div>
 
                     <h3>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_heading{% else %}exchange_heading{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_heading }}{% else %}{{ locales.en.exchange_heading }}{% endif %}</span></h3>
@@ -280,7 +280,7 @@
         </br>
         <!-- Lazy-load placeholder — replaced by iframe on user interaction or idle -->
         <div id="iframe-placeholder" style="height: 450px; width: 100%; aspect-ratio: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #f6fafd; border-radius: 8px;">
-            <img src="assets/img/loading-icon.webp" alt="logo" style="width: 64px; height: 64px; opacity: 0.6;">
+            <img src="assets/img/loading-icon.webp" alt="" role="presentation" style="width: 64px; height: 64px; opacity: 0.6;">
             <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button" data-i18n="open_exchange_btn">{{ locales.en.open_exchange_btn }}</button>
         </div>
         <script>
@@ -357,7 +357,7 @@
 
                 var iframe = document.createElement('iframe');
                 iframe.id = 'iframe-widget';
-                iframe.title = 'ChangeNOW exchange widget';
+                iframe.title = window.i18n && i18n.t ? i18n.t('iframe_widget_title', '{{ locales.en.iframe_widget_title }}') : '{{ locales.en.iframe_widget_title }}';
                 iframe.src = buildIframeSrc();
                 iframe.loading = 'lazy';
                 iframe.setAttribute('importance', 'high');
@@ -438,14 +438,14 @@
         {{ locales.en.send_to_chat_btn }}
     </button>
 </center>
-<center><a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy"/></a></center></br></br>
+<center><a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="{{ locales.en.cede_badge_alt }}" data-i18n-attr="alt:cede_badge_alt" loading="lazy"/></a></center></br></br>
 <center>
 <table>
 <tr><td>
                         <div class="col-lg-4">
                             <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
                                 <div class="feature-icon dot">
-                                    <center><ion-icon name="information-outline" style="font-size: 64px;"></center>
+                                    <center><ion-icon name="information-outline" style="font-size: 64px;" aria-hidden="true"></ion-icon></center>
                                 </div>
                             </div>
                         </div></td><td><a href="{% if activePage == 'bridge' %}1.html{% else %}2.html{% endif %}" class="btn btn-primary btn-lg" data-i18n="{% if activePage == 'bridge' %}bridge_instruction_btn{% else %}exchange_instruction_btn{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_instruction_btn }}{% else %}{{ locales.en.exchange_instruction_btn }}{% endif %}</a></td></tr>
@@ -456,54 +456,56 @@
     <!-- * App Capsule -->
 
     <!-- App Bottom Menu -->
-    <div class="appBottomMenu">
-        <a href="index.html" class="item{% if activePage == 'bridge' %} active{% endif %}">
+    <nav class="appBottomMenu" aria-label="{{ locales.en.nav_aria_label }}" data-i18n-attr="aria-label:nav_aria_label">
+        <div role="tablist" aria-label="{{ locales.en.nav_aria_label }}" data-i18n-attr="aria-label:nav_aria_label">
+        <a href="index.html" class="item{% if activePage == 'bridge' %} active{% endif %}" role="tab" aria-selected="{% if activePage == 'bridge' %}true{% else %}false{% endif %}">
             <div class="col">
-                <ion-icon name="sync"></ion-icon>
+                <ion-icon name="sync" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_bridge">{{ locales.en.nav_bridge }}</strong>
             </div>
         </a>
-        <a href="index2.html" class="item{% if activePage == 'exchange' %} active{% endif %}">
+        <a href="index2.html" class="item{% if activePage == 'exchange' %} active{% endif %}" role="tab" aria-selected="{% if activePage == 'exchange' %}true{% else %}false{% endif %}">
             <div class="col">
-                <ion-icon name="swap-horizontal-outline"></ion-icon>
+                <ion-icon name="swap-horizontal-outline" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_exchange">{{ locales.en.nav_exchange }}</strong>
             </div>
         </a>
-        <a href="index3.html" class="item">
+        <a href="index3.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="cash-outline"></ion-icon>
+                <ion-icon name="cash-outline" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_otc">{{ locales.en.nav_otc }}</strong>
             </div>
         </a>
-        <a href="orders.html" class="item">
+        <a href="orders.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="receipt-outline"></ion-icon>
+                <ion-icon name="receipt-outline" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_orders">{{ locales.en.nav_orders }}</strong>
             </div>
         </a>
-        <a href="index4{{ t.suffix }}.html" class="item">
+        <a href="index4{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="stats-chart"></ion-icon>
+                <ion-icon name="stats-chart" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_statistics">{{ locales.en.nav_statistics }}</strong>
             </div>
         </a>
-        <a href="referral{{ t.suffix }}.html" class="item">
+        <a href="referral{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="star-outline"></ion-icon>
+                <ion-icon name="star-outline" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_referral">{{ locales.en.nav_referral }}</strong>
             </div>
         </a>
-        <a href="app-settings{{ t.suffix }}.html" class="item">
+        <a href="app-settings{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="settings-outline"></ion-icon>
+                <ion-icon name="settings-outline" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_settings">{{ locales.en.nav_settings }}</strong>
             </div>
         </a>
-    </div>
+        </div>
+    </nav>
     <!-- * App Bottom Menu -->
 
     <!-- App Sidebar -->
-    <div class="modal fade panelbox panelbox-left" id="sidebarPanel" tabindex="-1" role="dialog">
+    <div class="modal fade panelbox panelbox-left" id="sidebarPanel" tabindex="-1" role="dialog" aria-modal="true" aria-label="{{ locales.en.menu_sidebar_aria_label }}" data-i18n-attr="aria-label:menu_sidebar_aria_label">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-body p-0">

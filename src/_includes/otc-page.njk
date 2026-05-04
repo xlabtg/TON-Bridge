@@ -108,20 +108,20 @@
         })();
     </script>
     <!-- loader -->
-    <div id="loader">
-        <img src="assets/img/loading-icon.webp" alt="icon" class="loading-icon">
+    <div id="loader" aria-hidden="true">
+        <img src="assets/img/loading-icon.webp" alt="" role="presentation" class="loading-icon">
     </div>
     <!-- * loader -->
 
     <!-- App Header -->
     <div class="appHeader bg-primary text-light">
         <div class="left">
-            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel" aria-label="{{ locales.en.menu_title }}" data-i18n-attr="aria-label:menu_title">
-                <ion-icon name="menu-outline"></ion-icon>
+            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel" aria-label="{{ locales.en.menu_open_aria_label }}" data-i18n-attr="aria-label:menu_open_aria_label" aria-controls="sidebarPanel" aria-expanded="false">
+                <ion-icon name="menu-outline" aria-hidden="true"></ion-icon>
             </a>
         </div>
         <div class="pageTitle">
-            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo">
+            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="{{ locales.en.logo_alt }}" data-i18n-attr="alt:logo_alt" class="logo">
             <span id="tier-badge" class="tier-badge"></span>
         </div>
     </div>
@@ -152,7 +152,7 @@
 
         <!-- App Bridge -->
         <div class="text-center mb-4">
-            <img src="assets/img/OTC.webp" alt="Intro Image" fetchpriority="high" style="width: 288px; height: 288px;">
+            <img src="assets/img/OTC.webp" alt="{{ locales.en.otc_img_alt }}" data-i18n-attr="alt:otc_img_alt" fetchpriority="high" style="width: 288px; height: 288px;">
         </div>
                     <center><h3>&nbsp;<span data-i18n="otc_heading">{{ locales.en.otc_heading }}</span></h3></center>
                     <p>
@@ -165,7 +165,7 @@
                     </ul>
         <!-- Lazy-load placeholder — replaced by iframe on user interaction or idle -->
         <div id="iframe-placeholder" style="height: 356px; width: 100%; aspect-ratio: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #f6fafd; border-radius: 8px;">
-            <img src="assets/img/loading-icon.webp" alt="logo" style="width: 64px; height: 64px; opacity: 0.6;">
+            <img src="assets/img/loading-icon.webp" alt="" role="presentation" style="width: 64px; height: 64px; opacity: 0.6;">
             <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button" data-i18n="open_exchange_btn">{{ locales.en.open_exchange_btn }}</button>
         </div>
         <script>
@@ -240,7 +240,7 @@
 
                 var iframe = document.createElement('iframe');
                 iframe.id = 'iframe-widget';
-                iframe.title = 'ChangeNOW OTC widget';
+                iframe.title = window.i18n && i18n.t ? i18n.t('iframe_otc_title', '{{ locales.en.iframe_otc_title }}') : '{{ locales.en.iframe_otc_title }}';
                 iframe.src = buildIframeSrc();
                 iframe.loading = 'lazy';
                 iframe.setAttribute('importance', 'high');
@@ -309,61 +309,63 @@
             </button>
         </center>
         <center>
-            <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store — #undefined Bridge in Ton App" loading="lazy" /></a>
+            <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="{{ locales.en.cede_badge_alt }}" data-i18n-attr="alt:cede_badge_alt" loading="lazy" /></a>
         </center>
         </br>
     </div>
     <!-- * App Capsule -->
 
     <!-- App Bottom Menu -->
-    <div class="appBottomMenu">
-        <a href="index.html" class="item">
+    <nav class="appBottomMenu" aria-label="{{ locales.en.nav_aria_label }}" data-i18n-attr="aria-label:nav_aria_label">
+        <div role="tablist" aria-label="{{ locales.en.nav_aria_label }}" data-i18n-attr="aria-label:nav_aria_label">
+        <a href="index.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="sync"></ion-icon>
+                <ion-icon name="sync" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_bridge">{{ locales.en.nav_bridge }}</strong>
             </div>
         </a>
-        <a href="index2.html" class="item">
+        <a href="index2.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="swap-horizontal-outline"></ion-icon>
+                <ion-icon name="swap-horizontal-outline" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_exchange">{{ locales.en.nav_exchange }}</strong>
             </div>
         </a>
-        <a href="index3.html" class="item active">
+        <a href="index3.html" class="item active" role="tab" aria-selected="true">
             <div class="col">
-                <ion-icon name="cash-outline"></ion-icon>
+                <ion-icon name="cash-outline" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_otc">{{ locales.en.nav_otc }}</strong>
             </div>
         </a>
-        <a href="orders.html" class="item">
+        <a href="orders.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="receipt-outline"></ion-icon>
+                <ion-icon name="receipt-outline" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_orders">{{ locales.en.nav_orders }}</strong>
             </div>
         </a>
-        <a href="index4{{ t.suffix }}.html" class="item">
+        <a href="index4{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="stats-chart"></ion-icon>
+                <ion-icon name="stats-chart" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_statistics">{{ locales.en.nav_statistics }}</strong>
             </div>
         </a>
-        <a href="referral{{ t.suffix }}.html" class="item">
+        <a href="referral{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="star-outline"></ion-icon>
+                <ion-icon name="star-outline" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_referral">{{ locales.en.nav_referral }}</strong>
             </div>
         </a>
-        <a href="app-settings{{ t.suffix }}.html" class="item">
+        <a href="app-settings{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="settings-outline"></ion-icon>
+                <ion-icon name="settings-outline" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_settings">{{ locales.en.nav_settings }}</strong>
             </div>
         </a>
-    </div>
+        </div>
+    </nav>
     <!-- * App Bottom Menu -->
 
     <!-- App Sidebar -->
-    <div class="modal fade panelbox panelbox-left" id="sidebarPanel" tabindex="-1" role="dialog">
+    <div class="modal fade panelbox panelbox-left" id="sidebarPanel" tabindex="-1" role="dialog" aria-modal="true" aria-label="{{ locales.en.menu_sidebar_aria_label }}" data-i18n-attr="aria-label:menu_sidebar_aria_label">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-body p-0">

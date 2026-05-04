@@ -33,8 +33,8 @@
         Telegram.WebApp.setHeaderColor('secondary_bg_color');
     </script>
     <!-- loader -->
-    <div id="loader">
-        <img src="assets/img/loading-icon.webp" alt="icon" class="loading-icon">
+    <div id="loader" aria-hidden="true">
+        <img src="assets/img/loading-icon.webp" alt="" role="presentation" class="loading-icon">
     </div>
     <!-- * loader -->
 
@@ -43,7 +43,7 @@
         <div class="left">
         </div>
         <div class="pageTitle">
-            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo">
+            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="{{ locales.en.logo_alt }}" data-i18n-attr="alt:logo_alt" class="logo">
         </div>
     </div>
     <!-- * App Header -->

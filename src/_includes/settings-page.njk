@@ -22,8 +22,8 @@
     <div id="offline-indicator">You are offline</div>
 
     <!-- loader -->
-    <div id="loader">
-        <img src="assets/img/loading-icon.webp" alt="icon" class="loading-icon">
+    <div id="loader" aria-hidden="true">
+        <img src="assets/img/loading-icon.webp" alt="" role="presentation" class="loading-icon">
     </div>
     <!-- * loader -->
 
@@ -45,12 +45,12 @@
         <li>
             <div class="item">
                 <div class="in">
-                    <div data-i18n="settings_dark_mode_label">
+                    <div id="darkmode-label" data-i18n="settings_dark_mode_label">
                         {{ locales.en.settings_dark_mode_label }}
                     </div>
                     <div class="form-check form-switch ms-2">
                         <input class="form-check-input dark-mode-switch" type="checkbox" id="darkmodeSwitch">
-                        <label class="form-check-label" for="darkmodeSwitch"></label>
+                        <label class="form-check-label" for="darkmodeSwitch" aria-hidden="true"></label>
                     </div>
                 </div>
             </div>
@@ -62,12 +62,12 @@
         <li>
             <div class="item">
                 <div class="in">
-                    <div data-i18n="settings_lang_label">
+                    <div id="language-label" data-i18n="settings_lang_label">
                         {{ locales.en.settings_lang_label }}
                     </div>
                     <div class="form-check form-switch ms-2">
                         <input class="form-check-input language-switch" type="checkbox" id="languageSwitch">
-                        <label class="form-check-label" for="languageSwitch"></label>
+                        <label class="form-check-label" for="languageSwitch" aria-hidden="true"></label>
                     </div>
                 </div>
             </div>
@@ -277,50 +277,52 @@
 
 
     <!-- App Bottom Menu -->
-    <div class="appBottomMenu">
-        <a href="index.html" class="item">
+    <nav class="appBottomMenu" aria-label="{{ locales.en.nav_aria_label }}" data-i18n-attr="aria-label:nav_aria_label">
+        <div role="tablist" aria-label="{{ locales.en.nav_aria_label }}" data-i18n-attr="aria-label:nav_aria_label">
+        <a href="index.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="sync"></ion-icon>
+                <ion-icon name="sync" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_bridge">{{ locales.en.nav_bridge }}</strong>
             </div>
         </a>
-        <a href="index2.html" class="item">
+        <a href="index2.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="swap-horizontal-outline"></ion-icon>
+                <ion-icon name="swap-horizontal-outline" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_exchange">{{ locales.en.nav_exchange }}</strong>
             </div>
         </a>
-        <a href="index3.html" class="item">
+        <a href="index3.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="cash-outline"></ion-icon>
+                <ion-icon name="cash-outline" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_otc">{{ locales.en.nav_otc }}</strong>
             </div>
         </a>
-        <a href="orders.html" class="item">
+        <a href="orders.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="receipt-outline"></ion-icon>
+                <ion-icon name="receipt-outline" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_orders">{{ locales.en.nav_orders }}</strong>
             </div>
         </a>
-        <a href="index4{{ t.suffix }}.html" class="item">
+        <a href="index4{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="stats-chart"></ion-icon>
+                <ion-icon name="stats-chart" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_statistics">{{ locales.en.nav_statistics }}</strong>
             </div>
         </a>
-        <a href="referral{{ t.suffix }}.html" class="item">
+        <a href="referral{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
             <div class="col">
-                <ion-icon name="star-outline"></ion-icon>
+                <ion-icon name="star-outline" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_referral">{{ locales.en.nav_referral }}</strong>
             </div>
         </a>
-        <a href="app-settings{{ t.suffix }}.html" class="item active">
+        <a href="app-settings{{ t.suffix }}.html" class="item active" role="tab" aria-selected="true">
             <div class="col">
-                <ion-icon name="settings-outline"></ion-icon>
+                <ion-icon name="settings-outline" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_settings">{{ locales.en.nav_settings }}</strong>
             </div>
         </a>
-    </div>
+        </div>
+    </nav>
     <!-- * App Bottom Menu -->
 
     <!-- ========= JS Files =========  -->

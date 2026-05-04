@@ -13,9 +13,12 @@
   "nav_orders": "Заказы",
   "nav_statistics": "Статистика",
   "nav_settings": "Настройки",
+  "nav_aria_label": "Основная навигация",
   "menu_title": "Меню",
   "menu_settings": "Настройки",
   "menu_support": "Поддержка",
+  "menu_open_aria_label": "Открыть меню",
+  "menu_sidebar_aria_label": "Меню навигации",
   "community_title": "Сообщество",
   "community_group": "Группа в Telegram",
   "community_chat": "Чат в Telegram",
@@ -216,5 +219,10 @@
   "privacy_pdp_body": "Когда применяется Федеральный закон РФ No. 152-ФЗ, мы обрабатываем персональные данные для заявленных целей сервиса, применяем минимизацию и используем согласие там, где оно требуется.",
   "privacy_contact_heading": "Контакты",
   "privacy_contact_body": "По вопросам конфиденциальности напишите:",
-  "privacy_contact_email": "privacy@tonbankcard.com"
+  "privacy_contact_email": "privacy@tonbankcard.com",
+  "logo_alt": "Логотип TON Bridge",
+  "iframe_widget_title": "Виджет обмена валют",
+  "iframe_otc_title": "Виджет OTC-обмена",
+  "cede_badge_alt": "Cede.store - лучший мост в Ton App",
+  "otc_img_alt": "Иллюстрация OTC-обмена"
 }

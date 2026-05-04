@@ -12,6 +12,9 @@ assets/css/*.css.map
 
 # Environment secrets — never commit this file
 .env
+config/tonbridge.php
+assets/js/tonbridge-config.js
+installer/.installed
 
 # OS noise
 .DS_Store

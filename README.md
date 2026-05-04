@@ -89,6 +89,31 @@ npm run check:env
 Exits 0 if all required variables are set, exits 1 with a list of missing
 variables otherwise. Useful for verifying your `.env` without running a full build.
 
+## PHP/MySQL Hosting Installer
+
+Shared hosting deployments can be configured from a browser-based installer after
+uploading the generated files to a PHP 8.1+ hosting account with MySQL:
+
+1. Build locally with placeholder values or upload a prepared `dist/` package.
+2. Open `https://your-domain.example/path/installer/`.
+3. Complete the requirements, Telegram mini-app, analytics, ChangeNOW, backend,
+   and MySQL steps.
+4. The installer writes `.env`, `config/tonbridge.php`,
+   `assets/js/tonbridge-config.js`, updates deploy-time static placeholders, and
+   creates `installer/.installed`.
+5. Update BotFather with the final mini-app URL, then remove the `installer/`
+   directory from the hosting account.
+
+Generated files that can contain secrets are ignored by git. The committed
+`.htaccess` and `config/.htaccess` files deny direct access to `.env` and
+server-side config on Apache hosts.
+
+Run the installer checks locally with:
+
+```bash
+npm run test:installer
+```
+
 ### Secret scanning
 
 A [gitleaks](https://github.com/gitleaks/gitleaks) configuration is provided

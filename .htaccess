@@ -1,0 +1,10 @@
+Options -Indexes
+
+<FilesMatch "^\.env$|^package(-lock)?\.json$|^wrangler\.toml$|^\.gitleaks\.toml$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

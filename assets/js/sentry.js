@@ -1,6 +1,3 @@
-// Sentry browser SDK loader — initialised once per page.
-// DSN is injected at build time via SENTRY_DSN env var (see eleventy.config.js).
-// When SENTRY_DSN is empty the module is a no-op so dev/test builds are unaffected.
 (function () {
   var DSN = '__SENTRY_DSN__';
   var RELEASE = '__SENTRY_RELEASE__';
@@ -8,8 +5,6 @@
   var TRACES_SAMPLE_RATE = parseFloat('__SENTRY_TRACES_SAMPLE_RATE__') || 0.1;
 
   if (!DSN || DSN === '__SENTRY_DSN__') {
-    // No DSN injected — define a no-op stub so other scripts can call
-    // Sentry.setUser() etc. without errors.
     window.Sentry = {
       init: function () {},
       setUser: function () {},
@@ -19,7 +14,6 @@
     return;
   }
 
-  // PII fields that must never reach Sentry
   var PII_KEYS = ['initData', 'hash', 'auth_date', 'bearer', 'authorization'];
 
   function scrubObject(obj) {
@@ -50,13 +44,9 @@
     }
   }
 
-  // Dynamically load the Sentry SDK from CDN (network-only, never precached).
-  // Using the lazy CDN bundle keeps Sentry out of the SW precache list (#2.1).
   var script = document.createElement('script');
   script.crossOrigin = 'anonymous';
-  // Sentry v7 lazy loader — only downloads the full SDK when an error occurs.
   script.src = 'https://browser.sentry-cdn.com/7.120.3/bundle.tracing.replay.min.js';
-  script.integrity = '';
   script.onload = function () {
     if (!window.Sentry) return;
     window.Sentry.init({
@@ -65,10 +55,8 @@
       environment: ENVIRONMENT || 'production',
       sampleRate: 1.0,
       tracesSampleRate: TRACES_SAMPLE_RATE,
-      // Proxy events through our own domain so ad-blockers don't drop them.
       tunnel: '/sentry-tunnel',
       beforeSend: function (event) {
-        // Strip PII from request URLs and extra data
         if (event.request) {
           if (event.request.url) event.request.url = scrubUrl(event.request.url);
           if (event.request.data) event.request.data = scrubObject(event.request.data);
@@ -86,8 +74,6 @@
       },
     });
 
-    // Attach Telegram user id (numeric only) once the SDK is ready.
-    // initDataUnsafe may not be populated until after ready(); we read it lazily.
     try {
       var tg = window.Telegram && window.Telegram.WebApp;
       var userId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id;
@@ -95,12 +81,8 @@
         window.Sentry.setUser({ id: String(userId) });
       }
     } catch (e) {
-      // Non-fatal — user context is optional.
     }
 
-    // Dev-only test button — injects a "Sentry Test" button into the page so
-    // engineers can verify the reporting pipeline works.  Only active when
-    // SENTRY_ENVIRONMENT is "development" or when the URL contains ?sentry-test.
     var isDev = ENVIRONMENT === 'development' || window.location.search.indexOf('sentry-test') !== -1;
     if (isDev) {
       var btn = document.createElement('button');

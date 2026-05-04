@@ -14,15 +14,21 @@ body{
 }
 a{
   color: $colorPrimary;
-  outline: 0 !important;
   text-decoration: none;
   &:hover,
-  &:active,
-  &:focus{
-    outline: 0 !important;
+  &:active{
     color: $colorPrimary;
     text-decoration: none;
   }
+}
+
+:focus-visible {
+  outline: 3px solid $colorPrimary;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+body.dark-mode :focus-visible {
+  outline-color: lighten($colorPrimary, 20%);
 }
 // hide all the scroll bars
 ::-webkit-scrollbar {

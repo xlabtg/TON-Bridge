@@ -53,6 +53,13 @@ test.describe('Admin page — access control', () => {
     await expect(page.locator('#admin-content')).toBeHidden();
   });
 
+  test('403 back link returns to the app root', async ({ page }) => {
+    await mockTelegramAdmin(page, '99999', []);
+    await page.goto(distUrl('admin/index.html'));
+    await expect(page.locator('#access-denied')).toBeVisible();
+    await expect(page.locator('#access-denied a.btn')).toHaveAttribute('href', '../index.html');
+  });
+
   test('shows 403 when user ID is not in the allow-list', async ({ page }) => {
     await mockTelegramAdmin(page, '99999', ['12345', '67890']);
     await page.goto(distUrl('admin/index.html'));

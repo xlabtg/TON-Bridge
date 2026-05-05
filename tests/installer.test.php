@@ -99,14 +99,18 @@ $tmpRoot = sys_get_temp_dir() . '/tonbridge-installer-' . bin2hex(random_bytes(4
 mkdir($tmpRoot . '/assets/js', 0777, true);
 file_put_contents($tmpRoot . '/0.html', "token: '%%TG_ANALYTICS_TOKEN%%'\nappName: '%%TG_ANALYTICS_APP_NAME%%'\nym(%%YANDEX_METRIKA_ID%%, \"init\")\n");
 file_put_contents($tmpRoot . '/index.html', 'https://changenow.io/widget?link_id=00000000000000');
+file_put_contents($tmpRoot . '/assets/js/base.js', "tgAnalyticsToken: '%%TG_ANALYTICS_TOKEN%%'\ntgAnalyticsAppName: '%%TG_ANALYTICS_APP_NAME%%'\nyandexMetrikaId: '%%YANDEX_METRIKA_ID%%'\n");
 file_put_contents($tmpRoot . '/assets/js/deep-link.js', "return 'https://t.me/TONBridge_robot/app?startapp=' + param;");
 file_put_contents($tmpRoot . '/assets/js/social-proof.js', 'https://api.changenow.io/v1/info/stats?link_id=3cc0024a18fd9d');
 
 $changed = tonbridge_installer_apply_static_config($tmpRoot, $config);
 sort($changed);
-assert_true($changed === ['0.html', 'assets/js/deep-link.js', 'assets/js/social-proof.js', 'index.html'], 'static replacement should report changed deploy files');
+assert_true($changed === ['0.html', 'assets/js/base.js', 'assets/js/deep-link.js', 'assets/js/social-proof.js', 'index.html'], 'static replacement should report changed deploy files');
 assert_contains("token: 'analytics-token'", file_get_contents($tmpRoot . '/0.html'), 'static HTML should get analytics token');
 assert_contains('ym(98019798, "init")', file_get_contents($tmpRoot . '/0.html'), 'static HTML should get Yandex ID');
+assert_contains("tgAnalyticsToken: 'analytics-token'", file_get_contents($tmpRoot . '/assets/js/base.js'), 'base.js should get analytics token');
+assert_contains("tgAnalyticsAppName: 'ExampleBridgeBot'", file_get_contents($tmpRoot . '/assets/js/base.js'), 'base.js should get analytics app name');
+assert_contains("yandexMetrikaId: '98019798'", file_get_contents($tmpRoot . '/assets/js/base.js'), 'base.js should get Yandex ID');
 assert_contains('link_id=partner123', file_get_contents($tmpRoot . '/index.html'), 'static HTML should get ChangeNOW link id');
 assert_contains('https://t.me/ExampleBridgeBot/app?startapp=', file_get_contents($tmpRoot . '/assets/js/deep-link.js'), 'static JS should get bot username');
 assert_contains('link_id=partner123', file_get_contents($tmpRoot . '/assets/js/social-proof.js'), 'static JS should get stats link id');

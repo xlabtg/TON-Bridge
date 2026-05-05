@@ -599,6 +599,16 @@ switchDarkMode.forEach(function (el) {
 
 var CONSENT_KEY = "FinappConsent";
 var CONSENT_TTL_MS = 12 * 30 * 24 * 60 * 60 * 1000; // ~12 months
+var ANALYTICS_CONFIG = {
+    yandexMetrikaId: '%%YANDEX_METRIKA_ID%%',
+    tgAnalyticsToken: '%%TG_ANALYTICS_TOKEN%%',
+    tgAnalyticsAppName: '%%TG_ANALYTICS_APP_NAME%%'
+};
+var TGANALYTICS_SRI = "sha384-njlroka3F7BclV9FXjiHDU9ZSrhSwNVRewye4d5rpWXYvery9PUnnhuAZAHfLyJ+";
+
+function _configuredAnalyticsValue(value) {
+    return (typeof value === "string" && value && value.indexOf("%%") !== 0) ? value : "";
+}
 
 function _readConsent() {
     try {
@@ -635,25 +645,30 @@ function _loadAnalytics(consent) {
     if (!consent || !consent.analytics) return;
 
     // Yandex.Metrika
-    if (typeof ym === "undefined") {
+    var metrikaId = _configuredAnalyticsValue(ANALYTICS_CONFIG.yandexMetrikaId);
+    if (metrikaId && typeof ym === "undefined") {
         (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
         m[i].l=1*new Date();
         for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
         (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-        ym(98019798, "init", { clickmap: true, trackLinks: true, accurateTrackBounce: true, webvisor: true });
+        ym(Number(metrikaId) || metrikaId, "init", { clickmap: true, trackLinks: true, accurateTrackBounce: true, webvisor: true });
     }
 
     // Telegram Analytics
-    if (typeof window.telegramAnalytics === "undefined" || !window._tgAnalyticsLoaded) {
+    var tgAnalyticsToken = _configuredAnalyticsValue(ANALYTICS_CONFIG.tgAnalyticsToken);
+    var tgAnalyticsAppName = _configuredAnalyticsValue(ANALYTICS_CONFIG.tgAnalyticsAppName);
+    if (tgAnalyticsToken && tgAnalyticsAppName && typeof window.telegramAnalytics === "undefined" && !window._tgAnalyticsLoaded) {
         window._tgAnalyticsLoaded = true;
         var tgScript = document.createElement("script");
         tgScript.src = "https://tganalytics.xyz/index.js";
         tgScript.async = true;
+        tgScript.integrity = TGANALYTICS_SRI;
+        tgScript.crossOrigin = "anonymous";
         tgScript.onload = function() {
             window.telegramAnalytics.init({
-                token: "eyJhcHBfbmFtZSI6IlRPTkJyaWRnZV9yb2JvdCIsImFwcF91cmwiOiJodHRwczovL3QubWUvVE9OQnJpZGdlX3JvYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vdG9uYmFua2NhcmQuY29tL2JyaWRnZS9UTUEvMDAuaHRtbCJ9!PQ40y7Tz3lZti6uDVlApq+BcGxi8tR9WEsH6Hyu+mD0=",
-                appName: "TONBridge_robot"
+                token: tgAnalyticsToken,
+                appName: tgAnalyticsAppName
             });
         };
         document.head.appendChild(tgScript);

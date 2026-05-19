@@ -860,6 +860,9 @@
 .rate-ticker-section {
   display: block;
   min-height: 128px;
+  // Critical CSS clamps max-height to prevent CLS during async style.css load.
+  // Release it once the full stylesheet (with splide layout) is applied.
+  max-height: none;
   margin: 12px 0 8px;
   overflow: hidden;
 }

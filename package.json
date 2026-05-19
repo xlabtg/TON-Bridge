@@ -33,6 +33,7 @@
     "web-app-manifest-validator": "^1.1.0"
   },
   "dependencies": {
-    "@tonconnect/ui": "^2.4.4"
+    "@tonconnect/ui": "^2.4.4",
+    "chart.js": "^4.5.1"
   }
 }

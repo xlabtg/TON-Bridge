@@ -1,3 +1,4 @@
+{% set activePage = 'otc' %}
 <!doctype html>
 <html lang="{{ locales.en.lang_attr }}">
 
@@ -323,58 +324,7 @@
     <!-- * App Capsule -->
 
     <!-- App Bottom Menu -->
-    <nav class="appBottomMenu" aria-label="{{ locales.en.nav_aria_label }}" data-i18n-attr="aria-label:nav_aria_label">
-        <div role="tablist" aria-label="{{ locales.en.nav_aria_label }}" data-i18n-attr="aria-label:nav_aria_label">
-        <a href="index.html" class="item" role="tab" aria-selected="false">
-            <div class="col">
-                <ion-icon name="sync" aria-hidden="true"></ion-icon>
-                <strong data-i18n="nav_bridge">{{ locales.en.nav_bridge }}</strong>
-            </div>
-        </a>
-        <a href="index2.html" class="item" role="tab" aria-selected="false">
-            <div class="col">
-                <ion-icon name="swap-horizontal-outline" aria-hidden="true"></ion-icon>
-                <strong data-i18n="nav_exchange">{{ locales.en.nav_exchange }}</strong>
-            </div>
-        </a>
-        <a href="index3.html" class="item active" role="tab" aria-selected="true">
-            <div class="col">
-                <ion-icon name="cash-outline" aria-hidden="true"></ion-icon>
-                <strong data-i18n="nav_otc">{{ locales.en.nav_otc }}</strong>
-            </div>
-        </a>
-        <a href="orders.html" class="item" role="tab" aria-selected="false">
-            <div class="col">
-                <ion-icon name="receipt-outline" aria-hidden="true"></ion-icon>
-                <strong data-i18n="nav_orders">{{ locales.en.nav_orders }}</strong>
-            </div>
-        </a>
-        <a href="redeem.html" class="item" role="tab" aria-selected="false">
-            <div class="col">
-                <ion-icon name="gift-outline" aria-hidden="true"></ion-icon>
-                <strong data-i18n="nav_redeem">{{ locales.en.nav_redeem }}</strong>
-            </div>
-        </a>
-        <a href="index4{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
-            <div class="col">
-                <ion-icon name="stats-chart" aria-hidden="true"></ion-icon>
-                <strong data-i18n="nav_statistics">{{ locales.en.nav_statistics }}</strong>
-            </div>
-        </a>
-        <a href="referral{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
-            <div class="col">
-                <ion-icon name="star-outline" aria-hidden="true"></ion-icon>
-                <strong data-i18n="nav_referral">{{ locales.en.nav_referral }}</strong>
-            </div>
-        </a>
-        <a href="app-settings{{ t.suffix }}.html" class="item" role="tab" aria-selected="false">
-            <div class="col">
-                <ion-icon name="settings-outline" aria-hidden="true"></ion-icon>
-                <strong data-i18n="nav_settings">{{ locales.en.nav_settings }}</strong>
-            </div>
-        </a>
-        </div>
-    </nav>
+    {% include "bottom-nav.njk" %}
     <!-- * App Bottom Menu -->
 
     <!-- App Sidebar -->

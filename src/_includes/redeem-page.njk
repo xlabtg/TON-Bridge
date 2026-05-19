@@ -1,3 +1,4 @@
+{% set activePage = 'redeem' %}
 <!doctype html>
 <html lang="{{ t.lang_attr }}">
 
@@ -211,38 +212,7 @@
     <!-- * App Capsule -->
 
     <!-- App Bottom Menu -->
-    <div class="appBottomMenu">
-        <a href="index{{ t.suffix }}.html" class="item">
-            <div class="col">
-                <ion-icon name="sync"></ion-icon>
-                <strong>{{ t.nav_bridge }}</strong>
-            </div>
-        </a>
-        <a href="index2{{ t.suffix }}.html" class="item">
-            <div class="col">
-                <ion-icon name="swap-horizontal-outline"></ion-icon>
-                <strong>{{ t.nav_exchange }}</strong>
-            </div>
-        </a>
-        <a href="index3{{ t.suffix }}.html" class="item">
-            <div class="col">
-                <ion-icon name="cash-outline"></ion-icon>
-                <strong>{{ t.nav_otc }}</strong>
-            </div>
-        </a>
-        <a href="redeem{{ t.suffix }}.html" class="item active">
-            <div class="col">
-                <ion-icon name="gift-outline"></ion-icon>
-                <strong>{{ t.nav_redeem }}</strong>
-            </div>
-        </a>
-        <a href="app-settings{{ t.suffix }}.html" class="item">
-            <div class="col">
-                <ion-icon name="settings-outline"></ion-icon>
-                <strong>{{ t.nav_settings }}</strong>
-            </div>
-        </a>
-    </div>
+    {% include "bottom-nav.njk" %}
     <!-- * App Bottom Menu -->
 
     <!-- Toast -->

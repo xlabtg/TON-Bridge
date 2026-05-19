@@ -8,8 +8,6 @@ function distUrl(file) {
   return 'file://' + resolve(__dirname, '..', 'dist', file);
 }
 
-const ADMIN_API_BASE = 'https://admin-api.test';
-
 const FIXTURES = {
   stats: {
     stats: {
@@ -51,58 +49,14 @@ const FIXTURES = {
 };
 
 /**
- * Mock the worker-backed /admin/api/* endpoints so the page can render without
- * a real Cloudflare Worker. Routes are registered before navigation.
- */
-async function mockAdminApi(page) {
-  let auditPayload = FIXTURES.auditEmpty;
-  let fraudPayload = FIXTURES.fraudInitial;
-
-  await page.route(`${ADMIN_API_BASE}/admin/api/stats`, route => route.fulfill({
-    status: 200,
-    contentType: 'application/json',
-    body: JSON.stringify(FIXTURES.stats),
-  }));
-
-  await page.route(new RegExp(`^${ADMIN_API_BASE}/admin/api/fraud-flags(?:\\?.*)?$`), route => {
-    if (route.request().method() === 'POST') return route.continue();
-    return route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(fraudPayload),
-    });
-  });
-
-  await page.route(`${ADMIN_API_BASE}/admin/api/fraud-flags/resolve`, route => {
-    const body = JSON.parse(route.request().postData() || '{}');
-    fraudPayload = {
-      ...fraudPayload,
-      items: fraudPayload.items.map(it => (it.id === body.id ? { ...it, resolved: 1 } : it)),
-    };
-    auditPayload = FIXTURES.auditAfterResolve;
-    return route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({ ok: true, id: body.id }),
-    });
-  });
-
-  await page.route(`${ADMIN_API_BASE}/admin/api/top-users`, route => route.fulfill({
-    status: 200,
-    contentType: 'application/json',
-    body: JSON.stringify(FIXTURES.topUsers),
-  }));
-
-  await page.route(`${ADMIN_API_BASE}/admin/api/audit-log`, route => route.fulfill({
-    status: 200,
-    contentType: 'application/json',
-    body: JSON.stringify(auditPayload),
-  }));
-}
-
-/**
  * Set up a mock Telegram.WebApp with a given user ID and an allowed admin IDs list.
  * adminIds: null means empty allow-list (nobody is admin), otherwise an array of string IDs.
+ *
+ * Also intercepts window.fetch for /admin/api/* requests so the page can render
+ * without a live worker. We intercept inside the page (rather than via
+ * page.route) because the page's <meta http-equiv="Content-Security-Policy">
+ * blocks real network requests to test hostnames; patching fetch before
+ * admin.js runs sidesteps the CSP entirely.
  */
 async function mockTelegramAdmin(page, userId, adminIds) {
   await page.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({
@@ -111,10 +65,8 @@ async function mockTelegramAdmin(page, userId, adminIds) {
     body: '/* mocked */',
   }));
 
-  await page.addInitScript(({ uid, ids, apiBase }) => {
-    // Inject allowed IDs and the admin API base before admin.js runs.
+  await page.addInitScript(({ uid, ids, fixtures }) => {
     window.__adminIds = ids || [];
-    window.__adminApiBase = apiBase;
     window.__adminInitData = uid ? 'user=%7B%22id%22%3A' + uid + '%7D' : '';
 
     const backButton = {
@@ -137,12 +89,60 @@ async function mockTelegramAdmin(page, userId, adminIds) {
         BackButton: backButton,
       },
     };
-  }, { uid: userId || null, ids: adminIds, apiBase: ADMIN_API_BASE });
+
+    // In-page mock of the admin API. Patches window.fetch only for paths
+    // beginning with /admin/api/ so unrelated requests (e.g. the SW
+    // registration script) are unaffected.
+    const state = {
+      audit: fixtures.auditEmpty,
+      fraud: fixtures.fraudInitial,
+    };
+
+    function jsonResponse(payload, status) {
+      const body = JSON.stringify(payload);
+      return new Response(body, {
+        status: status || 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const originalFetch = window.fetch.bind(window);
+    window.fetch = function (input, init) {
+      const url = typeof input === 'string' ? input : (input && input.url) || '';
+      const method = (init && init.method) || (input && input.method) || 'GET';
+      const idx = url.indexOf('/admin/api/');
+      if (idx === -1) return originalFetch(input, init);
+      const path = url.slice(idx).split('?')[0];
+
+      if (path === '/admin/api/stats') {
+        return Promise.resolve(jsonResponse(fixtures.stats));
+      }
+      if (path === '/admin/api/fraud-flags' && method.toUpperCase() === 'GET') {
+        return Promise.resolve(jsonResponse(state.fraud));
+      }
+      if (path === '/admin/api/fraud-flags/resolve') {
+        const body = init && init.body ? JSON.parse(init.body) : {};
+        state.fraud = Object.assign({}, state.fraud, {
+          items: state.fraud.items.map(function (it) {
+            return it.id === body.id ? Object.assign({}, it, { resolved: 1 }) : it;
+          }),
+        });
+        state.audit = fixtures.auditAfterResolve;
+        return Promise.resolve(jsonResponse({ ok: true, id: body.id }));
+      }
+      if (path === '/admin/api/top-users') {
+        return Promise.resolve(jsonResponse(fixtures.topUsers));
+      }
+      if (path === '/admin/api/audit-log') {
+        return Promise.resolve(jsonResponse(state.audit));
+      }
+      return Promise.resolve(new Response('Not found', { status: 404 }));
+    };
+  }, { uid: userId || null, ids: adminIds, fixtures: FIXTURES });
 }
 
 test.describe('Admin page — access control', () => {
   test('shows 403 when allow-list is empty', async ({ page }) => {
-    await mockAdminApi(page);
     await mockTelegramAdmin(page, '99999', []);
     await page.goto(distUrl('admin/index.html'));
     await expect(page.locator('#access-denied')).toBeVisible();
@@ -150,7 +150,6 @@ test.describe('Admin page — access control', () => {
   });
 
   test('403 back link returns to the app root', async ({ page }) => {
-    await mockAdminApi(page);
     await mockTelegramAdmin(page, '99999', []);
     await page.goto(distUrl('admin/index.html'));
     await expect(page.locator('#access-denied')).toBeVisible();
@@ -158,7 +157,6 @@ test.describe('Admin page — access control', () => {
   });
 
   test('shows 403 when user ID is not in the allow-list', async ({ page }) => {
-    await mockAdminApi(page);
     await mockTelegramAdmin(page, '99999', ['12345', '67890']);
     await page.goto(distUrl('admin/index.html'));
     await expect(page.locator('#access-denied')).toBeVisible();
@@ -166,7 +164,6 @@ test.describe('Admin page — access control', () => {
   });
 
   test('shows admin content when user ID matches allow-list', async ({ page }) => {
-    await mockAdminApi(page);
     await mockTelegramAdmin(page, '12345', ['12345', '67890']);
     await page.goto(distUrl('admin/index.html'));
     await expect(page.locator('#admin-content')).toBeVisible();
@@ -176,7 +173,6 @@ test.describe('Admin page — access control', () => {
 
 test.describe('Admin page — stats rendering', () => {
   async function loadAdminAsAdmin(page) {
-    await mockAdminApi(page);
     await mockTelegramAdmin(page, '12345', ['12345']);
     await page.goto(distUrl('admin/index.html'));
     await expect(page.locator('#admin-content')).toBeVisible();

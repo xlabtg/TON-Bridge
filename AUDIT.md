@@ -107,9 +107,33 @@ item.
 
 ### D. `npm audit` advisories via `@lhci/cli`
 
-Already on the residual list. The available automatic fix isn't a safe
-patch-level upgrade, so it needs an intentional dependency-maintenance PR
-rather than a `--force` resolution.
+Resolved in #127 (issue #120). The chosen mitigation was intentional and
+patch-level only:
+
+* `npm audit fix` (no `--force`) bumped three transitives that ship newer
+  patched versions compatible with our installed roots:
+  `fast-uri` 3.1.0 → 3.1.2 (high — path traversal / host confusion via
+  percent-encoded segments, GHSA-q3j6-qgpj-74h6 / GHSA-v39h-62p7-jpjc), used
+  by `html-validate` via `ajv`; `brace-expansion` 5.0.5 → 5.0.6 (moderate —
+  DoS, GHSA-jxxr-4gwj-5jf2) under `html-validate`'s `glob`; `ws` 8.20.0 →
+  8.20.1 (moderate — uninitialized memory disclosure, GHSA-58qx-3vcg-4xpx)
+  under `@11ty/eleventy-dev-server` and Lighthouse's `puppeteer-core`.
+* The `tmp` advisory (low — symlink-based arbitrary file write,
+  GHSA-52f5-9888-hmc6) only had `npm audit fix --force` available because
+  `@lhci/cli@0.15.1` (the latest) still pins `tmp@^0.1.0` (and pulls
+  `inquirer@6` → `external-editor@3` → `tmp@0.0.33`). The "force" upgrade
+  npm offered would actually **downgrade** `@lhci/cli` to `0.1.0`, losing
+  Lighthouse 12 support — not a real fix. Instead, this PR adds a single
+  `overrides` entry in `package.json` to force `tmp` to `^0.2.4` for every
+  consumer in the tree. Both call sites we depend on are API-compatible
+  with `tmp` 0.2.x: `@lhci/cli/src/open/open.js` uses `tmp.fileSync({…})`,
+  and `external-editor` uses `tmp.tmpNameSync({…})`. The override was
+  verified with `npx lhci healthcheck`, the Playwright suite (532 tests),
+  and `npx html-validate "dist/*.html"`.
+
+After the change, `npm audit` reports **0 vulnerabilities** in both the
+default and `--omit=dev` views, and `npm ci && npm run build && npm test`
+still pass. No advisories were suppressed.
 
 ### E. Chart.js loaded from CDN without SRI
 

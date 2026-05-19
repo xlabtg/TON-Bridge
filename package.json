@@ -35,5 +35,8 @@
   "dependencies": {
     "@tonconnect/ui": "^2.4.4",
     "chart.js": "^4.5.1"
+  },
+  "overrides": {
+    "tmp": "^0.2.4"
   }
 }

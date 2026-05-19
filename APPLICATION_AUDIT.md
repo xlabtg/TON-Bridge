@@ -8,7 +8,7 @@ Scope: app-wide review for configuration leaks, security header consistency, nav
 
 | Check | Result | Notes |
 | --- | --- | --- |
-| `npm ci` | Passed | `npm audit` still reports transitive low/moderate advisories under `@lhci/cli`; the suggested fix is not a safe patch-level upgrade. |
+| `npm ci` | Passed | `npm audit` is clean after PR #127 (issue #120) — see `AUDIT.md` §D for the dependency-maintenance decision log. |
 | `npm run check:i18n` | Passed | Locale key coverage remains consistent. |
 | `npm run build` | Passed | Build requires `TG_ANALYTICS_TOKEN`, `TG_ANALYTICS_APP_NAME`, `YANDEX_METRIKA_ID`, `CHANGENOW_LINK_ID`, and `BOT_USERNAME`. |
 | `npm run validate:manifest` | Passed | Manifest/screenshots satisfy the current validator. |
@@ -34,6 +34,6 @@ Scope: app-wide review for configuration leaks, security header consistency, nav
 
 1. CSP remains report-only and still allows inline scripts/styles because the app currently relies on inline initialization blocks. A future hard-enforcement pass should migrate those blocks to nonces, hashes, or bundled local files.
 2. Lighthouse reports render-blocking resources on Bridge, Exchange, and OTC pages, plus a legacy JavaScript warning on Bridge. Budgets pass, but these are good candidates for a performance follow-up.
-3. `npm audit` reports transitive advisories through the Lighthouse CI toolchain. The available automatic fix is not a safe compatible upgrade, so this should be tracked with dependency maintenance rather than applied blindly.
+3. ~~`npm audit` reports transitive advisories through the Lighthouse CI toolchain. The available automatic fix is not a safe compatible upgrade, so this should be tracked with dependency maintenance rather than applied blindly.~~ Resolved in PR #127 (issue #120) — see `AUDIT.md` §D for the decision log.
 4. The statistics page still uses a CDN Chart.js URL. Pinning to an exact asset with SRI or self-hosting would make third-party script policy more consistent.
 5. The admin panel is gated by Telegram user IDs, but the displayed datasets are still local/demo data. Production admin operations should be backed by authenticated server APIs before expanding the surface.

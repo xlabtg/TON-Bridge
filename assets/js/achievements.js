@@ -41,6 +41,15 @@
     var STORAGE_KEY = 'achievementStats';
     var tg = window.Telegram && window.Telegram.WebApp;
 
+    // CloudStorage methods throw `WebAppMethodUnsupported` on Telegram WebApp
+    // versions below 6.1. Treat the API as unavailable in that case so we fall
+    // back to localStorage instead of crashing.
+    function cloudStorage() {
+        if (!tg || !tg.CloudStorage) return null;
+        if (typeof tg.isVersionAtLeast === 'function' && !tg.isVersionAtLeast('6.1')) return null;
+        return tg.CloudStorage;
+    }
+
     // ---------- helpers ----------
 
     function computeTier(swaps, volume) {
@@ -59,31 +68,44 @@
         return idx >= 0 && idx < TIERS.length - 1 ? TIERS[idx + 1] : null;
     }
 
+    function loadFromLocal(cb) {
+        try {
+            var raw = localStorage.getItem(STORAGE_KEY);
+            cb(raw ? JSON.parse(raw) : { swaps: 0, volume: 0, tierId: null });
+        } catch (e) {
+            cb({ swaps: 0, volume: 0, tierId: null });
+        }
+    }
+
     function loadStats(cb) {
-        if (tg && tg.CloudStorage) {
-            tg.CloudStorage.getItem(STORAGE_KEY, function (err, val) {
-                if (err || !val) return cb({ swaps: 0, volume: 0, tierId: null });
-                try { cb(JSON.parse(val)); } catch (e) { cb({ swaps: 0, volume: 0, tierId: null }); }
-            });
-        } else {
-            // Fallback for non-Telegram environments (dev/test)
+        var cs = cloudStorage();
+        if (cs) {
             try {
-                var raw = localStorage.getItem(STORAGE_KEY);
-                cb(raw ? JSON.parse(raw) : { swaps: 0, volume: 0, tierId: null });
+                cs.getItem(STORAGE_KEY, function (err, val) {
+                    if (err || !val) return loadFromLocal(cb);
+                    try { cb(JSON.parse(val)); } catch (e) { loadFromLocal(cb); }
+                });
+                return;
             } catch (e) {
-                cb({ swaps: 0, volume: 0, tierId: null });
+                // Synchronous throw on older Telegram clients — fall through.
             }
         }
+        loadFromLocal(cb);
     }
 
     function saveStats(stats, cb) {
         var val = JSON.stringify(stats);
-        if (tg && tg.CloudStorage) {
-            tg.CloudStorage.setItem(STORAGE_KEY, val, cb || function () {});
-        } else {
-            try { localStorage.setItem(STORAGE_KEY, val); } catch (e) {}
-            if (cb) cb(null);
+        var cs = cloudStorage();
+        if (cs) {
+            try {
+                cs.setItem(STORAGE_KEY, val, cb || function () {});
+                return;
+            } catch (e) {
+                // Fall through to localStorage.
+            }
         }
+        try { localStorage.setItem(STORAGE_KEY, val); } catch (e) {}
+        if (cb) cb(null);
     }
 
     // ---------- UI ----------

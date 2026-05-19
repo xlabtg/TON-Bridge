@@ -78,27 +78,44 @@
 
   var storageKey = function (chain) { return 'addressBook:' + chain; };
 
+  // CloudStorage methods throw `WebAppMethodUnsupported` on Telegram WebApp
+  // versions below 6.1. Probe via the documented version check so callers can
+  // fall back instead of crashing the page.
+  function cloudStorage() {
+    var wa = global.Telegram && global.Telegram.WebApp;
+    if (!wa || !wa.CloudStorage) return null;
+    if (typeof wa.isVersionAtLeast === 'function' && !wa.isVersionAtLeast('6.1')) return null;
+    return wa.CloudStorage;
+  }
+
   function loadEntries(chain, callback) {
-    if (!global.Telegram || !global.Telegram.WebApp || !global.Telegram.WebApp.CloudStorage) {
+    var cs = cloudStorage();
+    if (!cs) { callback([]); return; }
+    try {
+      cs.getItem(storageKey(chain), function (err, value) {
+        if (err || !value) { callback([]); return; }
+        try { callback(JSON.parse(value)); } catch (e) { callback([]); }
+      });
+    } catch (e) {
       callback([]);
-      return;
     }
-    global.Telegram.WebApp.CloudStorage.getItem(storageKey(chain), function (err, value) {
-      if (err || !value) { callback([]); return; }
-      try { callback(JSON.parse(value)); } catch (e) { callback([]); }
-    });
   }
 
   function saveEntries(chain, entries, callback) {
-    if (!global.Telegram || !global.Telegram.WebApp || !global.Telegram.WebApp.CloudStorage) {
+    var cs = cloudStorage();
+    if (!cs) {
       if (callback) callback(null);
       return;
     }
-    global.Telegram.WebApp.CloudStorage.setItem(
-      storageKey(chain),
-      JSON.stringify(entries),
-      function (err) { if (callback) callback(err); }
-    );
+    try {
+      cs.setItem(
+        storageKey(chain),
+        JSON.stringify(entries),
+        function (err) { if (callback) callback(err); }
+      );
+    } catch (e) {
+      if (callback) callback(e);
+    }
   }
 
   // ── Entry model ───────────────────────────────────────────────────────────

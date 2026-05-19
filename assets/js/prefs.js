@@ -6,30 +6,48 @@
     var PREF_KEYS = ['pref:lastPair', 'pref:lang', 'pref:theme', 'pref:lastFromAmount', 'pref:notificationsOptOut'];
 
     function cs() {
-        return window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage;
+        // Telegram WebApp 6.0 exposes the CloudStorage object but its methods
+        // throw `WebAppMethodUnsupported` synchronously. Gate behind a version
+        // check so callers fall back to localStorage instead of dying.
+        var wa = window.Telegram && window.Telegram.WebApp;
+        if (!wa || !wa.CloudStorage) return null;
+        if (typeof wa.isVersionAtLeast === 'function' && !wa.isVersionAtLeast('6.1')) return null;
+        return wa.CloudStorage;
     }
 
     function csSet(key, value) {
         return new Promise(function (resolve, reject) {
-            cs().setItem(key, value, function (err) {
-                if (err) reject(err); else resolve();
-            });
+            try {
+                cs().setItem(key, value, function (err) {
+                    if (err) reject(err); else resolve();
+                });
+            } catch (e) {
+                reject(e);
+            }
         });
     }
 
     function csGet(key) {
         return new Promise(function (resolve, reject) {
-            cs().getItem(key, function (err, value) {
-                if (err) reject(err); else resolve(value || null);
-            });
+            try {
+                cs().getItem(key, function (err, value) {
+                    if (err) reject(err); else resolve(value || null);
+                });
+            } catch (e) {
+                reject(e);
+            }
         });
     }
 
     function csRemove(keys) {
         return new Promise(function (resolve, reject) {
-            cs().removeItems(keys, function (err) {
-                if (err) reject(err); else resolve();
-            });
+            try {
+                cs().removeItems(keys, function (err) {
+                    if (err) reject(err); else resolve();
+                });
+            } catch (e) {
+                reject(e);
+            }
         });
     }
 
@@ -38,44 +56,57 @@
         if (!cloud) return Promise.resolve();
 
         return new Promise(function (resolve) {
-            cloud.getItem(MIGRATION_FLAG, function (err, done) {
-                if (err || done === '1') {
-                    resolve();
-                    return;
-                }
-
-                var keysToMigrate = [];
-                var values = {};
-                PREF_KEYS.forEach(function (key) {
-                    var val = localStorage.getItem(key);
-                    if (val !== null) {
-                        keysToMigrate.push(key);
-                        values[key] = val;
-                    }
-                });
-
-                if (keysToMigrate.length === 0) {
-                    cloud.setItem(MIGRATION_FLAG, '1', function () {
+            try {
+                cloud.getItem(MIGRATION_FLAG, function (err, done) {
+                    if (err || done === '1') {
                         resolve();
-                    });
-                    return;
-                }
+                        return;
+                    }
 
-                var remaining = keysToMigrate.length;
-                keysToMigrate.forEach(function (key) {
-                    cloud.setItem(key, values[key], function () {
-                        remaining--;
-                        if (remaining === 0) {
+                    var keysToMigrate = [];
+                    var values = {};
+                    PREF_KEYS.forEach(function (key) {
+                        var val = localStorage.getItem(key);
+                        if (val !== null) {
+                            keysToMigrate.push(key);
+                            values[key] = val;
+                        }
+                    });
+
+                    if (keysToMigrate.length === 0) {
+                        try {
                             cloud.setItem(MIGRATION_FLAG, '1', function () {
-                                keysToMigrate.forEach(function (k) {
-                                    localStorage.removeItem(k);
-                                });
                                 resolve();
                             });
+                        } catch (e) { resolve(); }
+                        return;
+                    }
+
+                    var remaining = keysToMigrate.length;
+                    keysToMigrate.forEach(function (key) {
+                        try {
+                            cloud.setItem(key, values[key], function () {
+                                remaining--;
+                                if (remaining === 0) {
+                                    try {
+                                        cloud.setItem(MIGRATION_FLAG, '1', function () {
+                                            keysToMigrate.forEach(function (k) {
+                                                localStorage.removeItem(k);
+                                            });
+                                            resolve();
+                                        });
+                                    } catch (e) { resolve(); }
+                                }
+                            });
+                        } catch (e) {
+                            remaining--;
+                            if (remaining === 0) resolve();
                         }
                     });
                 });
-            });
+            } catch (e) {
+                resolve();
+            }
         });
     }
 

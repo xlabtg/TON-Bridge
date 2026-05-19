@@ -18,7 +18,13 @@
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="manifest" href="__manifest.json">
-    <meta http-equiv="Content-Security-Policy-Report-Only" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://cdn.jsdelivr.net https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://changenow.io; connect-src 'self' https://*.changenow.io https://api.telegram.org https://tganalytics.xyz; report-uri /csp-report">
+    {# Enforced CSP (issue #117). 'unsafe-inline' is required while the page shells
+       contain inline <script> blocks templated with Nunjucks variables and inline
+       event handlers (onclick/onload). Migrating to nonces/hashes is filed as a
+       follow-up. `report-uri`, `report-to`, `frame-ancestors`, and `sandbox` are
+       intentionally omitted — they are silently ignored inside <meta> and need an
+       HTTP response header to take effect. #}
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://cdn.jsdelivr.net https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://changenow.io; connect-src 'self' https://*.changenow.io https://api.telegram.org https://tganalytics.xyz https://*.workers.dev https://mc.yandex.ru">
 </head>
 
 <body>

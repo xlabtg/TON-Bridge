@@ -47,6 +47,32 @@ Successful proposals return `201` with the inserted `config_id`,
 `effective_at`, and normalized config. Invalid JSON returns `400`; invalid
 knob values or an unprofitable config return `422`.
 
+### `GET /admin/api/*` (admin panel)
+
+Endpoints backing the admin Mini App (`src/admin.njk`, issue #121). They all
+share the same auth mechanism:
+
+1. **Authentication** — the request must carry a Telegram Mini App `initData`
+   payload either via `Authorization: tma <initData>`, an `?initData=` query
+   parameter, or a JSON body field. Validation reuses `validateInitData()`
+   (HMAC-SHA-256 against `BOT_TOKEN`). When `DEV_MODE=1` the HMAC step is
+   skipped — never set this in production.
+2. **Authorization** — the verified Telegram user ID must be present in
+   `ADMIN_TELEGRAM_IDS` (comma-separated). An empty allow-list rejects
+   everyone with `403`.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/admin/api/stats` | Turnover (24 h / 7 d / 30 d), outstanding & redeemed points, TBC payouts + USD equivalent |
+| `GET` | `/admin/api/fraud-flags?page=&size=` | Paginated open + resolved flags ordered by `resolved ASC, created_at DESC` |
+| `POST` | `/admin/api/fraud-flags/resolve` | Marks `{ id }` as resolved and writes an `audit_log` row |
+| `GET` | `/admin/api/top-users` | Top 20 users by lifetime swap turnover in USD |
+| `GET` | `/admin/api/audit-log` | Latest 50 audit rows (decoded `before` / `after` JSON) |
+
+All responses are JSON. `401` indicates missing/invalid initData, `403`
+indicates a user outside the allow-list, `404` / `409` are returned by the
+resolve endpoint for missing / already-resolved flags.
+
 ## Rate-knob reference
 
 All knobs are surfaced as environment variables with safe defaults. They are
@@ -97,6 +123,7 @@ Migrations live in `worker/migrations/` and are applied in filename order.
 | `0001_affiliate.sql` | Core affiliate tables: `users`, `swaps`, `point_ledger`, `redemptions`; `user_balances` view |
 | `0002_accrual_cursor.sql` | Accrual cursor state |
 | `0003_program_config.sql` | Versioned rate config table and `point_ledger.config_id` reference |
+| `0004_admin_tables.sql` | `fraud_flags` and `audit_log` tables backing the admin panel (issue #121) |
 
 Apply locally with Wrangler:
 
@@ -104,6 +131,7 @@ Apply locally with Wrangler:
 npx wrangler d1 execute ton-bridge-affiliate --local --file worker/migrations/0001_affiliate.sql
 npx wrangler d1 execute ton-bridge-affiliate --local --file worker/migrations/0002_accrual_cursor.sql
 npx wrangler d1 execute ton-bridge-affiliate --local --file worker/migrations/0003_program_config.sql
+npx wrangler d1 execute ton-bridge-affiliate --local --file worker/migrations/0004_admin_tables.sql
 ```
 
 Apply to production:
@@ -112,6 +140,7 @@ Apply to production:
 npx wrangler d1 execute ton-bridge-affiliate --file worker/migrations/0001_affiliate.sql
 npx wrangler d1 execute ton-bridge-affiliate --file worker/migrations/0002_accrual_cursor.sql
 npx wrangler d1 execute ton-bridge-affiliate --file worker/migrations/0003_program_config.sql
+npx wrangler d1 execute ton-bridge-affiliate --file worker/migrations/0004_admin_tables.sql
 ```
 
 ## Environment Variables And Secrets
@@ -124,6 +153,8 @@ npx wrangler d1 execute ton-bridge-affiliate --file worker/migrations/0003_progr
 | `LEADERBOARD_CHANNEL_ID` | `wrangler secret put LEADERBOARD_CHANNEL_ID` | Yes |
 | `ADMIN_SECRET` | `wrangler secret put ADMIN_SECRET` | Yes for admin endpoints |
 | `TONBANKCARD_API_KEY` | `wrangler secret put TONBANKCARD_API_KEY` | Yes for live payouts |
+| `ADMIN_TELEGRAM_IDS` | `wrangler secret put ADMIN_TELEGRAM_IDS` (comma-separated Telegram user IDs) | Yes for admin panel |
+| `DEV_MODE` | `wrangler.toml [vars]` (`"1"` enables) | No; bypasses initData HMAC for local tests only |
 | Rate knobs | `wrangler.toml [vars]` | No; defaults are shown above |
 
 ## Tests
@@ -134,4 +165,5 @@ helpers with Node's built-in test runner:
 ```bash
 npm run test:schema
 npm run test:rate-config
+npm run test:admin-panel
 ```

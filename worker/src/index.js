@@ -1,5 +1,6 @@
 import leaderboardWorker from '../leaderboard.js';
 import { handleAdminReplay, runScheduledAccrual } from './accrualJob.js';
+import { handleAdminPanelRequest } from './adminPanel.js';
 import { handleBalance, handleRedeem } from './redeemHandler.js';
 
 /**
@@ -347,8 +348,8 @@ function corsHeaders(requestOrigin) {
   const origin = getAllowedOrigin(requestOrigin) || ALLOWED_ORIGINS[0];
   return {
     'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Max-Age': '86400',
   };
 }
@@ -463,6 +464,21 @@ export default {
 
     if (request.method === 'POST' && url.pathname === '/admin/replay') {
       return handleAdminReplay(request, url, env);
+    }
+
+    // Admin panel endpoints (issue #121). Authenticated via Telegram
+    // initData; authorised against env.ADMIN_TELEGRAM_IDS allow-list.
+    if (url.pathname.startsWith('/admin/api/')) {
+      const adminResponse = await handleAdminPanelRequest(request, url, env);
+      if (adminResponse) {
+        // Merge CORS headers into the admin response.
+        const merged = new Headers(adminResponse.headers);
+        for (const [k, v] of Object.entries(cors)) merged.set(k, v);
+        return new Response(adminResponse.body, {
+          status: adminResponse.status,
+          headers: merged,
+        });
+      }
     }
 
     if (new URL(request.url).pathname === '/optin') {

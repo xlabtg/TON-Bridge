@@ -19,7 +19,8 @@
     "test:installer": "php tests/installer.test.php && php tests/installer-navigation.test.php && php tests/installer-review.test.php",
     "test:accrual": "node --test worker/tests/accrualJob.test.js",
     "test:redeem": "node --test worker/tests/redeemHandler.test.js",
-    "test:rate-config": "node --test worker/tests/rateConfig.test.js"
+    "test:rate-config": "node --test worker/tests/rateConfig.test.js",
+    "test:admin-panel": "node --test worker/tests/adminPanel.test.js"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.1.5",

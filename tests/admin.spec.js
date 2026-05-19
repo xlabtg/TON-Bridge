@@ -8,9 +8,55 @@ function distUrl(file) {
   return 'file://' + resolve(__dirname, '..', 'dist', file);
 }
 
+const FIXTURES = {
+  stats: {
+    stats: {
+      turnover: { h24: 1234.56, d7: 12345.67, d30: 123456.78 },
+      points_outstanding: 9876,
+      points_redeemed: 5432,
+      tbc_paid: { count: 12, tbc_total: 345, usd_equiv: 678.9 },
+    },
+  },
+  fraudInitial: {
+    total: 3,
+    page: 0,
+    size: 5,
+    items: [
+      { id: 11, user_id: 111, reason: 'duplicate_redemption', amount_points: 500, created_at: 1_700_000_000, resolved: 0 },
+      { id: 12, user_id: 222, reason: 'velocity_check', amount_points: 250, created_at: 1_700_000_100, resolved: 0 },
+      { id: 13, user_id: 333, reason: 'manual_review', amount_points: 100, created_at: 1_700_000_200, resolved: 0 },
+    ],
+  },
+  topUsers: {
+    items: Array.from({ length: 10 }, (_, i) => ({
+      rank: i + 1,
+      user_id: 1000 + i,
+      lifetime_usd: (10 - i) * 100,
+    })),
+  },
+  auditEmpty: { items: [] },
+  auditAfterResolve: {
+    items: [
+      {
+        actor_id: 12345,
+        action: 'resolve_fraud_flag',
+        before: { resolved: 0 },
+        after: { resolved: 1 },
+        created_at: 1_700_000_300,
+      },
+    ],
+  },
+};
+
 /**
  * Set up a mock Telegram.WebApp with a given user ID and an allowed admin IDs list.
  * adminIds: null means empty allow-list (nobody is admin), otherwise an array of string IDs.
+ *
+ * Also intercepts window.fetch for /admin/api/* requests so the page can render
+ * without a live worker. We intercept inside the page (rather than via
+ * page.route) because the page's <meta http-equiv="Content-Security-Policy">
+ * blocks real network requests to test hostnames; patching fetch before
+ * admin.js runs sidesteps the CSP entirely.
  */
 async function mockTelegramAdmin(page, userId, adminIds) {
   await page.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({
@@ -19,9 +65,9 @@ async function mockTelegramAdmin(page, userId, adminIds) {
     body: '/* mocked */',
   }));
 
-  await page.addInitScript(({ uid, ids }) => {
-    // Inject allowed IDs before admin.js runs (admin.js checks window.__adminIds).
+  await page.addInitScript(({ uid, ids, fixtures }) => {
     window.__adminIds = ids || [];
+    window.__adminInitData = uid ? 'user=%7B%22id%22%3A' + uid + '%7D' : '';
 
     const backButton = {
       _visible: false,
@@ -39,10 +85,60 @@ async function mockTelegramAdmin(page, userId, adminIds) {
         setHeaderColor() {},
         colorScheme: 'light',
         initDataUnsafe: uid ? { user: { id: Number(uid) } } : {},
+        initData: uid ? 'user=%7B%22id%22%3A' + uid + '%7D' : '',
         BackButton: backButton,
       },
     };
-  }, { uid: userId || null, ids: adminIds });
+
+    // In-page mock of the admin API. Patches window.fetch only for paths
+    // beginning with /admin/api/ so unrelated requests (e.g. the SW
+    // registration script) are unaffected.
+    const state = {
+      audit: fixtures.auditEmpty,
+      fraud: fixtures.fraudInitial,
+    };
+
+    function jsonResponse(payload, status) {
+      const body = JSON.stringify(payload);
+      return new Response(body, {
+        status: status || 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const originalFetch = window.fetch.bind(window);
+    window.fetch = function (input, init) {
+      const url = typeof input === 'string' ? input : (input && input.url) || '';
+      const method = (init && init.method) || (input && input.method) || 'GET';
+      const idx = url.indexOf('/admin/api/');
+      if (idx === -1) return originalFetch(input, init);
+      const path = url.slice(idx).split('?')[0];
+
+      if (path === '/admin/api/stats') {
+        return Promise.resolve(jsonResponse(fixtures.stats));
+      }
+      if (path === '/admin/api/fraud-flags' && method.toUpperCase() === 'GET') {
+        return Promise.resolve(jsonResponse(state.fraud));
+      }
+      if (path === '/admin/api/fraud-flags/resolve') {
+        const body = init && init.body ? JSON.parse(init.body) : {};
+        state.fraud = Object.assign({}, state.fraud, {
+          items: state.fraud.items.map(function (it) {
+            return it.id === body.id ? Object.assign({}, it, { resolved: 1 }) : it;
+          }),
+        });
+        state.audit = fixtures.auditAfterResolve;
+        return Promise.resolve(jsonResponse({ ok: true, id: body.id }));
+      }
+      if (path === '/admin/api/top-users') {
+        return Promise.resolve(jsonResponse(fixtures.topUsers));
+      }
+      if (path === '/admin/api/audit-log') {
+        return Promise.resolve(jsonResponse(state.audit));
+      }
+      return Promise.resolve(new Response('Not found', { status: 404 }));
+    };
+  }, { uid: userId || null, ids: adminIds, fixtures: FIXTURES });
 }
 
 test.describe('Admin page — access control', () => {
@@ -84,6 +180,7 @@ test.describe('Admin page — stats rendering', () => {
 
   test('renders turnover stats with dollar signs', async ({ page }) => {
     await loadAdminAsAdmin(page);
+    await expect(page.locator('#stat-turnover-24h')).not.toHaveText('—');
     const h24 = await page.locator('#stat-turnover-24h').textContent();
     expect(h24).toMatch(/\$/);
     const d7 = await page.locator('#stat-turnover-7d').textContent();
@@ -94,6 +191,7 @@ test.describe('Admin page — stats rendering', () => {
 
   test('renders points outstanding and redeemed', async ({ page }) => {
     await loadAdminAsAdmin(page);
+    await expect(page.locator('#stat-points-outstanding')).not.toHaveText('—');
     const outstanding = await page.locator('#stat-points-outstanding').textContent();
     expect(outstanding).not.toBe('—');
     const redeemed = await page.locator('#stat-points-redeemed').textContent();
@@ -102,6 +200,7 @@ test.describe('Admin page — stats rendering', () => {
 
   test('renders TBC paid stats', async ({ page }) => {
     await loadAdminAsAdmin(page);
+    await expect(page.locator('#stat-tbc-count')).not.toHaveText('—');
     const count = await page.locator('#stat-tbc-count').textContent();
     expect(count).not.toBe('—');
     const total = await page.locator('#stat-tbc-total').textContent();

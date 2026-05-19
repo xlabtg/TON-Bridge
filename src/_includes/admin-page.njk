@@ -13,6 +13,9 @@
     <meta name="robots" content="noindex, nofollow">
     {# ADMIN_TELEGRAM_IDS is injected at build time; comma-separated numeric Telegram user IDs #}
     <meta name="admin-ids" content="{{ adminIds | default('') }}">
+    {# ADMIN_API_BASE points to the deployed Cloudflare Worker that serves /admin/api/*
+       (see worker/src/adminPanel.js). Empty = use the localhost dev fallback. #}
+    <meta name="admin-api-base" content="{{ adminApiBase | default('') }}">
     <link rel="icon" type="image/png" href="../assets/img/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon/192x192.png">
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -23,7 +26,7 @@
        follow-up. `report-uri`, `report-to`, `frame-ancestors`, and `sandbox` are
        intentionally omitted — they are silently ignored inside <meta> and need an
        HTTP response header to take effect. #}
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.telegram.org https://tganalytics.xyz https://mc.yandex.ru">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.telegram.org https://tganalytics.xyz https://mc.yandex.ru {{ adminApiBase | default('') }}">
     <style>
         .admin-stat-card { min-width: 120px; }
         .admin-stat-value { font-size: 1.4rem; font-weight: 700; }

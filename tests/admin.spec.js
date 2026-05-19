@@ -8,6 +8,98 @@ function distUrl(file) {
   return 'file://' + resolve(__dirname, '..', 'dist', file);
 }
 
+const ADMIN_API_BASE = 'https://admin-api.test';
+
+const FIXTURES = {
+  stats: {
+    stats: {
+      turnover: { h24: 1234.56, d7: 12345.67, d30: 123456.78 },
+      points_outstanding: 9876,
+      points_redeemed: 5432,
+      tbc_paid: { count: 12, tbc_total: 345, usd_equiv: 678.9 },
+    },
+  },
+  fraudInitial: {
+    total: 3,
+    page: 0,
+    size: 5,
+    items: [
+      { id: 11, user_id: 111, reason: 'duplicate_redemption', amount_points: 500, created_at: 1_700_000_000, resolved: 0 },
+      { id: 12, user_id: 222, reason: 'velocity_check', amount_points: 250, created_at: 1_700_000_100, resolved: 0 },
+      { id: 13, user_id: 333, reason: 'manual_review', amount_points: 100, created_at: 1_700_000_200, resolved: 0 },
+    ],
+  },
+  topUsers: {
+    items: Array.from({ length: 10 }, (_, i) => ({
+      rank: i + 1,
+      user_id: 1000 + i,
+      lifetime_usd: (10 - i) * 100,
+    })),
+  },
+  auditEmpty: { items: [] },
+  auditAfterResolve: {
+    items: [
+      {
+        actor_id: 12345,
+        action: 'resolve_fraud_flag',
+        before: { resolved: 0 },
+        after: { resolved: 1 },
+        created_at: 1_700_000_300,
+      },
+    ],
+  },
+};
+
+/**
+ * Mock the worker-backed /admin/api/* endpoints so the page can render without
+ * a real Cloudflare Worker. Routes are registered before navigation.
+ */
+async function mockAdminApi(page) {
+  let auditPayload = FIXTURES.auditEmpty;
+  let fraudPayload = FIXTURES.fraudInitial;
+
+  await page.route(`${ADMIN_API_BASE}/admin/api/stats`, route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify(FIXTURES.stats),
+  }));
+
+  await page.route(new RegExp(`^${ADMIN_API_BASE}/admin/api/fraud-flags(?:\\?.*)?$`), route => {
+    if (route.request().method() === 'POST') return route.continue();
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(fraudPayload),
+    });
+  });
+
+  await page.route(`${ADMIN_API_BASE}/admin/api/fraud-flags/resolve`, route => {
+    const body = JSON.parse(route.request().postData() || '{}');
+    fraudPayload = {
+      ...fraudPayload,
+      items: fraudPayload.items.map(it => (it.id === body.id ? { ...it, resolved: 1 } : it)),
+    };
+    auditPayload = FIXTURES.auditAfterResolve;
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ ok: true, id: body.id }),
+    });
+  });
+
+  await page.route(`${ADMIN_API_BASE}/admin/api/top-users`, route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify(FIXTURES.topUsers),
+  }));
+
+  await page.route(`${ADMIN_API_BASE}/admin/api/audit-log`, route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify(auditPayload),
+  }));
+}
+
 /**
  * Set up a mock Telegram.WebApp with a given user ID and an allowed admin IDs list.
  * adminIds: null means empty allow-list (nobody is admin), otherwise an array of string IDs.
@@ -19,9 +111,11 @@ async function mockTelegramAdmin(page, userId, adminIds) {
     body: '/* mocked */',
   }));
 
-  await page.addInitScript(({ uid, ids }) => {
-    // Inject allowed IDs before admin.js runs (admin.js checks window.__adminIds).
+  await page.addInitScript(({ uid, ids, apiBase }) => {
+    // Inject allowed IDs and the admin API base before admin.js runs.
     window.__adminIds = ids || [];
+    window.__adminApiBase = apiBase;
+    window.__adminInitData = uid ? 'user=%7B%22id%22%3A' + uid + '%7D' : '';
 
     const backButton = {
       _visible: false,
@@ -39,14 +133,16 @@ async function mockTelegramAdmin(page, userId, adminIds) {
         setHeaderColor() {},
         colorScheme: 'light',
         initDataUnsafe: uid ? { user: { id: Number(uid) } } : {},
+        initData: uid ? 'user=%7B%22id%22%3A' + uid + '%7D' : '',
         BackButton: backButton,
       },
     };
-  }, { uid: userId || null, ids: adminIds });
+  }, { uid: userId || null, ids: adminIds, apiBase: ADMIN_API_BASE });
 }
 
 test.describe('Admin page — access control', () => {
   test('shows 403 when allow-list is empty', async ({ page }) => {
+    await mockAdminApi(page);
     await mockTelegramAdmin(page, '99999', []);
     await page.goto(distUrl('admin/index.html'));
     await expect(page.locator('#access-denied')).toBeVisible();
@@ -54,6 +150,7 @@ test.describe('Admin page — access control', () => {
   });
 
   test('403 back link returns to the app root', async ({ page }) => {
+    await mockAdminApi(page);
     await mockTelegramAdmin(page, '99999', []);
     await page.goto(distUrl('admin/index.html'));
     await expect(page.locator('#access-denied')).toBeVisible();
@@ -61,6 +158,7 @@ test.describe('Admin page — access control', () => {
   });
 
   test('shows 403 when user ID is not in the allow-list', async ({ page }) => {
+    await mockAdminApi(page);
     await mockTelegramAdmin(page, '99999', ['12345', '67890']);
     await page.goto(distUrl('admin/index.html'));
     await expect(page.locator('#access-denied')).toBeVisible();
@@ -68,6 +166,7 @@ test.describe('Admin page — access control', () => {
   });
 
   test('shows admin content when user ID matches allow-list', async ({ page }) => {
+    await mockAdminApi(page);
     await mockTelegramAdmin(page, '12345', ['12345', '67890']);
     await page.goto(distUrl('admin/index.html'));
     await expect(page.locator('#admin-content')).toBeVisible();
@@ -77,6 +176,7 @@ test.describe('Admin page — access control', () => {
 
 test.describe('Admin page — stats rendering', () => {
   async function loadAdminAsAdmin(page) {
+    await mockAdminApi(page);
     await mockTelegramAdmin(page, '12345', ['12345']);
     await page.goto(distUrl('admin/index.html'));
     await expect(page.locator('#admin-content')).toBeVisible();
@@ -84,6 +184,7 @@ test.describe('Admin page — stats rendering', () => {
 
   test('renders turnover stats with dollar signs', async ({ page }) => {
     await loadAdminAsAdmin(page);
+    await expect(page.locator('#stat-turnover-24h')).not.toHaveText('—');
     const h24 = await page.locator('#stat-turnover-24h').textContent();
     expect(h24).toMatch(/\$/);
     const d7 = await page.locator('#stat-turnover-7d').textContent();
@@ -94,6 +195,7 @@ test.describe('Admin page — stats rendering', () => {
 
   test('renders points outstanding and redeemed', async ({ page }) => {
     await loadAdminAsAdmin(page);
+    await expect(page.locator('#stat-points-outstanding')).not.toHaveText('—');
     const outstanding = await page.locator('#stat-points-outstanding').textContent();
     expect(outstanding).not.toBe('—');
     const redeemed = await page.locator('#stat-points-redeemed').textContent();
@@ -102,6 +204,7 @@ test.describe('Admin page — stats rendering', () => {
 
   test('renders TBC paid stats', async ({ page }) => {
     await loadAdminAsAdmin(page);
+    await expect(page.locator('#stat-tbc-count')).not.toHaveText('—');
     const count = await page.locator('#stat-tbc-count').textContent();
     expect(count).not.toBe('—');
     const total = await page.locator('#stat-tbc-total').textContent();

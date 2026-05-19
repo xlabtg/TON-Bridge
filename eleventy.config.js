@@ -52,6 +52,7 @@ export default function(eleventyConfig) {
   eleventyConfig.addGlobalData('baseUrl', baseUrl);
   eleventyConfig.addGlobalData('buildSha', buildSha);
   eleventyConfig.addGlobalData('ADMIN_TELEGRAM_IDS', process.env.ADMIN_TELEGRAM_IDS || '');
+  eleventyConfig.addGlobalData('ADMIN_API_BASE', process.env.ADMIN_API_BASE || '');
   eleventyConfig.addFilter('jsString', jsStringValue);
 
   // Shortcode that embeds all locale data inline so the runtime loader

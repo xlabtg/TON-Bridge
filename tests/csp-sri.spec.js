@@ -107,6 +107,27 @@ test.describe('SRI hashes on external scripts', () => {
       expect(html).not.toContain('https://unpkg.com/ionicons');
     });
   }
+
+  // Issue #119: statistics-page.njk previously loaded Chart.js from
+  // cdn.jsdelivr.net without integrity=. It's now bundled locally so SRI is
+  // moot — but we want a guardrail that no Chart.js CDN URL sneaks back in,
+  // and that the self-hosted script is what the page references.
+  const statisticsPages = ['index4.html', 'index4-ru.html'];
+  for (const file of statisticsPages) {
+    test(`${file} loads Chart.js from a self-hosted path`, () => {
+      const html = readFileSync(distPath(file), 'utf8');
+      expect(html).toContain('assets/js/lib/chart.umd.min.js');
+      expect(html).not.toMatch(/<script[^>]*src="https:\/\/cdn\.jsdelivr\.net\/npm\/chart\.js/);
+      expect(html).not.toMatch(/<script[^>]*src="https?:\/\/[^"]*chart(?:\.umd)?(?:\.min)?\.js"/);
+    });
+  }
+
+  test('self-hosted Chart.js is shipped in dist/', () => {
+    const html = readFileSync(distPath('assets/js/lib/chart.umd.min.js'), 'utf8');
+    // Sanity check that the file is a real Chart.js bundle, not an empty
+    // placeholder.
+    expect(html).toContain('Chart.js');
+  });
 });
 
 test.describe('Analytics configuration is injected at build time', () => {

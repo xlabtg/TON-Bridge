@@ -1,3 +1,4 @@
+{% set activePage = 'statistics' %}
 <!doctype html>
 <html lang="{{ t.lang_attr }}">
 
@@ -17,8 +18,14 @@
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="manifest" href="__manifest.json">
-    <meta http-equiv="Content-Security-Policy-Report-Only" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://cdn.jsdelivr.net https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://changenow.io; connect-src 'self' https://*.changenow.io https://api.telegram.org https://tganalytics.xyz; report-uri /csp-report">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+    {# Enforced CSP (issue #117). 'unsafe-inline' is required while the page shells
+       contain inline <script> blocks templated with Nunjucks variables and inline
+       event handlers (onclick/onload). Migrating to nonces/hashes is filed as a
+       follow-up. `report-uri`, `report-to`, `frame-ancestors`, and `sandbox` are
+       intentionally omitted — they are silently ignored inside <meta> and need an
+       HTTP response header to take effect. #}
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://changenow.io; connect-src 'self' https://*.changenow.io https://api.telegram.org https://tganalytics.xyz https://mc.yandex.ru">
+    <script src="assets/js/lib/chart.umd.min.js"></script>
     <style>
         .stats-section {
             background: var(--bs-body-bg, #ffffff);
@@ -272,44 +279,7 @@
     <!-- * App Capsule -->
 
     <!-- App Bottom Menu -->
-    <div class="appBottomMenu">
-        <a href="index{{ t.suffix }}.html" class="item">
-            <div class="col">
-                <ion-icon name="sync"></ion-icon>
-                <strong>{{ t.nav_bridge }}</strong>
-            </div>
-        </a>
-        <a href="index2{{ t.suffix }}.html" class="item">
-            <div class="col">
-                <ion-icon name="swap-horizontal-outline"></ion-icon>
-                <strong>{{ t.nav_exchange }}</strong>
-            </div>
-        </a>
-        <a href="index3{{ t.suffix }}.html" class="item">
-            <div class="col">
-                <ion-icon name="cash-outline"></ion-icon>
-                <strong>{{ t.nav_otc }}</strong>
-            </div>
-        </a>
-        <a href="orders{{ t.suffix }}.html" class="item">
-            <div class="col">
-                <ion-icon name="receipt-outline"></ion-icon>
-                <strong>{{ t.nav_orders }}</strong>
-            </div>
-        </a>
-        <a href="index4{{ t.suffix }}.html" class="item active">
-            <div class="col">
-                <ion-icon name="stats-chart"></ion-icon>
-                <strong>{{ t.nav_statistics }}</strong>
-            </div>
-        </a>
-        <a href="app-settings{{ t.suffix }}.html" class="item">
-            <div class="col">
-                <ion-icon name="settings-outline"></ion-icon>
-                <strong>{{ t.nav_settings }}</strong>
-            </div>
-        </a>
-    </div>
+    {% include "bottom-nav.njk" %}
 
     <!-- App Sidebar -->
     <div class="modal fade panelbox panelbox-left" id="sidebarPanel" tabindex="-1" role="dialog">

@@ -64,6 +64,12 @@ export default function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy({
     'node_modules/@tonconnect/ui/dist/tonconnect-ui.min.js': 'assets/js/vendor/tonconnect-ui.min.js'
   });
+  // Self-host Chart.js (issue #119) so statistics-page.njk no longer relies on a
+  // CDN script tag without SRI; the file is precached by build-sw.js because it
+  // lands under assets/js/.
+  eleventyConfig.addPassthroughCopy({
+    'node_modules/chart.js/dist/chart.umd.min.js': 'assets/js/lib/chart.umd.min.js'
+  });
   eleventyConfig.addPassthroughCopy('__manifest.json');
   eleventyConfig.addPassthroughCopy('__service-worker.js');
   eleventyConfig.addPassthroughCopy('.htaccess');

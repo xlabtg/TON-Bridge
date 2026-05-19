@@ -1,0 +1,69 @@
+{#
+    Unified bottom navigation shared by every *-page.njk shell.
+
+    Inputs from the including template:
+      - `activePage`: which tab to highlight. One of:
+        'bridge' | 'exchange' | 'otc' | 'orders' | 'redeem' | 'statistics' | 'referral' | 'settings'.
+        Omit (or use any other value) to render with no active item.
+      - `t`: locale dictionary (already required elsewhere on the page).
+
+    Keep the 8-item shape in sync with issue #118 — every shell must render the
+    same tabs in the same order so navigating between pages never loses a tab.
+
+    Text uses `t.nav_*` so each locale's HTML renders in the right language at
+    SSR time (most shells do not load i18n.js at runtime). `data-i18n` is kept
+    so the widget shell — which does load i18n.js — can still re-translate
+    labels live when the user toggles language.
+#}
+<nav class="appBottomMenu" aria-label="{{ t.nav_aria_label }}" data-i18n-attr="aria-label:nav_aria_label">
+    <div role="tablist" aria-label="{{ t.nav_aria_label }}" data-i18n-attr="aria-label:nav_aria_label">
+        <a href="index{{ t.suffix }}.html" class="item{% if activePage == 'bridge' %} active{% endif %}" role="tab" aria-selected="{% if activePage == 'bridge' %}true{% else %}false{% endif %}">
+            <div class="col">
+                <ion-icon name="sync" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_bridge">{{ t.nav_bridge }}</strong>
+            </div>
+        </a>
+        <a href="index2{{ t.suffix }}.html" class="item{% if activePage == 'exchange' %} active{% endif %}" role="tab" aria-selected="{% if activePage == 'exchange' %}true{% else %}false{% endif %}">
+            <div class="col">
+                <ion-icon name="swap-horizontal-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_exchange">{{ t.nav_exchange }}</strong>
+            </div>
+        </a>
+        <a href="index3{{ t.suffix }}.html" class="item{% if activePage == 'otc' %} active{% endif %}" role="tab" aria-selected="{% if activePage == 'otc' %}true{% else %}false{% endif %}">
+            <div class="col">
+                <ion-icon name="cash-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_otc">{{ t.nav_otc }}</strong>
+            </div>
+        </a>
+        <a href="orders{{ t.suffix }}.html" class="item{% if activePage == 'orders' %} active{% endif %}" role="tab" aria-selected="{% if activePage == 'orders' %}true{% else %}false{% endif %}">
+            <div class="col">
+                <ion-icon name="receipt-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_orders">{{ t.nav_orders }}</strong>
+            </div>
+        </a>
+        <a href="redeem{{ t.suffix }}.html" class="item{% if activePage == 'redeem' %} active{% endif %}" role="tab" aria-selected="{% if activePage == 'redeem' %}true{% else %}false{% endif %}">
+            <div class="col">
+                <ion-icon name="gift-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_redeem">{{ t.nav_redeem }}</strong>
+            </div>
+        </a>
+        <a href="index4{{ t.suffix }}.html" class="item{% if activePage == 'statistics' %} active{% endif %}" role="tab" aria-selected="{% if activePage == 'statistics' %}true{% else %}false{% endif %}">
+            <div class="col">
+                <ion-icon name="stats-chart" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_statistics">{{ t.nav_statistics }}</strong>
+            </div>
+        </a>
+        <a href="referral{{ t.suffix }}.html" class="item{% if activePage == 'referral' %} active{% endif %}" role="tab" aria-selected="{% if activePage == 'referral' %}true{% else %}false{% endif %}">
+            <div class="col">
+                <ion-icon name="star-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_referral">{{ t.nav_referral }}</strong>
+            </div>
+        </a>
+        <a href="app-settings{{ t.suffix }}.html" class="item{% if activePage == 'settings' %} active{% endif %}" role="tab" aria-selected="{% if activePage == 'settings' %}true{% else %}false{% endif %}">
+            <div class="col">
+                <ion-icon name="settings-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_settings">{{ t.nav_settings }}</strong>
+            </div>
+        </a>
+    </div>
+</nav>

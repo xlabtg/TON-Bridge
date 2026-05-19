@@ -42,10 +42,15 @@ const pages = [
 
 test.describe('CSP meta tag', () => {
   for (const file of pages) {
-    test(`${file} has Content-Security-Policy-Report-Only meta`, ({ }) => {
+    test(`${file} ships an enforced Content-Security-Policy meta`, ({ }) => {
       const html = readFileSync(distPath(file), 'utf8');
-      expect(html).toContain('Content-Security-Policy-Report-Only');
-      expect(html).toContain('report-uri /csp-report');
+      // Issue #117: CSP must be enforced (Report-Only is silently ignored
+      // inside <meta>, per the W3C CSP3 spec and MDN).
+      expect(html).toMatch(/<meta\s+http-equiv="Content-Security-Policy"\s+content="[^"]+"\s*\/?>/i);
+      expect(html).not.toContain('Content-Security-Policy-Report-Only');
+      // report-uri / report-to are no-ops inside <meta>; they must not be shipped.
+      expect(html).not.toMatch(/<meta[^>]*Content-Security-Policy[^>]*report-uri/i);
+      expect(html).not.toMatch(/<meta[^>]*Content-Security-Policy[^>]*report-to/i);
     });
   }
 });

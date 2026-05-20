@@ -76,9 +76,12 @@
 <body>
     <div id="offline-indicator">You are offline</div>
     <div id="viewport"></div>
-    <script src="https://telegram.org/js/telegram-web-app.js" integrity="sha384-1XuC9S4cgk6RH1oCsL2diDRwLiiivu/oZHNfxYUitEFuiKpP5ceNbzu220KKrcK+" crossorigin="anonymous"></script>
-    <script src="assets/js/auth.js"></script>
+    <script defer src="https://telegram.org/js/telegram-web-app.js" integrity="sha384-1XuC9S4cgk6RH1oCsL2diDRwLiiivu/oZHNfxYUitEFuiKpP5ceNbzu220KKrcK+" crossorigin="anonymous"></script>
+    <script defer src="assets/js/auth.js"></script>
     <script>
+        // Wait for the deferred telegram-web-app.js to finish executing;
+        // defer scripts run after parsing and before DOMContentLoaded.
+        document.addEventListener('DOMContentLoaded', function() {
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
 
@@ -148,6 +151,7 @@
                 mainButton.hide();
             });
         })();
+        });
     </script>
     <!-- loader -->
     <div id="loader" aria-hidden="true">
@@ -619,90 +623,98 @@
     </div>
 
     <!-- ========= JS Files =========  -->
+    <!-- All scripts use `defer` so they execute after HTML parsing finishes
+         but before DOMContentLoaded, in document order. Inline initialisation
+         code below is wrapped in DOMContentLoaded listeners so it waits for
+         the deferred bundles instead of running mid-parse. -->
     <!-- Bootstrap -->
-    <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
+    <script defer src="assets/js/lib/bootstrap.bundle.min.js"></script>
     <!-- Ionicons (self-hosted sprite) -->
-    <script src="assets/js/ion-icon.js" defer></script>
+    <script defer src="assets/js/ion-icon.js"></script>
     <!-- Splide -->
-    <script src="assets/js/plugins/splide/splide.min.js"></script>
-    {% if activePage == 'bridge' %}<!-- ApexCharts -->
-    <script src="assets/js/plugins/apexcharts/apexcharts.min.js"></script>{% endif %}
+    <script defer src="assets/js/plugins/splide/splide.min.js"></script>
     <!-- i18n inline data + loader -->
-    <script src="assets/js/prefs.js"></script>
+    <script defer src="assets/js/prefs.js"></script>
     {% i18nDataScript %}
-    <script src="assets/js/i18n.js"></script>
+    <script defer src="assets/js/i18n.js"></script>
     <!-- Base Js File -->
-    <script src="assets/js/base.js"></script>
+    <script defer src="assets/js/base.js"></script>
     <!-- Sentry error reporting -->
-    <script src="assets/js/sentry.js"></script>
+    <script defer src="assets/js/sentry.js"></script>
     <!-- switchInlineQuery helper -->
-    <script src="assets/js/switch-inline-query.js"></script>
+    <script defer src="assets/js/switch-inline-query.js"></script>
     <!-- Achievements -->
-    <script src="assets/js/achievements.js"></script>
+    <script defer src="assets/js/achievements.js"></script>
     {% if activePage == 'bridge' %}
-    <script src="assets/js/social-proof.js"></script>
+    <script defer src="assets/js/social-proof.js"></script>
     {% endif %}
     <!-- Deep-link presets -->
-    <script src="assets/js/deep-link.js"></script>
-    <script>TonBridgeDeepLink.init('{{ activePage }}');</script>
+    <script defer src="assets/js/deep-link.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', function(){ TonBridgeDeepLink.init('{{ activePage }}'); });</script>
     <!-- UTM attribution from directory listings -->
-    <script src="assets/js/utm.js"></script>
+    <script defer src="assets/js/utm.js"></script>
     <!-- Share to Story -->
-    <script src="assets/js/share-to-story.js"></script>
+    <script defer src="assets/js/share-to-story.js"></script>
     {% if activePage == 'bridge' %}
     <!-- Wallet Connect -->
-    <script src="assets/js/wallet-connect.js"></script>
+    <script defer src="assets/js/wallet-connect.js"></script>
     {% endif %}
     <!-- Offline Indicator -->
-    <script src="assets/js/offline.js"></script>
+    <script defer src="assets/js/offline.js"></script>
     <!-- Haptic Feedback -->
-    <script src="assets/js/haptic.js"></script>
+    <script defer src="assets/js/haptic.js"></script>
     <script>
-        // Tab-bar taps
-        document.querySelectorAll('.appBottomMenu .item').forEach(function (el) {
-            el.addEventListener('click', function () { haptic.impact('light'); });
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab-bar taps
+            document.querySelectorAll('.appBottomMenu .item').forEach(function (el) {
+                el.addEventListener('click', function () { haptic.impact('light'); });
+            });
         });
     </script>
     <!-- Telegram Theme Integration -->
-    <script src="assets/js/tg-theme.js"></script>
+    <script defer src="assets/js/tg-theme.js"></script>
     <!-- Telegram SettingsButton -->
-    <script src="assets/js/settings-button.js"></script>
-    <script>wireSettingsButton('app-settings.html');</script>
+    <script defer src="assets/js/settings-button.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', function(){ wireSettingsButton('app-settings.html'); });</script>
     {% if activePage == 'bridge' %}<!-- Rate Ticker -->
-    <script src="assets/js/rate-ticker.js"></script>{% endif %}
+    <script defer src="assets/js/rate-ticker.js"></script>{% endif %}
     <script>
-        Achievements.init();
-        window.addEventListener('message', function(event) {
-            if (!event.data || typeof event.data !== 'object') return;
-            var type = event.data.type;
-            if (
-                (type === 'change-now-widget-step' && event.data.step === 'success') ||
-                (type === 'deeplink' && event.data.value === 'success')
-            ) {
-                Achievements.recordSwap(0);
-            }
+        document.addEventListener('DOMContentLoaded', function() {
+            Achievements.init();
+            window.addEventListener('message', function(event) {
+                if (!event.data || typeof event.data !== 'object') return;
+                var type = event.data.type;
+                if (
+                    (type === 'change-now-widget-step' && event.data.step === 'success') ||
+                    (type === 'deeplink' && event.data.value === 'success')
+                ) {
+                    Achievements.recordSwap(0);
+                }
+            });
         });
     </script>
 
     <script>
-        // Wire community links after translations are applied
-        document.addEventListener('i18n:applied', function(e) {
-            var t = e.detail.t;
-            var groupLink = document.getElementById('community-group-link');
-            var chatLink = document.getElementById('community-chat-link');
-            if (groupLink && t.community_group_link) {
-                groupLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_group_link + "');";
-            }
-            if (chatLink && t.community_chat_link) {
-                chatLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_chat_link + "');";
-            }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wire community links after translations are applied
+            document.addEventListener('i18n:applied', function(e) {
+                var t = e.detail.t;
+                var groupLink = document.getElementById('community-group-link');
+                var chatLink = document.getElementById('community-chat-link');
+                if (groupLink && t.community_group_link) {
+                    groupLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_group_link + "');";
+                }
+                if (chatLink && t.community_chat_link) {
+                    chatLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_chat_link + "');";
+                }
+            });
+
+            // Initialise i18n on boot
+            i18n.init();
+
+            // Add to Home with 2 seconds delay.
+            AddtoHome("2000", "once");
         });
-
-        // Initialise i18n on boot
-        i18n.init();
-
-        // Add to Home with 2 seconds delay.
-        AddtoHome("2000", "once");
     </script>
 
     <script>
@@ -771,21 +783,25 @@
             }, 0);
         }
 
-        WalletConnect.onChange(updateWalletUI);
-        WalletConnect.init('tonconnect-manifest.json', {
-            sdkUrl: 'assets/js/vendor/tonconnect-ui.min.js',
-            lazy: true
+        document.addEventListener('DOMContentLoaded', function() {
+            WalletConnect.onChange(updateWalletUI);
+            WalletConnect.init('tonconnect-manifest.json', {
+                sdkUrl: 'assets/js/vendor/tonconnect-ui.min.js',
+                lazy: true
+            });
         });
         {% endif %}
     </script>
     <!-- Address Book -->
-    <script src="assets/js/address-book.js"></script>
+    <script defer src="assets/js/address-book.js"></script>
     <script>
-        AddressBook.init('{{ locales.en.ab_chain }}', {
-            ab_edit_label_prompt: '{{ locales.en.ab_edit_label_prompt }}',
-            ab_pin: '{{ locales.en.ab_pin }}',
-            ab_unpin: '{{ locales.en.ab_unpin }}',
-            ab_empty: '{{ locales.en.ab_empty }}'
+        document.addEventListener('DOMContentLoaded', function() {
+            AddressBook.init('{{ locales.en.ab_chain }}', {
+                ab_edit_label_prompt: '{{ locales.en.ab_edit_label_prompt }}',
+                ab_pin: '{{ locales.en.ab_pin }}',
+                ab_unpin: '{{ locales.en.ab_unpin }}',
+                ab_empty: '{{ locales.en.ab_empty }}'
+            });
         });
     </script>
     <!-- * Address Book -->

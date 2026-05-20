@@ -32,9 +32,12 @@
 <body>
     <div id="offline-indicator">You are offline</div>
     <div id="viewport"></div>
-<script src="https://telegram.org/js/telegram-web-app.js" integrity="sha384-1XuC9S4cgk6RH1oCsL2diDRwLiiivu/oZHNfxYUitEFuiKpP5ceNbzu220KKrcK+" crossorigin="anonymous"></script>
-    <script src="assets/js/auth.js"></script>
+<script defer src="https://telegram.org/js/telegram-web-app.js" integrity="sha384-1XuC9S4cgk6RH1oCsL2diDRwLiiivu/oZHNfxYUitEFuiKpP5ceNbzu220KKrcK+" crossorigin="anonymous"></script>
+    <script defer src="assets/js/auth.js"></script>
     <script>
+        // Wait for the deferred telegram-web-app.js to finish executing;
+        // defer scripts run after parsing and before DOMContentLoaded.
+        document.addEventListener('DOMContentLoaded', function() {
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
 
@@ -115,6 +118,7 @@
                 mainButton.hide();
             });
         })();
+        });
     </script>
     <!-- loader -->
     <div id="loader" aria-hidden="true">
@@ -130,7 +134,7 @@
             </a>
         </div>
         <div class="pageTitle">
-            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="{{ locales.en.logo_alt }}" data-i18n-attr="alt:logo_alt" class="logo">
+            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="{{ locales.en.logo_alt }}" data-i18n-attr="alt:logo_alt" class="logo" width="143" height="24" loading="eager" decoding="async">
             <span id="tier-badge" class="tier-badge"></span>
         </div>
     </div>
@@ -161,7 +165,7 @@
 
         <!-- App Bridge -->
         <div class="text-center mb-4">
-            <img src="assets/img/OTC.webp" alt="{{ locales.en.otc_img_alt }}" data-i18n-attr="alt:otc_img_alt" class="otc-img mx-auto" fetchpriority="high">
+            <img src="assets/img/OTC.webp" alt="{{ locales.en.otc_img_alt }}" data-i18n-attr="alt:otc_img_alt" class="otc-img mx-auto" width="288" height="288" fetchpriority="high" decoding="async">
         </div>
                     <h3 class="text-center">&nbsp;<span data-i18n="otc_heading">{{ locales.en.otc_heading }}</span></h3>
                     <p>
@@ -441,83 +445,93 @@
     </div>
 
     <!-- ========= JS Files =========  -->
+    <!-- All scripts use `defer` so they execute after HTML parsing finishes
+         but before DOMContentLoaded, in document order. Inline initialisation
+         code below is wrapped in DOMContentLoaded listeners so it waits for
+         the deferred bundles instead of running mid-parse. -->
     <!-- Bootstrap -->
-    <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
+    <script defer src="assets/js/lib/bootstrap.bundle.min.js"></script>
     <!-- Ionicons (self-hosted sprite) -->
-    <script src="assets/js/ion-icon.js" defer></script>
+    <script defer src="assets/js/ion-icon.js"></script>
     <!-- Splide -->
-    <script src="assets/js/plugins/splide/splide.min.js"></script>
+    <script defer src="assets/js/plugins/splide/splide.min.js"></script>
     <!-- i18n inline data + loader -->
-    <script src="assets/js/prefs.js"></script>
+    <script defer src="assets/js/prefs.js"></script>
     {% i18nDataScript %}
-    <script src="assets/js/i18n.js"></script>
+    <script defer src="assets/js/i18n.js"></script>
     <!-- Base Js File -->
-    <script src="assets/js/base.js"></script>
+    <script defer src="assets/js/base.js"></script>
     <!-- Sentry error reporting -->
-    <script src="assets/js/sentry.js"></script>
+    <script defer src="assets/js/sentry.js"></script>
     <!-- switchInlineQuery helper -->
-    <script src="assets/js/switch-inline-query.js"></script>
+    <script defer src="assets/js/switch-inline-query.js"></script>
     <!-- Achievements -->
-    <script src="assets/js/achievements.js"></script>
+    <script defer src="assets/js/achievements.js"></script>
     <!-- Deep-link presets -->
-    <script src="assets/js/deep-link.js"></script>
-    <script>TonBridgeDeepLink.init('otc');</script>
+    <script defer src="assets/js/deep-link.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', function(){ TonBridgeDeepLink.init('otc'); });</script>
     <!-- UTM attribution from directory listings -->
-    <script src="assets/js/utm.js"></script>
+    <script defer src="assets/js/utm.js"></script>
     <!-- Share to Story -->
-    <script src="assets/js/share-to-story.js"></script>
+    <script defer src="assets/js/share-to-story.js"></script>
     <!-- Offline Indicator -->
-    <script src="assets/js/offline.js"></script>
+    <script defer src="assets/js/offline.js"></script>
     <!-- BiometricManager -->
-    <script src="assets/js/biometric-manager.js"></script>
+    <script defer src="assets/js/biometric-manager.js"></script>
     <script>
-        BiometricAuth.init(function () {});
+        document.addEventListener('DOMContentLoaded', function(){ BiometricAuth.init(function () {}); });
     </script>
     <!-- Haptic Feedback -->
-    <script src="assets/js/haptic.js"></script>
+    <script defer src="assets/js/haptic.js"></script>
     <script>
-        // Tab-bar taps
-        document.querySelectorAll('.appBottomMenu .item').forEach(function (el) {
-            el.addEventListener('click', function () { haptic.impact('light'); });
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab-bar taps
+            document.querySelectorAll('.appBottomMenu .item').forEach(function (el) {
+                el.addEventListener('click', function () { haptic.impact('light'); });
+            });
         });
     </script>
     <!-- Telegram Theme Integration -->
-    <script src="assets/js/tg-theme.js"></script>
+    <script defer src="assets/js/tg-theme.js"></script>
     <!-- Telegram SettingsButton -->
-    <script src="assets/js/settings-button.js"></script>
-    <script>wireSettingsButton('app-settings.html');</script>
+    <script defer src="assets/js/settings-button.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', function(){ wireSettingsButton('app-settings.html'); });</script>
     <script>
-        Achievements.init();
-        window.addEventListener('message', function(event) {
-            if (!event.data || typeof event.data !== 'object') return;
-            var type = event.data.type;
-            if (
-                (type === 'change-now-widget-step' && event.data.step === 'success') ||
-                (type === 'deeplink' && event.data.value === 'success')
-            ) {
-                Achievements.recordSwap(0);
-            }
+        document.addEventListener('DOMContentLoaded', function() {
+            Achievements.init();
+            window.addEventListener('message', function(event) {
+                if (!event.data || typeof event.data !== 'object') return;
+                var type = event.data.type;
+                if (
+                    (type === 'change-now-widget-step' && event.data.step === 'success') ||
+                    (type === 'deeplink' && event.data.value === 'success')
+                ) {
+                    Achievements.recordSwap(0);
+                }
+            });
         });
     </script>
 
     <script>
-        // Wire community links after translations are applied
-        document.addEventListener('i18n:applied', function(e) {
-            var t = e.detail.t;
-            var groupLink = document.getElementById('community-group-link');
-            var chatLink = document.getElementById('community-chat-link');
-            if (groupLink && t.community_group_link) {
-                groupLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_group_link + "');";
-            }
-            if (chatLink && t.community_chat_link) {
-                chatLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_chat_link + "');";
-            }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wire community links after translations are applied
+            document.addEventListener('i18n:applied', function(e) {
+                var t = e.detail.t;
+                var groupLink = document.getElementById('community-group-link');
+                var chatLink = document.getElementById('community-chat-link');
+                if (groupLink && t.community_group_link) {
+                    groupLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_group_link + "');";
+                }
+                if (chatLink && t.community_chat_link) {
+                    chatLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_chat_link + "');";
+                }
+            });
+
+            i18n.init();
+
+            // Add to Home with 2 seconds delay.
+            AddtoHome("2000", "once");
         });
-
-        i18n.init();
-
-        // Add to Home with 2 seconds delay.
-        AddtoHome("2000", "once");
     </script>
 </body>
 

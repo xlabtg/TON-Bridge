@@ -110,7 +110,17 @@
         });
     }
 
-    var initPromise = migrate();
+    // telegram-web-app.js is loaded with `defer`, so it executes after parsing
+    // finishes but before DOMContentLoaded. Wait for that event so CloudStorage
+    // is available; otherwise migrate() would always fall back to localStorage.
+    var initPromise = new Promise(function (resolve) {
+        function start() { migrate().then(resolve, resolve); }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', start);
+        } else {
+            start();
+        }
+    });
 
     var prefs = {
         get: function (key) {

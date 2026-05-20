@@ -40,6 +40,8 @@ $step = max(1, min(5, (int) $requestedStep));
 $errors = [];
 $success = false;
 $writtenFiles = [];
+$backupFiles = [];
+$notice = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals($csrf, (string) ($_POST['csrf'] ?? ''))) {
@@ -59,6 +61,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = (string) ($_POST['action'] ?? 'next');
     if ($action === 'back') {
         $step = max(1, $step - 1);
+    } elseif ($action === 'test_db') {
+        $dbError = tonbridge_installer_test_database($data);
+        if ($dbError === null) {
+            $notice = t('test_connection_ok');
+        } else {
+            $errors['database_connection'] = $dbError;
+        }
+        $step = 4;
     } elseif ($action === 'install') {
         [$config, $errors] = tonbridge_installer_validate($data, true);
         if ($errors === [] && !tonbridge_installer_requirements_pass($rootDir)) {
@@ -66,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if ($errors === []) {
             try {
-                $writtenFiles = tonbridge_installer_install($config, $rootDir);
+                [$writtenFiles, $backupFiles] = tonbridge_installer_install($config, $rootDir);
                 unset($_SESSION['tonbridge_installer_data']);
                 $success = true;
             } catch (Throwable $e) {
@@ -122,6 +132,14 @@ function tonbridge_installer_translations(): array
             'summary_schema' => 'Schema tables',
             'summary_create' => 'Create or update',
             'summary_skip' => 'Skip',
+            'summary_changenow' => 'ChangeNOW link_id',
+            'summary_yandex' => 'Yandex.Metrika',
+            'summary_database' => 'MySQL',
+            'test_connection' => 'Test database connection',
+            'test_connection_ok' => 'Database connection succeeded.',
+            'test_connection_help' => 'Verifies that the installer can reach MySQL with these credentials. Run this before pressing Install.',
+            'restore_backup' => 'A backup of the previous file was saved next to it.',
+            'backups_created' => 'Backups created before overwriting:',
             'field_app_name' => 'Application name',
             'help_app_name' => 'Shown in generated manifests and Telegram connection metadata.',
             'field_base_url' => 'Public app URL',
@@ -209,6 +227,14 @@ function tonbridge_installer_translations(): array
             'summary_schema' => 'Таблицы схемы',
             'summary_create' => 'Создать или обновить',
             'summary_skip' => 'Пропустить',
+            'summary_changenow' => 'ChangeNOW link_id',
+            'summary_yandex' => 'Yandex.Metrika',
+            'summary_database' => 'MySQL',
+            'test_connection' => 'Проверить подключение к базе данных',
+            'test_connection_ok' => 'Подключение к базе данных установлено.',
+            'test_connection_help' => 'Проверяет, что установщик может подключиться к MySQL с этими реквизитами. Запустите перед нажатием «Установить».',
+            'restore_backup' => 'Резервная копия предыдущего файла сохранена рядом с ним.',
+            'backups_created' => 'Резервные копии созданы перед перезаписью:',
             'field_app_name' => 'Название приложения',
             'help_app_name' => 'Показывается в manifest и метаданных подключения Telegram.',
             'field_base_url' => 'Публичный URL приложения',
@@ -519,6 +545,27 @@ function step_class(int $current, int $item): string
             color: #05603a;
             margin-bottom: 16px;
         }
+        .notice-success {
+            border: 1px solid #abefc6;
+            background: #ecfdf3;
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: #05603a;
+            margin-bottom: 14px;
+        }
+        .db-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px dashed var(--line);
+        }
+        .db-actions small {
+            color: var(--muted);
+            font-size: 12px;
+        }
         .actions {
             display: flex;
             justify-content: space-between;
@@ -616,7 +663,18 @@ function step_class(int $current, int $item): string
                         <li><code><?php echo h($file); ?></code></li>
                     <?php endforeach; ?>
                 </ul>
+                <?php if ($backupFiles !== []): ?>
+                    <p><?php echo h(t('backups_created')); ?></p>
+                    <ul class="files">
+                        <?php foreach ($backupFiles as $file): ?>
+                            <li><code><?php echo h($file); ?></code></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
             <?php else: ?>
+                <?php if ($notice !== ''): ?>
+                    <div class="notice-success" role="status"><?php echo h($notice); ?></div>
+                <?php endif; ?>
                 <?php if ($errors !== []): ?>
                     <div class="notice">
                         <?php foreach ($errors as $message): ?>
@@ -690,6 +748,10 @@ function step_class(int $current, int $item): string
                             </label>
                         </div>
                         <?php echo field_error($errors, 'database_connection'); ?>
+                        <div class="db-actions">
+                            <button class="secondary" type="submit" name="action" value="test_db"><?php echo h(t('test_connection')); ?></button>
+                            <small><?php echo h(t('test_connection_help')); ?></small>
+                        </div>
                     <?php else: ?>
                         <h2><?php echo h(t('review_title')); ?></h2>
                         <p><?php echo h(t('review_intro')); ?></p>
@@ -698,9 +760,9 @@ function step_class(int $current, int $item): string
                             <div><?php echo h(t('summary_base_url')); ?></div><div><?php echo h((string) $data['base_url']); ?></div>
                             <div><?php echo h(t('summary_telegram_bot')); ?></div><div>@<?php echo h((string) $data['telegram_bot_username']); ?></div>
                             <div><?php echo h(t('summary_mini_app')); ?></div><div><?php echo h((string) $data['telegram_mini_app_short_name']); ?></div>
-                            <div>ChangeNOW link_id</div><div><?php echo h((string) $data['changenow_link_id']); ?></div>
-                            <div>Yandex.Metrika</div><div><?php echo h((string) $data['yandex_metrika_id']); ?></div>
-                            <div>MySQL</div><div><?php echo h((string) $data['mysql_username']); ?>@<?php echo h((string) $data['mysql_host']); ?>:<?php echo h((string) $data['mysql_port']); ?>/<?php echo h((string) $data['mysql_database']); ?></div>
+                            <div><?php echo h(t('summary_changenow')); ?></div><div><?php echo h((string) $data['changenow_link_id']); ?></div>
+                            <div><?php echo h(t('summary_yandex')); ?></div><div><?php echo h((string) $data['yandex_metrika_id']); ?></div>
+                            <div><?php echo h(t('summary_database')); ?></div><div><?php echo h((string) $data['mysql_username']); ?>@<?php echo h((string) $data['mysql_host']); ?>:<?php echo h((string) $data['mysql_port']); ?>/<?php echo h((string) $data['mysql_database']); ?></div>
                             <div><?php echo h(t('summary_schema')); ?></div><div><?php echo h(!empty($data['mysql_create_schema']) ? t('summary_create') : t('summary_skip')); ?></div>
                         </div>
                     <?php endif; ?>

@@ -21,7 +21,6 @@
   const TAP_MOVE_LIMIT = 8;
 
   let splideInstance = null;
-  let chartInstances = {};
   let refreshTimer = null;
   let lastData = null;
 
@@ -177,44 +176,122 @@
     });
   }
 
-  // ApexCharts sparkline
+  // Inline SVG sparkline — drop-in replacement for ApexCharts to eliminate
+  // ~100 KB of legacy ES5 polyfills shipped by the old apexcharts.min.js bundle.
+
+  const SPARK_WIDTH = 100;
+  const SPARK_HEIGHT = 40;
+  const SPARK_PAD_Y = 2;
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  function sparkPath(points) {
+    if (!points || points.length < 2) return { line: '', area: '' };
+
+    let min = points[0];
+    let max = points[0];
+    for (let i = 1; i < points.length; i++) {
+      if (points[i] < min) min = points[i];
+      if (points[i] > max) max = points[i];
+    }
+    const range = max - min || 1;
+    const stepX = SPARK_WIDTH / (points.length - 1);
+    const innerH = SPARK_HEIGHT - SPARK_PAD_Y * 2;
+
+    const coords = points.map((v, i) => {
+      const x = i * stepX;
+      const y = SPARK_PAD_Y + innerH - ((v - min) / range) * innerH;
+      return { x, y };
+    });
+
+    // Smooth curve via Catmull-Rom-to-Bezier conversion.
+    let line = 'M' + coords[0].x.toFixed(2) + ',' + coords[0].y.toFixed(2);
+    for (let i = 0; i < coords.length - 1; i++) {
+      const p0 = coords[i - 1] || coords[i];
+      const p1 = coords[i];
+      const p2 = coords[i + 1];
+      const p3 = coords[i + 2] || p2;
+      const c1x = p1.x + (p2.x - p0.x) / 6;
+      const c1y = p1.y + (p2.y - p0.y) / 6;
+      const c2x = p2.x - (p3.x - p1.x) / 6;
+      const c2y = p2.y - (p3.y - p1.y) / 6;
+      line += ' C' + c1x.toFixed(2) + ',' + c1y.toFixed(2) +
+              ' ' + c2x.toFixed(2) + ',' + c2y.toFixed(2) +
+              ' ' + p2.x.toFixed(2) + ',' + p2.y.toFixed(2);
+    }
+    const area = line + ' L' + SPARK_WIDTH.toFixed(2) + ',' + SPARK_HEIGHT.toFixed(2) +
+                 ' L0,' + SPARK_HEIGHT.toFixed(2) + ' Z';
+    return { line, area };
+  }
 
   function renderSparkline(symbol, points, positive) {
     const el = document.getElementById('chart-' + symbol);
-    if (!el || !window.ApexCharts) return;
+    if (!el) return;
 
     const color = positive ? '#1DCC70' : '#FF396F';
+    const gradId = 'sparkgrad-' + symbol;
+    const { line, area } = sparkPath(points);
+    if (!line) return;
 
-    if (chartInstances[symbol]) {
-      chartInstances[symbol].updateOptions({ colors: [color] });
-      chartInstances[symbol].updateSeries([{ data: points }]);
-      return;
+    let svg = el.querySelector('svg');
+    if (!svg) {
+      svg = document.createElementNS(SVG_NS, 'svg');
+      svg.setAttribute('viewBox', '0 0 ' + SPARK_WIDTH + ' ' + SPARK_HEIGHT);
+      svg.setAttribute('preserveAspectRatio', 'none');
+      svg.setAttribute('aria-hidden', 'true');
+      svg.setAttribute('focusable', 'false');
+      svg.setAttribute('width', '100%');
+      svg.setAttribute('height', '100%');
+      svg.style.display = 'block';
+
+      const defs = document.createElementNS(SVG_NS, 'defs');
+      const grad = document.createElementNS(SVG_NS, 'linearGradient');
+      grad.setAttribute('id', gradId);
+      grad.setAttribute('x1', '0');
+      grad.setAttribute('y1', '0');
+      grad.setAttribute('x2', '0');
+      grad.setAttribute('y2', '1');
+      const stop1 = document.createElementNS(SVG_NS, 'stop');
+      stop1.setAttribute('offset', '0%');
+      stop1.setAttribute('stop-color', color);
+      stop1.setAttribute('stop-opacity', '0.4');
+      const stop2 = document.createElementNS(SVG_NS, 'stop');
+      stop2.setAttribute('offset', '100%');
+      stop2.setAttribute('stop-color', color);
+      stop2.setAttribute('stop-opacity', '0');
+      grad.appendChild(stop1);
+      grad.appendChild(stop2);
+      defs.appendChild(grad);
+      svg.appendChild(defs);
+
+      const areaPath = document.createElementNS(SVG_NS, 'path');
+      areaPath.setAttribute('class', 'rate-spark__area');
+      areaPath.setAttribute('fill', 'url(#' + gradId + ')');
+      areaPath.setAttribute('stroke', 'none');
+      svg.appendChild(areaPath);
+
+      const linePath = document.createElementNS(SVG_NS, 'path');
+      linePath.setAttribute('class', 'rate-spark__line');
+      linePath.setAttribute('fill', 'none');
+      linePath.setAttribute('stroke-width', '1.5');
+      linePath.setAttribute('stroke-linecap', 'round');
+      linePath.setAttribute('stroke-linejoin', 'round');
+      svg.appendChild(linePath);
+
+      el.appendChild(svg);
+      el.setAttribute('aria-hidden', 'true');
     }
 
-    chartInstances[symbol] = new ApexCharts(el, {
-      chart: {
-        type: 'area',
-        sparkline: { enabled: true },
-        height: 40,
-        animations: { enabled: false },
-        toolbar: { show: false },
-      },
-      series: [{ data: points }],
-      stroke: { curve: 'smooth', width: 1.5 },
-      fill: {
-        type: 'gradient',
-        gradient: { opacityFrom: 0.4, opacityTo: 0 },
-      },
-      colors: [color],
-      tooltip: { enabled: false },
-    });
-    chartInstances[symbol].render().then(() => {
-      el.setAttribute('aria-hidden', 'true');
-      el.querySelectorAll('svg').forEach(svg => {
-        svg.setAttribute('aria-hidden', 'true');
-        svg.setAttribute('focusable', 'false');
-      });
-    });
+    const stops = svg.querySelectorAll('stop');
+    if (stops[0]) stops[0].setAttribute('stop-color', color);
+    if (stops[1]) stops[1].setAttribute('stop-color', color);
+
+    const areaPath = svg.querySelector('.rate-spark__area');
+    const linePath = svg.querySelector('.rate-spark__line');
+    if (areaPath) areaPath.setAttribute('d', area);
+    if (linePath) {
+      linePath.setAttribute('d', line);
+      linePath.setAttribute('stroke', color);
+    }
   }
 
   // Card update

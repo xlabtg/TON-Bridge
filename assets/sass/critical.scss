@@ -35,6 +35,23 @@ a{color:$colorPrimary;outline:0 !important;text-decoration:none}
 ::-webkit-scrollbar{width:0}
 
 ////////////////////////////////////////////////////
+// Typography / utility classes that affect above-the-fold layout.
+// Mirror the same rules from style.css so flow geometry stays stable
+// between the critical-CSS-only paint and the async style.css paint.
+////////////////////////////////////////////////////
+h1,h2,h3,h4,h5,h6{color:$colorHeading;margin:0 0 10px 0}
+.mb-4{margin-bottom:32px !important}
+.list-unstyled{margin:0;padding:0;list-style:none}
+
+////////////////////////////////////////////////////
+// Overlays/notifications that are hidden by default in style.css.
+// Inlined here so they don't take flow space before async CSS arrives
+// (otherwise #appCapsule shifts upward when style.css applies → big CLS).
+////////////////////////////////////////////////////
+#offline-indicator{display:none}
+.tier-celebration-overlay{display:none}
+
+////////////////////////////////////////////////////
 // Loader overlay — shown immediately, hides after JS
 ////////////////////////////////////////////////////
 #loader{
@@ -110,6 +127,12 @@ a{color:$colorPrimary;outline:0 !important;text-decoration:none}
 .intro-img-frame{
   min-height:209px;
 }
+.otc-img{
+  display:block;
+  width:288px;
+  height:288px;
+  max-width:100%;
+}
 
 ////////////////////////////////////////////////////
 // Above-the-fold space reservations (CLS protection)
@@ -122,9 +145,16 @@ a{color:$colorPrimary;outline:0 !important;text-decoration:none}
 }
 .rate-ticker-section{
   display:block;
-  min-height:128px;
-  max-height:128px;
-  margin:12px 0 8px;
+  // Fixed height matches the .rate-card min-height (116px) plus padding +
+  // line wrappers. Locked at the same value in _blocks.scss so the async
+  // stylesheet does not lift the clamp.
+  min-height:150px;
+  max-height:150px;
+  // The splide CSS bundled in style.css applies
+  // ".splide{margin-bottom:-20px !important}", so the rate-ticker margin
+  // collapses by 28px once the async stylesheet arrives. Pre-apply the
+  // same value here to keep the flow geometry stable across paints.
+  margin:12px 0 -20px;
   overflow:hidden;
 }
 .rate-ticker-section .splide__list{
@@ -132,6 +162,44 @@ a{color:$colorPrimary;outline:0 !important;text-decoration:none}
   padding:0;
   margin:0;
 }
+// Hide every slide except the first one until splide.js promotes the
+// section to .is-active. Without this clamp, the slides stack vertically
+// inside the <ul> (615px tall) and push the intro illustration off screen
+// — Lighthouse records that as a 0.6+ layout shift.
+.rate-ticker-section:not(.is-active) .splide__list{display:block}
+.rate-ticker-section:not(.is-active) .splide__slide{display:none}
+.rate-ticker-section:not(.is-active) .splide__slide:first-child{display:block;width:100%}
+
+// Pre-paint geometry for the rate cards. rate-ticker.css loads
+// asynchronously, so without these rules the card switches from default
+// <button> styling (~20px tall, inline icon/symbol pair) to the full
+// 116px card layout once the stylesheet arrives — Lighthouse logs the
+// internal header/price/change shifts as CLS even though the section's
+// outer height is clamped.
+.rate-card{
+  display:block;
+  width:100%;
+  padding:12px 14px 8px;
+  min-height:116px;
+  // <button> defaults to system font/line-height; without inheriting body
+  // typography, every inner row (header, price, change) grows by ~8px when
+  // rate-ticker.css applies, and that pushes the chart down by ~18px.
+  font:inherit;
+  text-align:left;
+  border:0;
+  background:transparent;
+}
+.rate-card__header{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-bottom:4px;
+}
+.rate-card__icon{font-size:18px;line-height:1}
+.rate-card__symbol{font-size:13px;font-weight:600}
+.rate-card__price{font-size:15px;font-weight:700;min-height:20px;margin-bottom:2px}
+.rate-card__change{font-size:12px;font-weight:500;min-height:18px}
+.rate-card__chart{margin-top:6px;height:40px;overflow:hidden}
 
 ////////////////////////////////////////////////////
 // App Bottom Menu
@@ -148,6 +216,9 @@ a{color:$colorPrimary;outline:0 !important;text-decoration:none}
   border-top:1px solid $colorLine;
   padding-left:4px;padding-right:4px;
   padding-bottom:$safeBottom;
+  // Tablist wrapper must vanish for flex layout — otherwise items stack
+  // vertically and the nav grows from 56px to ~448px before style.css loads.
+  >[role=tablist]{display:contents}
   .item{
     font-size:9px;letter-spacing:0;text-align:center;
     width:100%;height:56px;line-height:1.2em;

@@ -48,6 +48,14 @@ async function mockTelegramWithInitData(page, initData) {
   }, initData);
 }
 
+// auth.js is loaded with `defer`, so `window.TonBridgeAuth` is set after the
+// defer queue runs. Wait explicitly for the global before each test touches
+// it — `page.goto`'s load event can race with defer execution on file://.
+async function gotoPage(page, file) {
+  await page.goto(distUrl(file));
+  await page.waitForFunction(() => typeof window.TonBridgeAuth !== 'undefined', null, { timeout: 5000 });
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Tests
 // ──────────────────────────────────────────────────────────────────────────────
@@ -55,7 +63,7 @@ async function mockTelegramWithInitData(page, initData) {
 test.describe('auth.js — TonBridgeAuth helper', () => {
   test('exposes getToken() and getUser() on window.TonBridgeAuth', async ({ page }) => {
     await mockTelegramWithInitData(page, '');
-    await page.goto(distUrl('index.html'));
+    await gotoPage(page, 'index.html');
 
     const hasMethods = await page.evaluate(() =>
       typeof window.TonBridgeAuth === 'object' &&
@@ -68,7 +76,7 @@ test.describe('auth.js — TonBridgeAuth helper', () => {
 
   test('getToken() returns null when initData is empty (outside Telegram)', async ({ page }) => {
     await mockTelegramWithInitData(page, '');
-    await page.goto(distUrl('index.html'));
+    await gotoPage(page, 'index.html');
 
     const token = await page.evaluate(() => window.TonBridgeAuth.getToken());
     expect(token).toBeNull();
@@ -92,7 +100,7 @@ test.describe('auth.js — TonBridgeAuth helper', () => {
     );
 
     await mockTelegramWithInitData(page, 'query_id=AAA&auth_date=9999999999&hash=abc');
-    await page.goto(distUrl('index.html'));
+    await gotoPage(page, 'index.html');
 
     // Wait for the in-flight verify() promise to settle
     await page.waitForFunction(() => window.TonBridgeAuth.getToken() !== null, { timeout: 5000 });
@@ -110,7 +118,7 @@ test.describe('auth.js — TonBridgeAuth helper', () => {
     );
 
     await mockTelegramWithInitData(page, 'query_id=AAA&auth_date=9999999999&hash=bad');
-    await page.goto(distUrl('index.html'));
+    await gotoPage(page, 'index.html');
 
     // Give auth.js time to settle
     await page.waitForTimeout(500);
@@ -135,7 +143,7 @@ test.describe('auth.js — TonBridgeAuth helper', () => {
     );
 
     await mockTelegramWithInitData(page, 'query_id=AAA&auth_date=9999999999&hash=abc');
-    await page.goto(distUrl('index.html'));
+    await gotoPage(page, 'index.html');
 
     await page.waitForTimeout(500);
 

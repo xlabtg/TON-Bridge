@@ -857,26 +857,6 @@
   vertical-align: middle;
 }
 
-.rate-ticker-section {
-  display: block;
-  // Locked to the critical-CSS value: the splide carousel only ever needs
-  // one row of rate cards visible, and lifting the clamp re-triggers the
-  // big CLS the inline styles were designed to prevent.
-  min-height: 150px;
-  max-height: 150px;
-  margin: 12px 0 8px;
-  overflow: hidden;
-}
-
-// Pre-splide layout: keep the rate-ticker showing only the first slide so
-// the <ul> does not stack 4 cards vertically before splide.js initializes.
-.rate-ticker-section:not(.is-active) .splide__list { display: block; }
-.rate-ticker-section:not(.is-active) .splide__slide { display: none; }
-.rate-ticker-section:not(.is-active) .splide__slide:first-child {
-  display: block;
-  width: 100%;
-}
-
 .wallet-prefill-bar {
   padding: 0 8px 8px;
 }

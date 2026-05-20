@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>TON Bridge</title>
+    <title data-i18n="title_settings">TON Bridge</title>
     <meta name="description" content="TON Bridge HTML Mobile Template">
     <meta name="keywords" content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
@@ -18,21 +18,34 @@
 </head>
 
 <body>
+    <div id="offline-indicator">You are offline</div>
+    <div id="viewport"></div>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+
+        Telegram.WebApp.onEvent('themeChanged', function() {
+            document.documentElement.className = Telegram.WebApp.colorScheme;
+        });
+
+        Telegram.WebApp.setHeaderColor('secondary_bg_color');
+    </script>
 
     <!-- loader -->
     <div id="loader">
-        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+        <img src="assets/img/loading-icon.webp" alt="icon" class="loading-icon">
     </div>
     <!-- * loader -->
 
     <!-- App Header -->
-    <div class="appHeader">
+    <div class="appHeader bg-primary text-light">
         <div class="left">
-            <a href="index.html" class="headerButton goBack">
-                <ion-icon name="chevron-back-outline"></ion-icon>
+            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel" aria-label="Menu" data-i18n-attr="aria-label:menu_title">
+                <ion-icon name="menu-outline"></ion-icon>
             </a>
         </div>
-        <div class="pageTitle">
+        <div class="pageTitle" data-i18n="settings_title_label">
             Settings
         </div>
     </div>
@@ -41,92 +54,130 @@
     <!-- App Capsule -->
     <div id="appCapsule">
 
-    <div class="listview-title mt-1">Theme</div>
-    <ul class="listview image-listview text inset no-line">
-        <li>
-            <div class="item">
-                <div class="in">
-                    <div>
-                        Dark Mode
-                    </div>
-                    <div class="form-check form-switch ms-2">
-                        <input class="form-check-input dark-mode-switch" type="checkbox" id="darkmodeSwitch">
-                        <label class="form-check-label" for="darkmodeSwitch"></label>
-                    </div>
-                </div>
-            </div>
-        </li>
-    </ul>
-
-    <div class="listview-title mt-1">Language</div>
-    <ul class="listview image-listview text inset no-line">
-        <li>
-            <div class="item">
-                <div class="in">
-                    <div>
-                        Language (EN/RU)
-                    </div>
-                    <div class="form-check form-switch ms-2">
-                        <input class="form-check-input language-switch" type="checkbox" id="languageSwitch">
-                        <label class="form-check-label" for="languageSwitch"></label>
+        <div class="listview-title mt-1" data-i18n="settings_theme_section">Theme</div>
+        <ul class="listview image-listview text inset no-line">
+            <li>
+                <div class="item">
+                    <div class="in">
+                        <div data-i18n="settings_dark_mode_label">
+                            Dark Mode
+                        </div>
+                        <div class="form-check form-switch ms-2">
+                            <input class="form-check-input dark-mode-switch" type="checkbox" id="darkmodeSwitch">
+                            <label class="form-check-label" for="darkmodeSwitch"></label>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </li>
-    </ul>
+            </li>
+        </ul>
 
-</div>
+        <div class="listview-title mt-1" data-i18n="settings_lang_section">Language</div>
+        <ul class="listview image-listview text inset no-line">
+            <li>
+                <div class="item">
+                    <div class="in">
+                        <div data-i18n="settings_lang_label">
+                            Language (EN/RU)
+                        </div>
+                        <div class="form-check form-switch ms-2">
+                            <input class="form-check-input language-switch" type="checkbox" id="languageSwitch">
+                            <label class="form-check-label" for="languageSwitch"></label>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </ul>
 
-<script>
-    // Переключение языка
-    document.getElementById('languageSwitch').addEventListener('change', function() {
-        if (this.checked) {
-            // Переключение на страницу с русским интерфейсом
-            window.location.href = 'app-settings-ru.html';
-        } else {
-            // Переключение на страницу с английским интерфейсом
-            window.location.href = 'app-settings.html';
-        }
-    });
-</script>
-
+    </div>
     <!-- * App Capsule -->
-
 
     <!-- App Bottom Menu -->
     <div class="appBottomMenu">
         <a href="index.html" class="item">
             <div class="col">
                 <ion-icon name="sync"></ion-icon>
-                <strong>Bridge</strong>
+                <strong data-i18n="nav_bridge">Bridge</strong>
             </div>
         </a>
         <a href="index2.html" class="item">
             <div class="col">
                 <ion-icon name="swap-horizontal-outline"></ion-icon>
-                <strong>Exchange</strong>
+                <strong data-i18n="nav_exchange">Exchange</strong>
             </div>
         </a>
         <a href="index3.html" class="item">
             <div class="col">
                 <ion-icon name="cash-outline"></ion-icon>
-                <strong>OTC</strong>
+                <strong data-i18n="nav_otc">OTC</strong>
             </div>
         </a>
-        <!-- <a href="index4.html" class="item">
+        <a href="orders.html" class="item">
             <div class="col">
-                <ion-icon name="stats-chart"></ion-icon>
-                <strong>Statistics</strong>
+                <ion-icon name="receipt-outline"></ion-icon>
+                <strong data-i18n="nav_orders">Orders</strong>
             </div>
-        </a> -->
+        </a>
         <a href="app-settings.html" class="item active">
             <div class="col">
                 <ion-icon name="settings-outline"></ion-icon>
-                <strong>Settings</strong>
+                <strong data-i18n="nav_settings">Settings</strong>
             </div>
         </a>
     </div>
     <!-- * App Bottom Menu -->
+
+    <!-- App Sidebar -->
+    <div class="modal fade panelbox panelbox-left" id="sidebarPanel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+
+                    <!-- menu -->
+                    <div class="listview-title mt-1" data-i18n="menu_title">Menu</div>
+                    <ul class="listview flush transparent no-line image-listview">
+                        <li>
+                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_bot');" class="item">
+                                <div class="icon-box bg-primary">
+                                    <ion-icon name="chatbubble-outline"></ion-icon>
+                                </div>
+                                <div class="in" data-i18n="menu_support">
+                                    Support
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- community section -->
+                    <div class="listview-title mt-1" data-i18n="community_title">Community</div>
+                    <ul class="listview flush transparent no-line image-listview">
+                        <li>
+                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard');" class="item" id="community-group-link">
+                                <div class="icon-box bg-secondary">
+                                    <ion-icon name="people-circle-outline"></ion-icon>
+                                </div>
+                                <div class="in" data-i18n="community_group">
+                                    Telegram Group
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_chat');" class="item" id="community-chat-link">
+                                <div class="icon-box bg-secondary">
+                                    <ion-icon name="chatbubbles-outline"></ion-icon>
+                                </div>
+                                <div class="in" data-i18n="community_chat">
+                                    Telegram Chat
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                    <!-- * community section -->
+                    <!-- * menu -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- * App Sidebar -->
 
     <!-- ========= JS Files =========  -->
     <!-- Bootstrap -->
@@ -135,10 +186,68 @@
     <script src="assets/js/ion-icon.js" defer></script>
     <!-- Splide -->
     <script src="assets/js/plugins/splide/splide.min.js"></script>
+    <!-- i18n inline data + loader -->
+    <script src="assets/js/prefs.js"></script>
+    <script>window.__i18nData = {"en":{"lang_attr":"en","title_settings":"TON Bridge - Settings","nav_bridge":"Bridge","nav_exchange":"Exchange","nav_otc":"OTC","nav_orders":"Orders","nav_statistics":"Statistics","nav_settings":"Settings","menu_title":"Menu","menu_support":"Support","community_title":"Community","community_group":"Telegram Group","community_chat":"Telegram Chat","community_group_link":"https://t.me/tonbankcard","community_chat_link":"https://t.me/tonbankcard_chat","settings_title_label":"Settings","settings_theme_section":"Theme","settings_dark_mode_label":"Dark Mode","settings_lang_section":"Language","settings_lang_label":"Language (EN/RU)"},"ru":{"lang_attr":"ru","title_settings":"TON Bridge - Настройки","nav_bridge":"Мост","nav_exchange":"Обмен","nav_otc":"OTC","nav_orders":"Заказы","nav_statistics":"Статистика","nav_settings":"Настройки","menu_title":"Меню","menu_support":"Поддержка","community_title":"Сообщество","community_group":"Группа в Telegram","community_chat":"Чат в Telegram","community_group_link":"https://t.me/tonbankcard_ru","community_chat_link":"https://t.me/tonbankcard_chat_ru","settings_title_label":"Настройки","settings_theme_section":"Тема","settings_dark_mode_label":"Темный режим","settings_lang_section":"Язык","settings_lang_label":"Язык (RU/EN)"}};</script>
+    <script src="assets/js/i18n.js"></script>
     <!-- Base Js File -->
     <script src="assets/js/base.js"></script>
+    <!-- Offline Indicator -->
+    <script src="assets/js/offline.js"></script>
+    <!-- Haptic Feedback -->
+    <script src="assets/js/haptic.js"></script>
+    <script>
+        // Tab-bar taps
+        document.querySelectorAll('.appBottomMenu .item').forEach(function (el) {
+            el.addEventListener('click', function () { haptic.impact('light'); });
+        });
+    </script>
+    <!-- Telegram Theme Integration -->
+    <script src="assets/js/tg-theme.js"></script>
 
+    <script>
+        // Wire community links after translations are applied (keeps href in sync with locale)
+        document.addEventListener('i18n:applied', function(e) {
+            var t = e.detail.t;
+            var groupLink = document.getElementById('community-group-link');
+            var chatLink = document.getElementById('community-chat-link');
+            if (groupLink && t.community_group_link) {
+                groupLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_group_link + "');";
+            }
+            if (chatLink && t.community_chat_link) {
+                chatLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_chat_link + "');";
+            }
+        });
 
+        // Initialise i18n on boot, then sync the language switch state with the
+        // current language so toggling it actually switches via i18n.setLang.
+        i18n.init().then(function () {
+            var langSwitch = document.getElementById('languageSwitch');
+            if (langSwitch) {
+                langSwitch.checked = i18n.getLang() === 'ru';
+                langSwitch.addEventListener('change', function () {
+                    i18n.setLang(this.checked ? 'ru' : 'en');
+                });
+            }
+        });
+    </script>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(1234567, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/1234567" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
 </body>
 
 </html>

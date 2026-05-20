@@ -22,7 +22,6 @@
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
     {% set includeTgThemeCss = true %}
-    {% set includeRateTickerCss = activePage == 'bridge' %}
     {% include "performance-head.njk" %}
     <link rel="manifest" href="__manifest.json">
     {# Enforced CSP (issue #117). 'unsafe-inline' is required while the page shells
@@ -203,60 +202,6 @@
         </div>
         <!-- * Tier progress bar -->
 
-        {% if activePage == 'bridge' %}
-        <!-- Rate Ticker -->
-        <section id="rate-ticker-section" class="splide rate-ticker-section" aria-label="{{ locales.en.ticker_aria_label }}" data-i18n-attr="aria-label:ticker_aria_label">
-            <div class="splide__track">
-                <ul class="splide__list">
-                    <li class="splide__slide" data-asset="the-open-network">
-                        <button type="button" class="rate-card rate-card--loading">
-                            <div class="rate-card__header">
-                                <span class="rate-card__icon">💎</span>
-                                <span class="rate-card__symbol">TON</span>
-                            </div>
-                            <div class="rate-card__price rate-card__skeleton">—</div>
-                            <div class="rate-card__change rate-card__skeleton">—</div>
-                            <div class="rate-card__chart" id="chart-TON"></div>
-                        </button>
-                    </li>
-                    <li class="splide__slide" data-asset="tether">
-                        <button type="button" class="rate-card rate-card--loading">
-                            <div class="rate-card__header">
-                                <span class="rate-card__icon">💵</span>
-                                <span class="rate-card__symbol">USDT</span>
-                            </div>
-                            <div class="rate-card__price rate-card__skeleton">—</div>
-                            <div class="rate-card__change rate-card__skeleton">—</div>
-                            <div class="rate-card__chart" id="chart-USDT"></div>
-                        </button>
-                    </li>
-                    <li class="splide__slide" data-asset="bitcoin">
-                        <button type="button" class="rate-card rate-card--loading">
-                            <div class="rate-card__header">
-                                <span class="rate-card__icon">₿</span>
-                                <span class="rate-card__symbol">BTC</span>
-                            </div>
-                            <div class="rate-card__price rate-card__skeleton">—</div>
-                            <div class="rate-card__change rate-card__skeleton">—</div>
-                            <div class="rate-card__chart" id="chart-BTC"></div>
-                        </button>
-                    </li>
-                    <li class="splide__slide" data-asset="ethereum">
-                        <button type="button" class="rate-card rate-card--loading">
-                            <div class="rate-card__header">
-                                <span class="rate-card__icon">Ξ</span>
-                                <span class="rate-card__symbol">ETH</span>
-                            </div>
-                            <div class="rate-card__price rate-card__skeleton">—</div>
-                            <div class="rate-card__change rate-card__skeleton">—</div>
-                            <div class="rate-card__chart" id="chart-ETH"></div>
-                        </button>
-                    </li>
-                </ul>
-            </div>
-        </section>
-        <!-- * Rate Ticker -->
-        {% endif %}
 
 		<!-- App {{ sectionLabel }} -->
             <div class="text-center mb-4 intro-img-frame">
@@ -498,7 +443,7 @@
 <div class="listview-title mt-1" data-i18n="community_title">{{ locales.en.community_title }}</div>
 <ul class="listview flush transparent no-line image-listview">
     <li>
-        <a href="#" class="item" id="community-group-link">
+        <a href="javascript:Telegram.WebApp.openTelegramLink('{{ locales.en.community_group_link }}');" class="item" id="community-group-link">
             <div class="icon-box bg-secondary">
                 <ion-icon name="people-circle-outline"></ion-icon>
             </div>
@@ -508,7 +453,7 @@
         </a>
     </li>
     <li>
-        <a href="#" class="item" id="community-chat-link">
+        <a href="javascript:Telegram.WebApp.openTelegramLink('{{ locales.en.community_chat_link }}');" class="item" id="community-chat-link">
             <div class="icon-box bg-secondary">
                 <ion-icon name="chatbubbles-outline"></ion-icon>
             </div>
@@ -676,8 +621,6 @@
     <!-- Telegram SettingsButton -->
     <script defer src="assets/js/settings-button.js"></script>
     <script>document.addEventListener('DOMContentLoaded', function(){ wireSettingsButton('app-settings.html'); });</script>
-    {% if activePage == 'bridge' %}<!-- Rate Ticker -->
-    <script defer src="assets/js/rate-ticker.js"></script>{% endif %}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             Achievements.init();

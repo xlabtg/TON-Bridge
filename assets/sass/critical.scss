@@ -143,64 +143,6 @@ h1,h2,h3,h4,h5,h6{color:$colorHeading;margin:0 0 10px 0}
   padding:12px 16px 4px;
   min-height:32px;
 }
-.rate-ticker-section{
-  display:block;
-  // Fixed height matches the .rate-card min-height (116px) plus padding +
-  // line wrappers. Locked at the same value in _blocks.scss so the async
-  // stylesheet does not lift the clamp.
-  min-height:150px;
-  max-height:150px;
-  // The splide CSS bundled in style.css applies
-  // ".splide{margin-bottom:-20px !important}", so the rate-ticker margin
-  // collapses by 28px once the async stylesheet arrives. Pre-apply the
-  // same value here to keep the flow geometry stable across paints.
-  margin:12px 0 -20px;
-  overflow:hidden;
-}
-.rate-ticker-section .splide__list{
-  list-style:none;
-  padding:0;
-  margin:0;
-}
-// Hide every slide except the first one until splide.js promotes the
-// section to .is-active. Without this clamp, the slides stack vertically
-// inside the <ul> (615px tall) and push the intro illustration off screen
-// — Lighthouse records that as a 0.6+ layout shift.
-.rate-ticker-section:not(.is-active) .splide__list{display:block}
-.rate-ticker-section:not(.is-active) .splide__slide{display:none}
-.rate-ticker-section:not(.is-active) .splide__slide:first-child{display:block;width:100%}
-
-// Pre-paint geometry for the rate cards. rate-ticker.css loads
-// asynchronously, so without these rules the card switches from default
-// <button> styling (~20px tall, inline icon/symbol pair) to the full
-// 116px card layout once the stylesheet arrives — Lighthouse logs the
-// internal header/price/change shifts as CLS even though the section's
-// outer height is clamped.
-.rate-card{
-  display:block;
-  width:100%;
-  padding:12px 14px 8px;
-  min-height:116px;
-  // <button> defaults to system font/line-height; without inheriting body
-  // typography, every inner row (header, price, change) grows by ~8px when
-  // rate-ticker.css applies, and that pushes the chart down by ~18px.
-  font:inherit;
-  text-align:left;
-  border:0;
-  background:transparent;
-}
-.rate-card__header{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  margin-bottom:4px;
-}
-.rate-card__icon{font-size:18px;line-height:1}
-.rate-card__symbol{font-size:13px;font-weight:600}
-.rate-card__price{font-size:15px;font-weight:700;min-height:20px;margin-bottom:2px}
-.rate-card__change{font-size:12px;font-weight:500;min-height:18px}
-.rate-card__chart{margin-top:6px;height:40px;overflow:hidden}
-
 ////////////////////////////////////////////////////
 // App Bottom Menu
 ////////////////////////////////////////////////////

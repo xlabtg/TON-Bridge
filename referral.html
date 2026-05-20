@@ -1,0 +1,346 @@
+
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>Referral · TON Bridge</title>
+    
+    
+    
+
+
+
+<meta name="description" content="Invite friends to TON Bridge and earn Telegram Stars for completed exchanges.">
+<link rel="canonical" href="https://tonbankcard.com/bridge/TMA/00.html/referral.html">
+
+
+
+<link rel="alternate" hreflang="en-us" href="https://tonbankcard.com/bridge/TMA/00.html/referral.html">
+<link rel="alternate" hreflang="x-default" href="https://tonbankcard.com/bridge/TMA/00.html/referral.html">
+
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TON Bridge">
+<meta property="og:locale" content="en_US">
+
+<meta property="og:title" content="Referral · TON Bridge">
+<meta property="og:description" content="Invite friends to TON Bridge and earn Telegram Stars for completed exchanges.">
+<meta property="og:url" content="https://tonbankcard.com/bridge/TMA/00.html/referral.html">
+<meta property="og:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/referral.png?v=0caed95">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Referral · TON Bridge">
+
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Referral · TON Bridge">
+<meta name="twitter:description" content="Invite friends to TON Bridge and earn Telegram Stars for completed exchanges.">
+<meta name="twitter:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/referral.png?v=0caed95">
+<meta name="twitter:image:alt" content="Referral · TON Bridge">
+
+    <meta name="keywords"
+        content="ton bridge, referral, telegram stars, crypto, exchange" />
+    <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="manifest" href="__manifest.json">
+    
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://cdn.jsdelivr.net https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://changenow.io; connect-src 'self' https://*.changenow.io https://api.telegram.org https://tganalytics.xyz https://*.workers.dev https://mc.yandex.ru">
+</head>
+
+<body>
+    <div id="viewport"></div>
+    <script src="https://telegram.org/js/telegram-web-app.js" integrity="sha384-1XuC9S4cgk6RH1oCsL2diDRwLiiivu/oZHNfxYUitEFuiKpP5ceNbzu220KKrcK+" crossorigin="anonymous"></script>
+    <script>
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+
+        Telegram.WebApp.onEvent('themeChanged', function() {
+            document.documentElement.className = Telegram.WebApp.colorScheme;
+        });
+
+        Telegram.WebApp.setHeaderColor('secondary_bg_color');
+    </script>
+    <script
+        async
+        src="https://tganalytics.xyz/index.js"
+        integrity="sha384-njlroka3F7BclV9FXjiHDU9ZSrhSwNVRewye4d5rpWXYvery9PUnnhuAZAHfLyJ+"
+        crossorigin="anonymous"
+        onload="initAnalytics()"
+        type="text/javascript"
+    ></script>
+    <script>
+        function initAnalytics() {
+          window.telegramAnalytics.init({
+            token: "your-tganalytics-jwt-here",
+            appName: "your-analytics-app-name",
+          });
+        }
+    </script>
+
+    <!-- loader -->
+    <div id="loader">
+        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+    </div>
+    <!-- * loader -->
+
+    <!-- App Header -->
+    <div class="appHeader bg-primary text-light">
+        <div class="left">
+            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel">
+                <ion-icon name="menu-outline"></ion-icon>
+            </a>
+        </div>
+        <div class="pageTitle">
+            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="logo" class="logo">
+        </div>
+    </div>
+    <!-- * App Header -->
+
+    <!-- App Capsule -->
+    <div id="appCapsule">
+
+        <div class="section mt-3 mb-2">
+            <h2>Stars Referral Program</h2>
+            <p class="text-muted">Invite friends to TON Bridge and earn Telegram Stars for every exchange they complete.</p>
+        </div>
+
+        <!-- Referral link card -->
+        <div class="section mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Your referral link</h5>
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control" id="referral-link-input" readonly
+                            value="Loading…" aria-label="Your referral link">
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary flex-fill" id="copy-referral-btn"
+                            aria-label="Copy link">
+                            <ion-icon name="copy-outline"></ion-icon>
+                            Copy link
+                        </button>
+                        <button class="btn btn-secondary flex-fill" id="share-referral-btn"
+                            aria-label="Share link">
+                            <ion-icon name="share-social-outline"></ion-icon>
+                            Share link
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Stars claim -->
+        <div class="section mb-3" id="claim-section">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Stars</h5>
+                    <div id="claim-loading" class="text-muted">Loading…</div>
+                    <div id="claim-error" class="text-danger" style="display:none;">Could not load referral data. Please try again.</div>
+                    <div id="claim-stars-disabled" class="text-warning" style="display:none;">Stars rebate is disabled for your account (TBC points mode is active).</div>
+                    <div id="claim-no-pending" style="display:none;">
+                        <p class="text-muted">No pending Stars yet. Share your link to start earning!</p>
+                    </div>
+                    <div id="claim-available" style="display:none;">
+                        <p class="mb-1">Available to claim: <strong id="pending-stars-count">—</strong> ⭐</p>
+                        <button class="btn btn-success w-100" id="claim-stars-btn"
+                            aria-label="Claim ⭐ Stars">
+                            Claim ⭐ Stars
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How it works -->
+        <div class="section mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">How it works</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-1">1. Share your referral link with friends</li>
+                        <li class="mb-1">2. Friend completes their first exchange</li>
+                        <li class="mb-1">3. You earn ⭐ Stars — no on-chain fees!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Program details -->
+        <div class="section mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <ul class="listview flush transparent no-line">
+                        <li>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Rebate rate</span>
+                                <strong>0.10% of exchange volume</strong>
+                            </div>
+                        </li>
+                        <li class="mt-2">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Star value</span>
+                                <strong>≈ $0.013 per ⭐</strong>
+                            </div>
+                        </li>
+                        <li class="mt-2">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Daily cap</span>
+                                <strong>5 000 ⭐ per day</strong>
+                            </div>
+                        </li>
+                    </ul>
+                    <p class="text-muted mt-2 mb-0" style="font-size:0.82em;">Stars rebate is paid after your referee&#39;s exchange reaches finished status. Anti-fraud rules apply.</p>
+                    <p class="text-muted mt-1 mb-0" style="font-size:0.82em;">If Stars rebate is active, TBC points referral payout is disabled for the same swap to prevent double-pay.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- * App Capsule -->
+
+    <!-- App Bottom Menu -->
+    
+<nav class="appBottomMenu" aria-label="Main navigation" data-i18n-attr="aria-label:nav_aria_label">
+    <div role="tablist" aria-label="Main navigation" data-i18n-attr="aria-label:nav_aria_label">
+        <a href="index.html" class="item" role="tab" aria-selected="false">
+            <div class="col">
+                <ion-icon name="sync" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_bridge">Bridge</strong>
+            </div>
+        </a>
+        <a href="index2.html" class="item" role="tab" aria-selected="false">
+            <div class="col">
+                <ion-icon name="swap-horizontal-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_exchange">Exchange</strong>
+            </div>
+        </a>
+        <a href="index3.html" class="item" role="tab" aria-selected="false">
+            <div class="col">
+                <ion-icon name="cash-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_otc">OTC</strong>
+            </div>
+        </a>
+        <a href="orders.html" class="item" role="tab" aria-selected="false">
+            <div class="col">
+                <ion-icon name="receipt-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_orders">Orders</strong>
+            </div>
+        </a>
+        <a href="redeem.html" class="item" role="tab" aria-selected="false">
+            <div class="col">
+                <ion-icon name="gift-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_redeem">Redeem</strong>
+            </div>
+        </a>
+        <a href="index4.html" class="item" role="tab" aria-selected="false">
+            <div class="col">
+                <ion-icon name="stats-chart" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_statistics">Statistics</strong>
+            </div>
+        </a>
+        <a href="referral.html" class="item active" role="tab" aria-selected="true">
+            <div class="col">
+                <ion-icon name="star-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_referral">Referral</strong>
+            </div>
+        </a>
+        <a href="app-settings.html" class="item" role="tab" aria-selected="false">
+            <div class="col">
+                <ion-icon name="settings-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_settings">Settings</strong>
+            </div>
+        </a>
+    </div>
+</nav>
+
+    <!-- * App Bottom Menu -->
+
+    <!-- App Sidebar -->
+    <div class="modal fade panelbox panelbox-left" id="sidebarPanel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <div class="listview-title mt-1">Menu</div>
+                    <ul class="listview flush transparent no-line image-listview">
+                        <li>
+                            <a href="app-settings.html" class="item">
+                                <div class="icon-box bg-primary">
+                                    <ion-icon name="settings-outline"></ion-icon>
+                                </div>
+                                <div class="in">
+                                    Settings
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_bot');" class="item">
+                                <div class="icon-box bg-primary">
+                                    <ion-icon name="chatbubble-outline"></ion-icon>
+                                </div>
+                                <div class="in">
+                                    Support
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="listview-title mt-1">Community</div>
+                    <ul class="listview flush transparent no-line image-listview">
+                        <li>
+                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard');" class="item">
+                                <div class="icon-box bg-secondary">
+                                    <ion-icon name="people-circle-outline"></ion-icon>
+                                </div>
+                                <div class="in">
+                                    Telegram Group
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_chat');" class="item">
+                                <div class="icon-box bg-secondary">
+                                    <ion-icon name="chatbubbles-outline"></ion-icon>
+                                </div>
+                                <div class="in">
+                                    Telegram Chat
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- * App Sidebar -->
+
+    <!-- ========= JS Files =========  -->
+    <!-- Bootstrap -->
+    <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
+    <!-- Ionicons (self-hosted sprite) -->
+    <script src="assets/js/ion-icon.js" defer></script>
+    <!-- Splide -->
+    <script src="assets/js/plugins/splide/splide.min.js"></script>
+    <!-- Base Js File -->
+    <script src="assets/js/base.js"></script>
+    <!-- Sentry error reporting -->
+    <script src="assets/js/sentry.js"></script>
+    <!-- Stars Referral -->
+    <script src="assets/js/stars-referral.js"></script>
+    <script>
+        StarsReferral.init({
+            lang: 'en',
+            copied: 'Copied!'
+        });
+    </script>
+
+</body>
+
+</html>
+

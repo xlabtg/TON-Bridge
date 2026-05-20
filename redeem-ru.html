@@ -1,0 +1,522 @@
+
+
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>Обмен баллов · TON Bridge</title>
+    <meta name="description" content="TON Bridge HTML Mobile Template">
+    <meta name="keywords" content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
+    <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="manifest" href="__manifest.json">
+    
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://ton-bridge-worker.tonbankcard.workers.dev https://api.telegram.org https://tganalytics.xyz https://mc.yandex.ru">
+    <style>
+        .redeem-balance-card {
+            background: var(--bs-primary, #1bb2da);
+            color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px;
+            text-align: center;
+        }
+        .redeem-balance-card .points-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+        .redeem-balance-card .points-label {
+            font-size: 0.9rem;
+            opacity: 0.85;
+        }
+        .redeem-balance-card .equiv-row {
+            margin-top: 8px;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+        .redeem-slider-section {
+            margin: 0 16px 16px;
+        }
+        .redeem-slider-section input[type=range] {
+            width: 100%;
+            accent-color: var(--bs-primary, #1bb2da);
+        }
+        .redeem-equiv-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 0.9rem;
+            color: var(--bs-secondary-color, #6c757d);
+        }
+        .redeem-equiv-row span strong {
+            color: var(--bs-body-color, #212529);
+        }
+        .redeem-min-note {
+            font-size: 0.78rem;
+            color: var(--bs-secondary-color, #6c757d);
+            text-align: center;
+            margin-top: 4px;
+        }
+        .toast-msg {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            z-index: 9999;
+            max-width: 90vw;
+            text-align: center;
+        }
+        .toast-msg.success { background: #1bb2da; }
+        .toast-msg.error   { background: #dc3545; }
+        .redeem-history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .status-requested { background: #fff3cd; color: #856404; }
+        .status-paid      { background: #d1e7dd; color: #0a3622; }
+        .status-failed    { background: #f8d7da; color: #842029; }
+        .status-queued    { background: #cff4fc; color: #055160; }
+    </style>
+</head>
+
+<body>
+    <script src="https://telegram.org/js/telegram-web-app.js" integrity="sha384-1XuC9S4cgk6RH1oCsL2diDRwLiiivu/oZHNfxYUitEFuiKpP5ceNbzu220KKrcK+" crossorigin="anonymous"></script>
+    <script>
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+        Telegram.WebApp.onEvent('themeChanged', function() {
+            document.documentElement.className = Telegram.WebApp.colorScheme;
+        });
+        Telegram.WebApp.setHeaderColor('secondary_bg_color');
+    </script>
+	<script
+    async
+    src="https://tganalytics.xyz/index.js"
+    integrity="sha384-njlroka3F7BclV9FXjiHDU9ZSrhSwNVRewye4d5rpWXYvery9PUnnhuAZAHfLyJ+"
+    crossorigin="anonymous"
+    onload="initAnalytics()"
+    type="text/javascript"
+></script>
+<script>
+    function initAnalytics() {
+      window.telegramAnalytics.init({
+        token: "your-tganalytics-jwt-here",
+        appName: "your-analytics-app-name",
+      });
+    }
+</script>
+
+    <!-- loader -->
+    <div id="loader">
+        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+    </div>
+    <!-- * loader -->
+
+    <!-- App Header -->
+    <div class="appHeader">
+        <div class="left"></div>
+        <div class="pageTitle">Обмен баллов</div>
+    </div>
+    <!-- * App Header -->
+
+    <!-- App Capsule -->
+    <div id="appCapsule">
+
+        <!-- Balance Card -->
+        <div class="redeem-balance-card" id="balanceCard">
+            <div class="points-value" id="balancePoints">—</div>
+            <div class="points-label">баллов</div>
+            <div class="equiv-row">
+                <span id="balanceTbc">— TBC</span>
+                &nbsp;·&nbsp;
+                <span id="balanceUsd">— USD</span>
+            </div>
+        </div>
+
+        <!-- No-balance message (hidden by default) -->
+        <div id="noBalanceMsg" class="section mt-2 mb-2" style="display:none;">
+            <div class="card">
+                <div class="card-body text-center text-secondary">
+                    Нет баллов для обмена. Совершайте обмены, чтобы зарабатывать баллы!
+                </div>
+            </div>
+        </div>
+
+        <!-- Wallet missing notice (hidden by default) -->
+        <div id="walletMissingMsg" class="section mt-1 mb-1" style="display:none;">
+            <div class="card border-warning">
+                <div class="card-body text-center" style="font-size:0.85rem;">
+                    TON-кошелёк не привязан. Заявка будет в очереди до привязки кошелька.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slider Section -->
+        <div id="redeemForm" class="redeem-slider-section" style="display:none;">
+            <div class="listview-title mt-1">Количество для обмена</div>
+            <div class="card">
+                <div class="card-body">
+                    <input type="range" id="redeemSlider"
+                        min="100" max="100" step="10" value="100">
+                    <div class="redeem-equiv-row">
+                        <span>Баллов: <strong id="sliderPoints">100</strong></span>
+                        <span>≈ TBC: <strong id="sliderTbc">10</strong></span>
+                        <span>≈ USD: <strong id="sliderUsd">$0.003</strong></span>
+                    </div>
+                    <div class="redeem-min-note">Минимум 100 баллов (10 TBC)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Redemption History -->
+        <div id="historySection" style="display:none;">
+            <div class="listview-title mt-1">История обменов</div>
+            <ul class="listview image-listview text inset" id="historyList">
+                <!-- filled by JS -->
+            </ul>
+            <div id="historyEmpty" class="section" style="display:none;">
+                <div class="card">
+                    <div class="card-body text-center text-secondary">
+                        Обменов ещё не было.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- * App Capsule -->
+
+    <!-- App Bottom Menu -->
+    
+<nav class="appBottomMenu" aria-label="Основная навигация" data-i18n-attr="aria-label:nav_aria_label">
+    <div role="tablist" aria-label="Основная навигация" data-i18n-attr="aria-label:nav_aria_label">
+        <a href="index-ru.html" class="item" role="tab" aria-selected="false">
+            <div class="col">
+                <ion-icon name="sync" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_bridge">Мост</strong>
+            </div>
+        </a>
+        <a href="index2-ru.html" class="item" role="tab" aria-selected="false">
+            <div class="col">
+                <ion-icon name="swap-horizontal-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_exchange">Обмен</strong>
+            </div>
+        </a>
+        <a href="index3-ru.html" class="item" role="tab" aria-selected="false">
+            <div class="col">
+                <ion-icon name="cash-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_otc">OTC</strong>
+            </div>
+        </a>
+        <a href="orders-ru.html" class="item" role="tab" aria-selected="false">
+            <div class="col">
+                <ion-icon name="receipt-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_orders">Заказы</strong>
+            </div>
+        </a>
+        <a href="redeem-ru.html" class="item active" role="tab" aria-selected="true">
+            <div class="col">
+                <ion-icon name="gift-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_redeem">Баллы</strong>
+            </div>
+        </a>
+        <a href="index4-ru.html" class="item" role="tab" aria-selected="false">
+            <div class="col">
+                <ion-icon name="stats-chart" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_statistics">Статистика</strong>
+            </div>
+        </a>
+        <a href="referral-ru.html" class="item" role="tab" aria-selected="false">
+            <div class="col">
+                <ion-icon name="star-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_referral">Реферал</strong>
+            </div>
+        </a>
+        <a href="app-settings-ru.html" class="item" role="tab" aria-selected="false">
+            <div class="col">
+                <ion-icon name="settings-outline" aria-hidden="true"></ion-icon>
+                <strong data-i18n="nav_settings">Настройки</strong>
+            </div>
+        </a>
+    </div>
+</nav>
+
+    <!-- * App Bottom Menu -->
+
+    <!-- Toast -->
+    <div class="toast-msg" id="toastMsg"></div>
+
+    <!-- ========= JS Files =========  -->
+    <!-- Bootstrap -->
+    <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
+    <!-- Ionicons (self-hosted sprite) -->
+    <script src="assets/js/ion-icon.js"></script>
+    <!-- Splide -->
+    <script src="assets/js/plugins/splide/splide.min.js"></script>
+    <!-- Base Js File -->
+    <script src="assets/js/base.js"></script>
+    <!-- Telegram BackButton -->
+    <script src="assets/js/back-button.js"></script>
+    <script>wireBackButton();</script>
+
+    <script>
+    (function () {
+        var WORKER_BASE = 'https://ton-bridge-worker.tonbankcard.workers.dev';
+        var TBC_PER_POINT = 0.1;   // 10 points = 1 TBC  =>  1 point = 0.1 TBC
+        var USD_PER_TBC   = 0.0003;
+        var MIN_POINTS    = 100;
+        var STEP          = 10;
+
+        var i18n = {
+            balancePoints:   'баллов',
+            balanceTbc:      'TBC',
+            balanceUsd:      'USD',
+            confirmMsg:      'Обменять {points} баллов на {tbc} TBC (≈ ${usd})?',
+            success:         'Заявка принята! {tbc} TBC будет зачислено на ваш кошелёк.',
+            queued:          'Заявка в очереди. Привяжите TON-кошелёк для получения TBC.',
+            errorMin:        'Минимум для обмена — 100 баллов.',
+            errorBalance:    'Недостаточно баллов.',
+            errorInflight:   'У вас уже есть незавершённая заявка. Пожалуйста, подождите.',
+            errorRatelimit:  'Достигнут дневной лимит обменов (5 в день).',
+            errorServer:     'Ошибка сервера. Попробуйте позже.',
+            statusRequested: 'В обработке',
+            statusPaid:      'Выплачено',
+            statusFailed:    'Ошибка',
+            statusQueued:    'Ожидание кошелька',
+            redeemButton:    'Обменять'
+        };
+
+        function pts2tbc(pts) { return Math.floor(pts / 10); }
+        function pts2usd(pts) { return (pts2tbc(pts) * USD_PER_TBC).toFixed(3); }
+
+        function showToast(msg, type) {
+            var el = document.getElementById('toastMsg');
+            el.textContent = msg;
+            el.className = 'toast-msg ' + (type || '');
+            el.style.display = 'block';
+            setTimeout(function () { el.style.display = 'none'; }, 3500);
+        }
+
+        function statusLabel(status) {
+            var map = {
+                requested: i18n.statusRequested,
+                paid:      i18n.statusPaid,
+                failed:    i18n.statusFailed,
+                queued:    i18n.statusQueued
+            };
+            return map[status] || status;
+        }
+
+        function statusClass(status) {
+            var map = {
+                requested: 'status-requested',
+                paid:      'status-paid',
+                failed:    'status-failed',
+                queued:    'status-queued'
+            };
+            return map[status] || '';
+        }
+
+        function renderHistory(items) {
+            var section = document.getElementById('historySection');
+            var list    = document.getElementById('historyList');
+            var empty   = document.getElementById('historyEmpty');
+            section.style.display = 'block';
+            list.innerHTML = '';
+            if (!items || items.length === 0) {
+                empty.style.display = 'block';
+                return;
+            }
+            empty.style.display = 'none';
+            items.forEach(function (r) {
+                var date = r.created_at ? new Date(r.created_at).toLocaleDateString() : '';
+                var li = document.createElement('li');
+                li.innerHTML = '<div class="item">' +
+                    '<div class="in redeem-history-item">' +
+                        '<div>' +
+                            '<strong>' + r.tbc_amount + ' TBC</strong>' +
+                            '<div class="text-muted" style="font-size:0.8rem;">' +
+                                r.points_spent + ' pts · ' + date +
+                            '</div>' +
+                        '</div>' +
+                        '<span class="status-badge ' + statusClass(r.status) + '">' +
+                            statusLabel(r.status) +
+                        '</span>' +
+                    '</div>' +
+                '</div>';
+                list.appendChild(li);
+            });
+        }
+
+        function initSlider(balance) {
+            var slider     = document.getElementById('redeemSlider');
+            var sliderPts  = document.getElementById('sliderPoints');
+            var sliderTbc  = document.getElementById('sliderTbc');
+            var sliderUsd  = document.getElementById('sliderUsd');
+            var form       = document.getElementById('redeemForm');
+
+            // Snap balance down to the nearest multiple of STEP
+            var maxPts = Math.floor(balance / STEP) * STEP;
+            if (maxPts < MIN_POINTS) { return; }
+
+            slider.min   = MIN_POINTS;
+            slider.max   = maxPts;
+            slider.step  = STEP;
+            slider.value = MIN_POINTS;
+            form.style.display = 'block';
+
+            function updateDisplay() {
+                var pts = parseInt(slider.value, 10);
+                sliderPts.textContent = pts;
+                sliderTbc.textContent = pts2tbc(pts);
+                sliderUsd.textContent = '$' + pts2usd(pts);
+            }
+            updateDisplay();
+            slider.addEventListener('input', updateDisplay);
+
+            // Wire MainButton
+            var tg = window.Telegram && window.Telegram.WebApp;
+            if (tg && tg.MainButton) {
+                tg.MainButton.setText(i18n.redeemButton);
+                tg.MainButton.show();
+                tg.MainButton.onClick(function () {
+                    var pts = parseInt(slider.value, 10);
+                    var tbc = pts2tbc(pts);
+                    var usd = pts2usd(pts);
+                    var msg = i18n.confirmMsg
+                        .replace('{points}', pts)
+                        .replace('{tbc}', tbc)
+                        .replace('{usd}', usd);
+
+                    if (tg.showConfirm) {
+                        tg.showConfirm(msg, function (confirmed) {
+                            if (confirmed) { submitRedeem(pts); }
+                        });
+                    } else {
+                        if (window.confirm(msg)) { submitRedeem(pts); }
+                    }
+                });
+            }
+        }
+
+        function submitRedeem(points) {
+            var tg = window.Telegram && window.Telegram.WebApp;
+            var initData = (tg && tg.initData) || '';
+
+            if (tg && tg.MainButton) { tg.MainButton.disable && tg.MainButton.disable(); }
+
+            fetch(WORKER_BASE + '/api/redeem', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ points_spent: points, initData: initData })
+            })
+            .then(function (res) { return res.json().then(function (body) { return { status: res.status, body: body }; }); })
+            .then(function (r) {
+                if (r.status === 200 || r.status === 201) {
+                    var tbc = pts2tbc(points);
+                    var msg = r.body.queued
+                        ? i18n.queued
+                        : i18n.success.replace('{tbc}', tbc);
+                    showToast(msg, 'success');
+                    loadData();
+                } else {
+                    var code = r.body && r.body.error;
+                    var errMap = {
+                        min_points:   i18n.errorMin,
+                        low_balance:  i18n.errorBalance,
+                        in_flight:    i18n.errorInflight,
+                        rate_limit:   i18n.errorRatelimit
+                    };
+                    showToast(errMap[code] || i18n.errorServer, 'error');
+                }
+            })
+            .catch(function () { showToast(i18n.errorServer, 'error'); })
+            .finally(function () {
+                if (tg && tg.MainButton) { tg.MainButton.enable && tg.MainButton.enable(); }
+            });
+        }
+
+        function loadData() {
+            var tg = window.Telegram && window.Telegram.WebApp;
+            var initData = (tg && tg.initData) || '';
+
+            fetch(WORKER_BASE + '/api/balance?initData=' + encodeURIComponent(initData))
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                var balance = data.points || 0;
+                var hasTon  = !!data.ton_address;
+
+                document.getElementById('balancePoints').textContent = balance;
+                document.getElementById('balanceTbc').textContent = pts2tbc(balance) + ' ' + i18n.balanceTbc;
+                document.getElementById('balanceUsd').textContent = '$' + (pts2tbc(balance) * USD_PER_TBC).toFixed(3) + ' ' + i18n.balanceUsd;
+
+                if (balance < MIN_POINTS) {
+                    document.getElementById('noBalanceMsg').style.display = 'block';
+                    document.getElementById('redeemForm').style.display   = 'none';
+                } else {
+                    document.getElementById('noBalanceMsg').style.display = 'none';
+                    if (!hasTon) {
+                        document.getElementById('walletMissingMsg').style.display = 'block';
+                    }
+                    initSlider(balance);
+                }
+
+                renderHistory(data.redemptions || []);
+            })
+            .catch(function () {
+                // Fallback: show 0 balance with empty history
+                document.getElementById('balancePoints').textContent = '0';
+                document.getElementById('balanceTbc').textContent = '0 TBC';
+                document.getElementById('balanceUsd').textContent = '$0.000 USD';
+                document.getElementById('noBalanceMsg').style.display = 'block';
+                renderHistory([]);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadData);
+    })();
+    </script>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   var metrikaId = "your-yandex-metrika-id-here";
+   ym(Number(metrikaId) || metrikaId, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/your-yandex-metrika-id-here" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</body>
+
+</html>
+

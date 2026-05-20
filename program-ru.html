@@ -1,0 +1,256 @@
+
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>TON Bridge — Партнёрская программа</title>
+    <meta name="description" content="Условия и положения, таблица ставок и примеры расчёта для программы лояльности и рефералов TONBANKCARD.">
+    <meta name="keywords"
+        content="TON Bridge, affiliate program, points, TBC, TONBANKCARD, cashback, referral" />
+    <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="manifest" href="__manifest.json">
+    
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.telegram.org https://tganalytics.xyz https://mc.yandex.ru">
+    <style>
+        .program-section { margin-bottom: 1.5rem; }
+        .rate-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 1rem 0; }
+        .rate-table th, .rate-table td { border: 1px solid #ccc; padding: 0.4rem 0.5rem; text-align: right; }
+        .rate-table th:first-child, .rate-table td:first-child { text-align: left; }
+        .rate-table thead th { background: var(--bs-primary, #1bb2da); color: #fff; }
+        .points-pill {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            background: #e8f8fd; border: 1px solid #1bb2da; border-radius: 999px;
+            padding: 0.15rem 0.6rem; font-size: 0.85rem; font-weight: 600; color: #1bb2da;
+            cursor: help; position: relative;
+        }
+        .points-pill .pill-tooltip {
+            display: none; position: absolute; bottom: calc(100% + 6px); left: 50%;
+            transform: translateX(-50%); background: #333; color: #fff;
+            border-radius: 6px; padding: 0.5rem 0.7rem; font-size: 0.78rem;
+            white-space: nowrap; z-index: 100; font-weight: 400; pointer-events: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .points-pill .pill-tooltip::after {
+            content: ''; position: absolute; top: 100%; left: 50%;
+            transform: translateX(-50%); border: 6px solid transparent;
+            border-top-color: #333;
+        }
+        .points-pill:hover .pill-tooltip,
+        .points-pill.open .pill-tooltip { display: block; }
+        .pill-info-icon { font-size: 0.9rem; }
+        .changelog-entry { font-size: 0.85rem; color: #666; }
+        .program-formula { background: #f4f4f4; border-left: 3px solid #1bb2da;
+            padding: 0.5rem 0.8rem; font-family: monospace; font-size: 0.82rem;
+            border-radius: 0 4px 4px 0; margin: 0.5rem 0; }
+    </style>
+</head>
+
+<body>
+    <div id="viewport"></div>
+    <script src="https://telegram.org/js/telegram-web-app.js" integrity="sha384-1XuC9S4cgk6RH1oCsL2diDRwLiiivu/oZHNfxYUitEFuiKpP5ceNbzu220KKrcK+" crossorigin="anonymous"></script>
+    <script>
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+        Telegram.WebApp.onEvent('themeChanged', function() {
+            document.documentElement.className = Telegram.WebApp.colorScheme;
+        });
+        Telegram.WebApp.setHeaderColor('secondary_bg_color');
+        Telegram.WebApp.BackButton.show();
+        Telegram.WebApp.BackButton.onClick(function() {
+            window.history.length > 1 ? window.history.back()
+                : (window.location.href = 'index-ru.html');
+        });
+    </script>
+
+    <!-- loader -->
+    <div id="loader">
+        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+    </div>
+    <!-- * loader -->
+
+    <!-- App Header -->
+    <div class="appHeader">
+        <div class="left">
+            <a href="index-ru.html" class="headerButton goBack" aria-label="Назад">
+                <ion-icon name="chevron-back-outline"></ion-icon>
+            </a>
+        </div>
+        <div class="pageTitle">Партнёрская программа</div>
+    </div>
+    <!-- * App Header -->
+
+    <!-- App Capsule -->
+    <div id="appCapsule">
+        <div class="section mt-2">
+
+            <!-- Introduction -->
+            <div class="program-section">
+                <h4>О программе</h4>
+                <p>Партнёрская программа TONBANKCARD позволяет вам зарабатывать токены TBC за каждый совершённый обмен и за каждый обмен, сделанный привлечёнными вами пользователями. Баллы начисляются автоматически, когда обмен переходит в статус завершённого.</p>
+                <p>На этой странице описаны точные формулы расчёта баллов, действующие ограничения и правила вестинга, а также порядок обмена баллов на токены TBC.</p>
+            </div>
+
+            <!-- Economic Model -->
+            <div class="program-section">
+                <h4>Таблица ставок</h4>
+                <p>Все ставки фиксируются на момент завершения каждого обмена. Изменение ставок влияет только на будущие обмены — исторический реестр неизменен.</p>
+
+                <table class="rate-table">
+                    <thead>
+                        <tr>
+                            <th>Параметр</th>
+                            <th>Текущее значение</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Сервисная комиссия (ChangeNOW)</td><td>0.40%</td></tr>
+                        <tr><td>Кэшбэк трейдера</td><td>0.10%</td></tr>
+                        <tr><td>Доля реферера</td><td>0.10%</td></tr>
+                        <tr><td>Курс обмена баллов</td><td>10 б = 1 TBC</td></tr>
+                        <tr><td>Рыночная цена TBC (переменная)</td><td>$0.0003 / TBC</td></tr>
+                        <tr><td>Расчётная стоимость балла</td><td>$0.00003 / б</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Point Formula -->
+            <div class="program-section">
+                <h4>Формула начисления баллов</h4>
+                <p>Баллы, начисляемые участнику за обмен, рассчитываются по формуле:</p>
+                <div class="program-formula">
+                    points = floor( turnover_usd &times; bps / 10000 / 0.00003 )
+                </div>
+                <p>При текущей ставке кэшбэка 0,10% это составляет примерно 33 балла за каждый $1 оборота обмена.</p>
+
+                <!-- Example pills with formula tooltips -->
+                <p>Примеры пилюль с баллами — нажмите на иконку информации, чтобы увидеть формулу:</p>
+                <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin:0.5rem 0;">
+                    <span class="points-pill" role="button" tabindex="0" aria-label="333 балла за обмен $10 при ставке 0,10%">
+                        +333 б
+                        <ion-icon name="information-outline" class="pill-info-icon"></ion-icon>
+                        <span class="pill-tooltip">$10 &times; 0.10% &divide; $0.00003 = 333 б</span>
+                    </span>
+                    <span class="points-pill" role="button" tabindex="0" aria-label="3333 балла за обмен $100 при ставке 0,10%">
+                        +3&thinsp;333 б
+                        <ion-icon name="information-outline" class="pill-info-icon"></ion-icon>
+                        <span class="pill-tooltip">$100 &times; 0.10% &divide; $0.00003 = 3&thinsp;333 б</span>
+                    </span>
+                    <span class="points-pill" role="button" tabindex="0" aria-label="33333 баллов за обмен $1000 при ставке 0,10%">
+                        +33&thinsp;333 б
+                        <ion-icon name="information-outline" class="pill-info-icon"></ion-icon>
+                        <span class="pill-tooltip">$1&thinsp;000 &times; 0.10% &divide; $0.00003 = 33&thinsp;333 б</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Worked Examples Table -->
+            <div class="program-section">
+                <h4>Примеры расчёта (разделение 0,10% / 0,10%)</h4>
+                <div style="overflow-x:auto;">
+                    <table class="rate-table">
+                        <thead>
+                            <tr>
+                                <th>Оборот обмена</th>
+                                <th>Баллы трейдера</th>
+                                <th>Баллы реферера</th>
+                                <th>Доход сервиса</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>$10</td><td>333 б</td><td>333 б</td><td>$0.02</td></tr>
+                            <tr><td>$100</td><td>3&thinsp;333 б</td><td>3&thinsp;333 б</td><td>$0.20</td></tr>
+                            <tr><td>$1&thinsp;000</td><td>33&thinsp;333 б</td><td>33&thinsp;333 б</td><td>$2.00</td></tr>
+                            <tr><td>$10&thinsp;000</td><td>333&thinsp;333 б</td><td>333&thinsp;333 б</td><td>$20.00</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Redemption -->
+            <div class="program-section">
+                <h4>Вывод баллов</h4>
+                <p>Накопленные баллы можно обменять на токены TBC, зачисляемые на ваш кошелёк TONBANKCARD.</p>
+                <ul>
+                    <li>Минимальный вывод: 100 баллов (= 10 TBC), чтобы стоимость транзакции в сети не превышала сумму вывода.</li>
+                    <li>Формула: TBC = floor(баллы / 10); стоимость в USD = TBC × $0,0003.</li>
+                    <li>Стоимость TBC переменна. Мы зачисляем фиксированное количество токенов, а не фиксированную сумму в USD.</li>
+                </ul>
+            </div>
+
+            <!-- Caps, Vesting, Concentration -->
+            <div class="program-section">
+                <h4>Ограничения, вестинг и защита от мошенничества</h4>
+                <ul>
+                    <li>Суточный лимит оборота для начисления баллов на пользователя (настраивается; по умолчанию $50 000 в сутки).</li>
+                    <li>Возраст аккаунта Telegram ≥ 7 дней до того, как заработанные баллы станут доступны для вывода.</li>
+                    <li>Аккаунты, в которых более 80% реферального оборота приходится на одного реферала, помечаются для проверки.</li>
+                    <li>Самореферал и циклические реферальные цепочки отклоняются. Реферальные бонусы выплачиваются только после перехода обмена реферала в статус завершённого.</li>
+                </ul>
+            </div>
+
+            <!-- Disclosure -->
+            <div class="program-section">
+                <h4>Раскрытие информации</h4>
+                <p>TBC — нативный токен экосистемы TONBANKCARD. Его рыночная цена переменна и не гарантирована. Программа зачисляет фиксированное количество токенов TBC, а не фиксированную сумму в USD.</p>
+                <p>Все ставки комиссий (cashback_bps, referral_bps, service_bps) настраиваются в режиме реального времени. Любое изменение вступает в силу только для обменов, завершённых после внесения изменения; исторический реестр неизменен.</p>
+            </div>
+
+            <!-- Contact & Legal -->
+            <div class="program-section">
+                <h4>Споры и контакты</h4>
+                <p>По вопросам споров или баланса баллов обратитесь к нам: <a href="mailto:support@tonbankcard.io">support@tonbankcard.io</a></p>
+            </div>
+
+            <!-- Changelog -->
+            <div class="program-section">
+                <h4>История изменений</h4>
+                <p class="changelog-entry">2026-04-30 — v1.0: Первая публикация условий программы.</p>
+            </div>
+
+            <p style="font-size:0.75rem; color:#999; margin-top:1rem;">
+                Последнее обновление: 2026-04-30
+            </p>
+
+        </div>
+    </div>
+    <!-- * App Capsule -->
+
+    <!-- ========= JS Files ========= -->
+    <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/ion-icon.js" defer></script>
+    <script src="assets/js/base.js"></script>
+
+    <script>
+        // Toggle tooltip on tap for mobile
+        document.querySelectorAll('.points-pill').forEach(function(pill) {
+            pill.addEventListener('click', function() {
+                pill.classList.toggle('open');
+            });
+            pill.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    pill.classList.toggle('open');
+                }
+            });
+        });
+        // Close open pill tooltips when tapping elsewhere
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.points-pill')) {
+                document.querySelectorAll('.points-pill.open').forEach(function(p) {
+                    p.classList.remove('open');
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
+

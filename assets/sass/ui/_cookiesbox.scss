@@ -11,8 +11,10 @@
     &.offcanvas-top {
         height: auto !important;
     }
+    // Lift the banner above the fixed appBottomMenu (56px) plus the safe-area
+    // inset so the accept button is never hidden under the bottom navigation.
     &.show{
-        transform: translateY(-72px)
+        transform: translateY(calc(-72px - env(safe-area-inset-bottom)));
     }
     .offcanvas-header {
         padding: 0;

@@ -249,6 +249,8 @@ function tonbridge_installer_install(array $config, string $rootDir): array
 {
     $rootDir = rtrim($rootDir, DIRECTORY_SEPARATOR);
     $written = [];
+    $backups = [];
+    $timestamp = gmdate('Ymd-His');
 
     tonbridge_installer_ensure_directory($rootDir . '/config');
     tonbridge_installer_ensure_directory($rootDir . '/assets/js');
@@ -261,7 +263,12 @@ function tonbridge_installer_install(array $config, string $rootDir): array
     ];
 
     foreach ($targets as $relative => $contents) {
-        tonbridge_installer_write_file($rootDir . '/' . $relative, $contents);
+        $absolute = $rootDir . '/' . $relative;
+        $backup = tonbridge_installer_backup_file($absolute, $timestamp);
+        if ($backup !== null) {
+            $backups[] = tonbridge_installer_relative_path($rootDir, $backup);
+        }
+        tonbridge_installer_write_file($absolute, $contents);
         $written[] = $relative;
     }
 
@@ -284,8 +291,24 @@ function tonbridge_installer_install(array $config, string $rootDir): array
 
     $written = array_values(array_unique($written));
     sort($written);
+    sort($backups);
 
-    return $written;
+    return [$written, $backups];
+}
+
+function tonbridge_installer_backup_file(string $absolute, string $timestamp): ?string
+{
+    if (!is_file($absolute)) {
+        return null;
+    }
+
+    $backupPath = $absolute . '.bak-' . $timestamp;
+    if (!copy($absolute, $backupPath)) {
+        throw new RuntimeException("Unable to back up file: {$absolute}");
+    }
+    @chmod($backupPath, 0640);
+
+    return $backupPath;
 }
 
 function tonbridge_installer_build_env(array $config): string

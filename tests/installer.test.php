@@ -134,4 +134,19 @@ assert_contains('Не добавляйте /installer.', $russianInstaller, 'ins
 assert_contains('English', $russianInstaller, 'language selector should include English option text');
 assert_contains('Русский', $russianInstaller, 'language selector should include Russian option text');
 
+// Backup logic preserves the previous file when one already exists.
+$backupRoot = sys_get_temp_dir() . '/tonbridge-installer-backup-' . bin2hex(random_bytes(4));
+mkdir($backupRoot, 0777, true);
+$existing = $backupRoot . '/example.txt';
+file_put_contents($existing, 'previous-content');
+$backupPath = tonbridge_installer_backup_file($existing, '20260520-013045');
+assert_true($backupPath !== null && is_file($backupPath), 'backup should be created when the original file exists');
+assert_true(file_get_contents($backupPath) === 'previous-content', 'backup should contain the previous file contents');
+assert_true(str_ends_with($backupPath, '.bak-20260520-013045'), 'backup filename should encode the timestamp');
+$noBackup = tonbridge_installer_backup_file($backupRoot . '/missing.txt', '20260520-013045');
+assert_true($noBackup === null, 'backup should be a no-op when the original file is missing');
+unlink($existing);
+unlink($backupPath);
+rmdir($backupRoot);
+
 echo "Installer tests passed.\n";

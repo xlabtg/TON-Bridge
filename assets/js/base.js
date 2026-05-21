@@ -725,6 +725,11 @@ else {
             _saveConsent(false, false);
         });
     });
+
+    // Show the consent banner automatically on first visit (1.5 s delay)
+    document.addEventListener('DOMContentLoaded', function() {
+        CookiesBox(1500);
+    });
 }
 
 

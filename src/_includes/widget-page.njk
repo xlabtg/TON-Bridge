@@ -166,14 +166,8 @@
             </a>
         </div>
         <div class="pageTitle">
-            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="{{ locales.en.logo_alt }}" data-i18n-attr="alt:logo_alt" class="logo" width="143" height="24" loading="eager" decoding="async">
+            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="{{ locales.en.logo_alt }}" data-i18n-attr="alt:logo_alt" class="logo" width="143" height="24" loading="eager" decoding="async" style="height:24px;width:auto;max-width:160px;object-fit:contain;">
             <span id="tier-badge" class="tier-badge"></span>
-        </div>
-        <div class="right">
-            <button id="wallet-btn" class="headerButton btn btn-sm btn-outline-light rounded wallet-connect-btn" onclick="WalletConnect.connect()">
-                <ion-icon name="wallet-outline" class="wallet-connect-btn__icon" aria-hidden="true"></ion-icon>
-                <span id="wallet-btn-label" data-i18n="wallet_connect_btn">{{ locales.en.wallet_connect_btn }}</span>
-            </button>
         </div>
     </div>
     <!-- * App Header -->
@@ -205,7 +199,7 @@
 
 		<!-- App {{ sectionLabel }} -->
             <div class="text-center mb-4 intro-img-frame">
-                <img src="{{ imgSrc }}" alt="{{ imgAlt | default(sectionLabel + ' illustration') }}" class="intro-img" width="{{ imgW | replace('px', '') }}" height="{{ imgH | replace('px', '') }}" fetchpriority="high">
+                <img src="{{ imgSrc }}" alt="{{ imgAlt | default(sectionLabel + ' illustration') }}" class="intro-img mx-auto d-block" width="{{ imgW | replace('px', '') }}" height="{{ imgH | replace('px', '') }}" fetchpriority="high">
             </div>
 
                     <h3>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_heading{% else %}exchange_heading{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_heading }}{% else %}{{ locales.en.exchange_heading }}{% endif %}</span></h3>
@@ -677,16 +671,10 @@
         });
 
         function updateWalletUI(state) {
-            var btn = document.getElementById('wallet-btn');
-            var btnLabel = document.getElementById('wallet-btn-label');
             var prefillBar = document.getElementById('wallet-prefill-bar');
             var halfLabel = document.getElementById('wallet-prefill-half-label');
-            if (!btn || !btnLabel) return;
 
             if (state && state.connected && state.address) {
-                var short = WalletConnect.shortenAddress(state.address);
-                btnLabel.textContent = state.balance != null ? short + ' · ' + state.balance + ' TON' : short;
-                btn.onclick = function() { WalletConnect.disconnect(); };
                 _walletBalance = state.balance ? parseFloat(state.balance) : null;
 
                 if (prefillBar) {
@@ -696,8 +684,6 @@
                     }
                 }
             } else {
-                btnLabel.textContent = i18nWallet.connectBtn;
-                btn.onclick = function() { WalletConnect.connect(); };
                 _walletBalance = null;
                 if (prefillBar) prefillBar.classList.add('is-hidden');
             }

@@ -34,7 +34,7 @@
 <meta property="og:title" content="Exchange Crypto · TON Bridge">
 <meta property="og:description" content="Exchange 1200+ cryptocurrencies across 200 blockchains. Non-custodial crypto exchange by TONBANKCARD.">
 <meta property="og:url" content="https://tonbankcard.com/bridge/TMA/00.html/index2.html">
-<meta property="og:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/index2.png?v=0caed95">
+<meta property="og:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/index2.png?v=e435aed">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Exchange Crypto · TON Bridge">
@@ -43,7 +43,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Exchange Crypto · TON Bridge">
 <meta name="twitter:description" content="Exchange 1200+ cryptocurrencies across 200 blockchains. Non-custodial crypto exchange by TONBANKCARD.">
-<meta name="twitter:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/index2.png?v=0caed95">
+<meta name="twitter:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/index2.png?v=e435aed">
 <meta name="twitter:image:alt" content="Exchange Crypto · TON Bridge">
 
     <meta name="keywords"
@@ -205,17 +205,17 @@
             </a>
         </div>
         <div class="pageTitle">
-            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="TON Bridge logo" data-i18n-attr="alt:logo_alt" class="logo" width="143" height="24" loading="eager" decoding="async">
+            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="TON Bridge logo" data-i18n-attr="alt:logo_alt" class="logo" width="143" height="24" loading="eager" decoding="async" style="height:24px;width:auto;max-width:160px;object-fit:contain;">
             <span id="tier-badge" class="tier-badge"></span>
-        </div>
-        <div class="right">
-            <button id="wallet-btn" class="headerButton btn btn-sm btn-outline-light rounded wallet-connect-btn" onclick="WalletConnect.connect()">
-                <ion-icon name="wallet-outline" class="wallet-connect-btn__icon" aria-hidden="true"></ion-icon>
-                <span id="wallet-btn-label" data-i18n="wallet_connect_btn">Connect wallet</span>
-            </button>
         </div>
     </div>
     <!-- * App Header -->
+
+    <!-- Hidden wallet button for JS/test compatibility (not shown in header per design) -->
+    <button id="wallet-btn" class="d-none" aria-hidden="true" onclick="WalletConnect.connect()">
+        <span id="wallet-btn-label" data-i18n="wallet_connect_btn">Connect wallet</span>
+    </button>
+    <!-- * Hidden wallet button -->
 
     <!-- Tier-up celebration modal -->
     <div id="tier-celebration-modal" class="tier-celebration-overlay" role="dialog" aria-modal="true" aria-label="Tier unlocked">
@@ -244,7 +244,7 @@
 
 		<!-- App Bridge -->
             <div class="text-center mb-4 intro-img-frame">
-                <img src="assets/img/gfx-a-1.webp" alt="Exchange illustration" class="intro-img" width="300" height="258" fetchpriority="high">
+                <img src="assets/img/gfx-a-1.webp" alt="Exchange illustration" class="intro-img mx-auto d-block" width="300" height="258" fetchpriority="high">
             </div>
 
                     <h3>&nbsp;<span data-i18n="exchange_heading">Security and privacy</span></h3>

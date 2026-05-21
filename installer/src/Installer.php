@@ -481,9 +481,18 @@ function tonbridge_installer_static_replacements(array $config): array
     $botUsername = $config['telegram_bot_username'];
 
     return [
+        // Double-percent placeholders written by eleventy build into source JS.
         '%%TG_ANALYTICS_TOKEN%%' => $safeAnalyticsToken,
         '%%TG_ANALYTICS_APP_NAME%%' => $safeAnalyticsApp,
         '%%YANDEX_METRIKA_ID%%' => $config['yandex_metrika_id'],
+        // Generic .env.example placeholder values baked into the pre-built HTML/JS
+        // distribution that ships in the repository.
+        'your-tganalytics-jwt-here' => $safeAnalyticsToken,
+        'your-analytics-app-name' => $safeAnalyticsApp,
+        'your-yandex-metrika-id-here' => $config['yandex_metrika_id'],
+        'your-changenow-link-id-here' => $config['changenow_link_id'],
+        'your-bot-username' => $botUsername,
+        // Legacy hardcoded values that may appear in older distributions.
         'TONBridge_robot' => $botUsername,
         '98019798' => $config['yandex_metrika_id'],
         '3cc0024a18fd9d' => $config['changenow_link_id'],

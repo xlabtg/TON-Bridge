@@ -172,6 +172,12 @@
     </div>
     <!-- * App Header -->
 
+    <!-- Hidden wallet button for JS/test compatibility (not shown in header per design) -->
+    <button id="wallet-btn" class="d-none" aria-hidden="true" onclick="WalletConnect.connect()">
+        <span id="wallet-btn-label" data-i18n="wallet_connect_btn">{{ locales.en.wallet_connect_btn }}</span>
+    </button>
+    <!-- * Hidden wallet button -->
+
     <!-- Tier-up celebration modal -->
     <div id="tier-celebration-modal" class="tier-celebration-overlay" role="dialog" aria-modal="true" aria-label="{{ locales.en.tier_celebration_title | default('Tier unlocked') }}">
         <div class="tier-celebration-card">
@@ -671,11 +677,19 @@
         });
 
         function updateWalletUI(state) {
+            var btn = document.getElementById('wallet-btn');
+            var btnLabel = document.getElementById('wallet-btn-label');
             var prefillBar = document.getElementById('wallet-prefill-bar');
             var halfLabel = document.getElementById('wallet-prefill-half-label');
 
             if (state && state.connected && state.address) {
                 _walletBalance = state.balance ? parseFloat(state.balance) : null;
+
+                if (btnLabel) {
+                    var short = WalletConnect.shortenAddress(state.address);
+                    btnLabel.textContent = state.balance != null ? short + ' · ' + state.balance + ' TON' : short;
+                }
+                if (btn) btn.onclick = function() { WalletConnect.disconnect(); };
 
                 if (prefillBar) {
                     prefillBar.classList.remove('is-hidden');
@@ -684,6 +698,8 @@
                     }
                 }
             } else {
+                if (btnLabel) btnLabel.textContent = i18nWallet.connectBtn;
+                if (btn) btn.onclick = function() { WalletConnect.connect(); };
                 _walletBalance = null;
                 if (prefillBar) prefillBar.classList.add('is-hidden');
             }

@@ -121,6 +121,33 @@ rmdir($tmpRoot . '/assets');
 array_map('unlink', glob($tmpRoot . '/*.html'));
 rmdir($tmpRoot);
 
+// Verify that the generic .env.example placeholder values (baked into the pre-built
+// HTML/JS distribution) are also replaced by the installer.
+$tmpEnvPlaceholders = sys_get_temp_dir() . '/tonbridge-installer-' . bin2hex(random_bytes(4));
+mkdir($tmpEnvPlaceholders . '/assets/js', 0777, true);
+file_put_contents($tmpEnvPlaceholders . '/index.html', "link_id=your-changenow-link-id-here\n");
+file_put_contents($tmpEnvPlaceholders . '/redeem.html', "var metrikaId = \"your-yandex-metrika-id-here\";\ntoken: \"your-tganalytics-jwt-here\"\nappName: \"your-analytics-app-name\"\n");
+file_put_contents($tmpEnvPlaceholders . '/assets/js/base.js', "yandexMetrikaId: \"your-yandex-metrika-id-here\",\ntgAnalyticsToken: \"your-tganalytics-jwt-here\",\ntgAnalyticsAppName: \"your-analytics-app-name\"\n");
+file_put_contents($tmpEnvPlaceholders . '/assets/js/deep-link.js', "var BOT_USERNAME = 'your-bot-username';\n");
+
+$changedEnv = tonbridge_installer_apply_static_config($tmpEnvPlaceholders, $config);
+sort($changedEnv);
+assert_true($changedEnv === ['assets/js/base.js', 'assets/js/deep-link.js', 'index.html', 'redeem.html'], 'installer should replace .env.example placeholder values in pre-built files');
+assert_contains('link_id=partner123', file_get_contents($tmpEnvPlaceholders . '/index.html'), 'pre-built HTML should get ChangeNOW link id from env placeholder');
+assert_contains('var metrikaId = "98019798"', file_get_contents($tmpEnvPlaceholders . '/redeem.html'), 'pre-built HTML should get Yandex ID from env placeholder');
+assert_contains('token: "analytics-token"', file_get_contents($tmpEnvPlaceholders . '/redeem.html'), 'pre-built HTML should get analytics token from env placeholder');
+assert_contains('appName: "ExampleBridgeBot"', file_get_contents($tmpEnvPlaceholders . '/redeem.html'), 'pre-built HTML should get analytics app name from env placeholder');
+assert_contains('yandexMetrikaId: "98019798"', file_get_contents($tmpEnvPlaceholders . '/assets/js/base.js'), 'pre-built base.js should get Yandex ID from env placeholder');
+assert_contains('tgAnalyticsToken: "analytics-token"', file_get_contents($tmpEnvPlaceholders . '/assets/js/base.js'), 'pre-built base.js should get analytics token from env placeholder');
+assert_contains('tgAnalyticsAppName: "ExampleBridgeBot"', file_get_contents($tmpEnvPlaceholders . '/assets/js/base.js'), 'pre-built base.js should get analytics app name from env placeholder');
+assert_contains("var BOT_USERNAME = 'ExampleBridgeBot'", file_get_contents($tmpEnvPlaceholders . '/assets/js/deep-link.js'), 'pre-built JS should get bot username from env placeholder');
+
+array_map('unlink', glob($tmpEnvPlaceholders . '/assets/js/*.js'));
+rmdir($tmpEnvPlaceholders . '/assets/js');
+rmdir($tmpEnvPlaceholders . '/assets');
+array_map('unlink', glob($tmpEnvPlaceholders . '/*.html'));
+rmdir($tmpEnvPlaceholders);
+
 $_SERVER['REQUEST_METHOD'] = 'GET';
 $_GET = ['step' => '2', 'language' => 'ru'];
 $_POST = [];

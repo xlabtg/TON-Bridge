@@ -12,6 +12,13 @@ async function mockTelegramWebApp(page, { hasShareToStory = true } = {}) {
     }));
 
     await page.addInitScript((opts) => {
+        localStorage.setItem('FinappConsent', JSON.stringify({
+            version: 1,
+            analytics: false,
+            marketing: false,
+            ts: Date.now(),
+        }));
+
         const calls = { shareToStory: [], openTelegramLink: [] };
         window.__tgCalls = calls;
 

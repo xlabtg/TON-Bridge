@@ -184,9 +184,11 @@
     var visible = sorted.slice(0, CHIPS_VISIBLE);
 
     if (visible.length === 0) {
+      container.classList.add('address-book-chips-wrap--hidden');
       container.style.display = 'none';
       return;
     }
+    container.classList.remove('address-book-chips-wrap--hidden');
     container.style.display = '';
 
     var html = '<div class="address-book-chip-list">';
@@ -250,13 +252,14 @@
 
     var pinBtn = sheet.querySelector('[data-ab-action="pin"]');
     if (pinBtn) {
-      pinBtn.textContent = _actionTarget.pinned
+      var pinLabel = pinBtn.querySelector('.in') || pinBtn;
+      pinLabel.textContent = _actionTarget.pinned
         ? (_i18n.ab_unpin || 'Unpin')
         : (_i18n.ab_pin || 'Pin');
     }
 
-    var bsOffcanvas = bootstrap && bootstrap.Offcanvas
-      ? bootstrap.Offcanvas.getOrCreateInstance(sheet)
+    var bsOffcanvas = global.bootstrap && global.bootstrap.Offcanvas
+      ? global.bootstrap.Offcanvas.getOrCreateInstance(sheet)
       : null;
     if (bsOffcanvas) bsOffcanvas.show();
     else sheet.classList.add('show');
@@ -265,8 +268,8 @@
   function closeActionSheet() {
     var sheet = document.getElementById('address-book-action-sheet');
     if (!sheet) return;
-    var bsOffcanvas = bootstrap && bootstrap.Offcanvas
-      ? bootstrap.Offcanvas.getInstance(sheet)
+    var bsOffcanvas = global.bootstrap && global.bootstrap.Offcanvas
+      ? global.bootstrap.Offcanvas.getInstance(sheet)
       : null;
     if (bsOffcanvas) bsOffcanvas.hide();
     else sheet.classList.remove('show');

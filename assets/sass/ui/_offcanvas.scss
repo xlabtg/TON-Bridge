@@ -1,0 +1,107 @@
+.offcanvas {
+    position: fixed;
+    z-index: 12000;
+    display: flex;
+    flex-direction: column;
+    max-width: 100%;
+    color: $colorText;
+    visibility: hidden;
+    background: #fff;
+    background-clip: padding-box;
+    outline: 0;
+    transition: transform 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+.offcanvas-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 11990;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    &.fade {
+        opacity: 0;
+    }
+    &.show {
+        opacity: 0.45;
+    }
+}
+
+.offcanvas-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+}
+
+.offcanvas-title {
+    margin: 0;
+    line-height: 1.2;
+}
+
+.offcanvas-body {
+    flex-grow: 1;
+    padding: 0 16px 16px;
+    overflow-y: auto;
+}
+
+.offcanvas-bottom {
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: auto;
+    max-height: calc(100vh - env(safe-area-inset-top) - 16px);
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid $colorLine;
+    transform: translateY(100%);
+}
+
+.offcanvas.showing,
+.offcanvas.show:not(.hiding) {
+    transform: none;
+}
+
+.offcanvas.showing,
+.offcanvas.show {
+    visibility: visible;
+}
+
+#address-book-action-sheet {
+    left: 50%;
+    right: auto;
+    width: min(100%, 520px);
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
+    transform: translate(-50%, 100%);
+    .offcanvas-header {
+        align-items: flex-start;
+        gap: 12px;
+        padding-bottom: 8px;
+    }
+    .ab-sheet-address {
+        max-width: 60%;
+        overflow: hidden;
+        text-align: right;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .offcanvas-body {
+        padding: 0 16px 16px;
+    }
+    .listview {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+}
+
+#address-book-action-sheet.showing,
+#address-book-action-sheet.show:not(.hiding) {
+    transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .offcanvas {
+        transition: none !important;
+    }
+}

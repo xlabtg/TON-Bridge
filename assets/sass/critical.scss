@@ -50,6 +50,30 @@ h1,h2,h3,h4,h5,h6{color:$colorHeading;margin:0 0 10px 0}
 ////////////////////////////////////////////////////
 #offline-indicator{display:none}
 .tier-celebration-overlay{display:none}
+.offcanvas{
+  position:fixed;
+  z-index:12000;
+  visibility:hidden;
+  max-width:100%;
+  background:#fff;
+}
+.offcanvas-bottom{
+  left:0;right:0;bottom:0;
+  transform:translateY(100%);
+}
+.offcanvas.showing,
+.offcanvas.show{visibility:visible}
+.offcanvas.showing,
+.offcanvas.show:not(.hiding){transform:none}
+#address-book-action-sheet{
+  left:50%;right:auto;
+  width:min(100%,520px);
+  transform:translate(-50%,100%);
+}
+#address-book-action-sheet.showing,
+#address-book-action-sheet.show:not(.hiding){
+  transform:translate(-50%,0);
+}
 
 ////////////////////////////////////////////////////
 // Loader overlay — shown immediately, hides after JS

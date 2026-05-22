@@ -63,11 +63,6 @@
         return tier;
     }
 
-    function nextTier(currentTierId) {
-        var idx = TIERS.findIndex(function (t) { return t.id === currentTierId; });
-        return idx >= 0 && idx < TIERS.length - 1 ? TIERS[idx + 1] : null;
-    }
-
     function loadFromLocal(cb) {
         try {
             var raw = localStorage.getItem(STORAGE_KEY);
@@ -121,33 +116,6 @@
         }
         badge.textContent = tier.emoji + ' ' + tier.label;
         badge.className = 'tier-badge ' + tier.flair;
-    }
-
-    function renderProgress(stats) {
-        var bar = document.getElementById('tier-progress-bar');
-        var label = document.getElementById('tier-progress-label');
-        if (!bar && !label) return;
-
-        var tier = computeTier(stats.swaps, stats.volume);
-        var next = nextTier(tier ? tier.id : null);
-
-        if (!next) {
-            if (label) label.textContent = tier ? tier.emoji + ' Platinum — max tier reached!' : '';
-            if (bar) bar.style.width = '100%';
-            return;
-        }
-
-        // Progress toward next tier by swap count (simpler metric for display)
-        var currentMin = tier ? tier.minSwaps : 0;
-        var done = Math.max(stats.swaps - currentMin, 0);
-        var need = next.minSwaps - currentMin;
-        var pct = need > 0 ? Math.min(Math.round((done / need) * 100), 100) : 0;
-
-        if (bar) bar.style.width = pct + '%';
-        if (label) {
-            var remaining = Math.max(next.minSwaps - stats.swaps, 0);
-            label.textContent = remaining + ' swap' + (remaining !== 1 ? 's' : '') + ' until ' + next.emoji + ' ' + next.label;
-        }
     }
 
     function showCelebration(tier, stats) {
@@ -210,7 +178,6 @@
 
             saveStats(stats, function () {
                 renderBadge(stats);
-                renderProgress(stats);
 
                 var tierUp = newTier && (!prevTier || newTier.id !== prevTier.id);
                 if (tierUp) {
@@ -226,7 +193,6 @@
     function init() {
         loadStats(function (stats) {
             renderBadge(stats);
-            renderProgress(stats);
         });
     }
 

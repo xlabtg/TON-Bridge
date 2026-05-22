@@ -32,12 +32,6 @@ async function mockTelegramWebApp(page, options = {}) {
     contentType: 'text/html',
     body: '<html><body>ChangeNOW</body></html>',
   }));
-  await page.route('https://ton.app/a2/badge/topapp?appId=2722', route => route.fulfill({
-    status: 200,
-    contentType: 'image/svg+xml',
-    body: '<svg xmlns="http://www.w3.org/2000/svg" width="136" height="72"></svg>',
-  }));
-
   await page.addInitScript(({ userId, adminIds }) => {
     window.__adminIds = adminIds;
     window.requestIdleCallback = function () { return 0; };
@@ -109,20 +103,14 @@ test.describe('Layout regressions for issue #140 follow-up', () => {
     expect(payoutOverlap).toBe(false);
   });
 
-  test('desktop exchange actions are centered below the exchange form', async ({ page }) => {
+  test('desktop exchange page omits removed auxiliary actions', async ({ page }) => {
     await mockTelegramWebApp(page);
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(distUrl('index2.html'));
     await page.locator('#open-exchange-btn').click();
 
-    const stack = page.locator('.exchange-action-stack');
-    await expect(stack).toBeVisible();
-    await expect(page.locator('#send-to-chat-btn')).toBeVisible();
-
-    const centerDelta = await stack.evaluate(el => {
-      const rect = el.getBoundingClientRect();
-      return Math.abs((rect.left + rect.width / 2) - (window.innerWidth / 2));
-    });
-    expect(centerDelta).toBeLessThanOrEqual(1);
+    await expect(page.locator('#iframe-widget')).toBeAttached();
+    await expect(page.locator('.exchange-action-stack')).toHaveCount(0);
+    await expect(page.locator('#send-to-chat-btn')).toHaveCount(0);
   });
 });

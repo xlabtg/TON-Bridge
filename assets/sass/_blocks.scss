@@ -833,40 +833,6 @@
   display: block;
 }
 
-.info-action-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-}
-
-.exchange-action-stack {
-  width: 100%;
-  max-width: 640px;
-  margin: 16px auto 24px;
-  padding: 0 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  text-align: center;
-  img {
-    max-width: 100%;
-    height: auto;
-  }
-  .btn {
-    max-width: 100%;
-    white-space: normal;
-  }
-  .info-action-row {
-    width: 100%;
-    flex-wrap: wrap;
-    margin-top: 8px !important;
-    margin-bottom: 8px !important;
-  }
-}
-
 .settings-screen {
   .image-listview.text.inset {
     .item {
@@ -916,10 +882,6 @@
 .ym-noscript {
   position: absolute;
   left: -9999px;
-}
-
-.tier-progress-bar-empty {
-  width: 0%;
 }
 
 .wallet-connect-btn {

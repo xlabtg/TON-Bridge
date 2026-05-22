@@ -65,8 +65,13 @@ var loader = document.getElementById('loader');
 // Service Workers
 //-----------------------------------------------------------------------
 function registerServiceWorker() {
-    navigator.serviceWorker.register('__service-worker.js')
-        .then(reg => console.log('service worker registered'))
+    navigator.serviceWorker.register('__service-worker.js', { updateViaCache: 'none' })
+        .then(reg => {
+            console.log('service worker registered');
+            if (reg && typeof reg.update === 'function') {
+                reg.update().catch(err => console.log('service worker update check failed.', err));
+            }
+        })
         .catch(err => console.log('service worker not registered - there is an error.', err));
 }
 

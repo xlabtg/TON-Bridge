@@ -37,6 +37,8 @@ async function captureServiceWorkerSchedule(page, useRequestIdleCallback = true)
   await page.addInitScript((useRequestIdleCallback) => {
     window.__swRegisterCalls = 0;
     window.__swRegisterUrl = null;
+    window.__swRegisterOptions = null;
+    window.__swUpdateCalls = 0;
     window.__swDelayFn = null;
     window.__swIdleFn = null;
     window.__swIdleOptions = null;
@@ -45,10 +47,16 @@ async function captureServiceWorkerSchedule(page, useRequestIdleCallback = true)
       configurable: true,
       get() {
         return {
-          register(url) {
+          register(url, options) {
             window.__swRegisterCalls += 1;
             window.__swRegisterUrl = url;
-            return Promise.resolve({});
+            window.__swRegisterOptions = options;
+            return Promise.resolve({
+              update() {
+                window.__swUpdateCalls += 1;
+                return Promise.resolve();
+              },
+            });
           },
         };
       },
@@ -95,6 +103,8 @@ test.describe('service worker registration', () => {
 
     expect(await page.evaluate(() => window.__swRegisterCalls)).toBe(1);
     expect(await page.evaluate(() => window.__swRegisterUrl)).toBe('__service-worker.js');
+    expect(await page.evaluate(() => window.__swRegisterOptions)).toEqual({ updateViaCache: 'none' });
+    await expect.poll(() => page.evaluate(() => window.__swUpdateCalls)).toBe(1);
   });
 
   test('is skipped during Lighthouse CI audits', async ({ page }) => {

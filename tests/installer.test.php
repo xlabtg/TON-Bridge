@@ -163,6 +163,42 @@ rmdir($tmpEnvPlaceholders . '/assets');
 array_map('unlink', glob($tmpEnvPlaceholders . '/*.html'));
 rmdir($tmpEnvPlaceholders);
 
+// The installer must invalidate old PWA caches after uploading a new project
+// version. Otherwise an existing service worker can keep serving stale CSS/JS.
+$tmpSwRoot = sys_get_temp_dir() . '/tonbridge-installer-sw-' . bin2hex(random_bytes(4));
+mkdir($tmpSwRoot . '/assets/css', 0777, true);
+mkdir($tmpSwRoot . '/assets/js', 0777, true);
+mkdir($tmpSwRoot . '/dist', 0777, true);
+file_put_contents($tmpSwRoot . '/__service-worker.js', file_get_contents(__DIR__ . '/../__service-worker.js'));
+file_put_contents($tmpSwRoot . '/index.html', '<!doctype html><title>TON Bridge</title>');
+file_put_contents($tmpSwRoot . '/assets/css/style.css', 'body{}');
+file_put_contents($tmpSwRoot . '/assets/js/base.js', 'console.log("base");');
+file_put_contents($tmpSwRoot . '/dist/index.html', '<!doctype html><title>dist should not be precached by root SW</title>');
+
+[$swChanged, $swBackups] = tonbridge_installer_refresh_service_workers($tmpSwRoot, $config, '20260522-120000');
+sort($swChanged);
+sort($swBackups);
+$updatedSw = file_get_contents($tmpSwRoot . '/__service-worker.js');
+assert_true($swChanged === ['__service-worker.js'], 'installer should refresh the root service worker');
+assert_true($swBackups === ['__service-worker.js.bak-20260522-120000'], 'installer should back up the previous service worker');
+assert_contains('var SW_VERSION = "installer-20260522-120000-', $updatedSw, 'installer should stamp a non-dev service worker version');
+assert_contains('"index.html"', $updatedSw, 'installer service worker should precache root HTML');
+assert_contains('"assets/css/style.css"', $updatedSw, 'installer service worker should precache current CSS');
+assert_contains('"assets/js/base.js"', $updatedSw, 'installer service worker should precache current JS');
+assert_not_contains('"dist/index.html"', $updatedSw, 'root service worker should not precache nested dist output');
+
+unlink($tmpSwRoot . '/__service-worker.js');
+unlink($tmpSwRoot . '/__service-worker.js.bak-20260522-120000');
+unlink($tmpSwRoot . '/index.html');
+unlink($tmpSwRoot . '/assets/css/style.css');
+unlink($tmpSwRoot . '/assets/js/base.js');
+unlink($tmpSwRoot . '/dist/index.html');
+rmdir($tmpSwRoot . '/dist');
+rmdir($tmpSwRoot . '/assets/js');
+rmdir($tmpSwRoot . '/assets/css');
+rmdir($tmpSwRoot . '/assets');
+rmdir($tmpSwRoot);
+
 $_SERVER['REQUEST_METHOD'] = 'GET';
 $_GET = ['step' => '2', 'language' => 'ru'];
 $_POST = [];

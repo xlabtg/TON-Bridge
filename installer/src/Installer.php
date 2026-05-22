@@ -276,6 +276,14 @@ function tonbridge_installer_install(array $config, string $rootDir): array
         $written[] = $relative;
     }
 
+    [$serviceWorkerFiles, $serviceWorkerBackups] = tonbridge_installer_refresh_service_workers($rootDir, $config, $timestamp);
+    foreach ($serviceWorkerFiles as $relative) {
+        $written[] = $relative;
+    }
+    foreach ($serviceWorkerBackups as $relative) {
+        $backups[] = $relative;
+    }
+
     if ($config['mysql_create_schema'] === '1') {
         tonbridge_installer_create_mysql_schema($config);
     }
@@ -474,6 +482,182 @@ function tonbridge_installer_apply_static_config(string $rootDir, array $config)
     }
 
     return $changed;
+}
+
+function tonbridge_installer_refresh_service_workers(string $rootDir, array $config, ?string $timestamp = null): array
+{
+    $rootDir = rtrim($rootDir, DIRECTORY_SEPARATOR);
+    $timestamp = $timestamp ?? gmdate('Ymd-His');
+    $version = tonbridge_installer_service_worker_version($config, $timestamp);
+    $targets = [$rootDir . '/__service-worker.js'];
+
+    if (is_file($rootDir . '/dist/__service-worker.js')) {
+        $targets[] = $rootDir . '/dist/__service-worker.js';
+    }
+
+    $written = [];
+    $backups = [];
+
+    foreach (array_values(array_unique($targets)) as $path) {
+        if (!is_file($path)) {
+            continue;
+        }
+
+        $source = file_get_contents($path);
+        if ($source === false) {
+            throw new RuntimeException("Unable to read service worker: {$path}");
+        }
+
+        $updated = tonbridge_installer_stamp_service_worker(
+            $source,
+            $version,
+            tonbridge_installer_precache_urls(dirname($path))
+        );
+
+        if ($updated === $source) {
+            continue;
+        }
+
+        $backup = tonbridge_installer_backup_file($path, $timestamp);
+        if ($backup !== null) {
+            $backups[] = tonbridge_installer_relative_path($rootDir, $backup);
+        }
+        tonbridge_installer_write_file($path, $updated);
+        $written[] = tonbridge_installer_relative_path($rootDir, $path);
+    }
+
+    $written = array_values(array_unique($written));
+    $backups = array_values(array_unique($backups));
+    sort($written);
+    sort($backups);
+
+    return [$written, $backups];
+}
+
+function tonbridge_installer_service_worker_version(array $config, string $timestamp): string
+{
+    $safeTimestamp = preg_replace('/[^A-Za-z0-9_-]/', '-', $timestamp) ?: gmdate('Ymd-His');
+    $hash = substr(hash('sha256', implode('|', [
+        $timestamp,
+        $config['base_url'] ?? '',
+        $config['app_name'] ?? '',
+        $config['changenow_link_id'] ?? '',
+    ])), 0, 12);
+
+    return 'installer-' . $safeTimestamp . '-' . $hash;
+}
+
+function tonbridge_installer_stamp_service_worker(string $source, string $version, array $precacheUrls): string
+{
+    $versionJson = json_encode($version, JSON_UNESCAPED_SLASHES);
+    $precacheJson = json_encode(array_values($precacheUrls), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+    if (!is_string($versionJson) || !is_string($precacheJson)) {
+        throw new RuntimeException('Unable to encode service worker cache metadata.');
+    }
+
+    $updated = preg_replace_callback(
+        '/var SW_VERSION = [^;]+;/',
+        static fn(array $matches) => "var SW_VERSION = {$versionJson};",
+        $source,
+        1,
+        $versionCount
+    );
+    if (!is_string($updated) || $versionCount !== 1) {
+        throw new RuntimeException('Unable to update service worker cache version marker.');
+    }
+
+    $updated = preg_replace_callback(
+        '/var PRECACHE_URLS = (?:\[[\s\S]*?\]|self\.__PRECACHE_URLS\s*\|\|\s*\[\]);/',
+        static fn(array $matches) => "var PRECACHE_URLS = {$precacheJson};",
+        $updated,
+        1,
+        $precacheCount
+    );
+    if (!is_string($updated) || $precacheCount !== 1) {
+        throw new RuntimeException('Unable to update service worker precache marker.');
+    }
+
+    return $updated;
+}
+
+function tonbridge_installer_precache_urls(string $baseDir): array
+{
+    $baseDir = rtrim($baseDir, DIRECTORY_SEPARATOR);
+    if (!is_dir($baseDir)) {
+        return [];
+    }
+
+    $urls = [];
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($baseDir, FilesystemIterator::SKIP_DOTS)
+    );
+
+    foreach ($iterator as $file) {
+        if (!$file instanceof SplFileInfo || !$file->isFile()) {
+            continue;
+        }
+
+        $path = $file->getPathname();
+        $relative = str_replace(DIRECTORY_SEPARATOR, '/', substr($path, strlen($baseDir) + 1));
+        if (
+            tonbridge_installer_should_skip_precache_path($relative)
+            || !tonbridge_installer_should_precache_url($relative)
+        ) {
+            continue;
+        }
+
+        $urls[] = $relative;
+    }
+
+    $urls = array_values(array_unique($urls));
+    sort($urls);
+
+    return $urls;
+}
+
+function tonbridge_installer_should_skip_precache_path(string $url): bool
+{
+    $firstSegment = explode('/', $url, 2)[0] ?? '';
+    if (in_array($firstSegment, [
+        'config',
+        'dist',
+        'docs',
+        'installer',
+        'lhci',
+        'node_modules',
+        'schema',
+        'scripts',
+        'src',
+        'tests',
+        'worker',
+        'workers',
+    ], true)) {
+        return true;
+    }
+
+    foreach (explode('/', $url) as $segment) {
+        if ($segment === '' || str_starts_with($segment, '.')) {
+            return true;
+        }
+    }
+
+    return $url === '__service-worker.js'
+        || str_contains($url, '.bak-')
+        || str_ends_with($url, '.tmp');
+}
+
+function tonbridge_installer_should_precache_url(string $url): bool
+{
+    if ($url === '__manifest.json') {
+        return true;
+    }
+
+    return str_ends_with($url, '.html')
+        || (bool) preg_match('/^assets\/css\/.+\.css$/', $url)
+        || (bool) preg_match('/^assets\/js\/.+\.js$/', $url)
+        || (bool) preg_match('/^assets\/img\/.+\.(png|jpe?g|svg|webp|ico)$/i', $url)
+        || (bool) preg_match('/^assets\/fonts\/.+\.(woff2?|ttf|otf)$/i', $url);
 }
 
 function tonbridge_installer_static_replacements(array $config): array

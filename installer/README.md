@@ -31,6 +31,7 @@ When the user clicks **Install** the installer writes / updates:
 | `assets/js/tonbridge-config.js`       | Read-only public config consumed by the browser                      |
 | `tonconnect-manifest.json`            | TonConnect manifest (URL, name, icon)                                |
 | Static HTML/JS placeholders           | Replaces `%%TG_ANALYTICS_TOKEN%%`, `%%YANDEX_METRIKA_ID%%`, etc.     |
+| `__service-worker.js`                 | Refreshes the PWA cache version so updated files replace old caches  |
 | `installer/.installed`                | Lock file that prevents the installer from running twice             |
 
 Server-only secrets such as `TELEGRAM_BOT_TOKEN`, `CHANGENOW_API_KEY`,
@@ -86,7 +87,9 @@ exists. To re-run intentionally (e.g. moving to a new domain) delete
 Re-running overwrites the four configuration files listed above. The
 previous version of each overwritten file is preserved as
 `<file>.bak-YYYYmmdd-HHMMSS` next to the original so changes can be
-inspected or reverted.
+inspected or reverted. The service worker is also stamped with a new
+cache version so previously installed browsers can pick up updated
+HTML/CSS/JS files instead of keeping stale PWA caches.
 
 ## Backups
 
@@ -170,6 +173,7 @@ CI runs all three on every pull request (see `.github/workflows/ci.yml`).
 | `assets/js/tonbridge-config.js`       | Публичный браузерный конфиг (read-only)                                               |
 | `tonconnect-manifest.json`            | TonConnect manifest (URL, имя, иконка)                                                |
 | Статические HTML/JS плейсхолдеры      | Заменяются `%%TG_ANALYTICS_TOKEN%%`, `%%YANDEX_METRIKA_ID%%` и др.                    |
+| `__service-worker.js`                 | Обновляется версия PWA-кэша, чтобы старые браузерные кэши заменялись новыми файлами   |
 | `installer/.installed`                | Lock-файл, запрещающий повторный запуск установщика                                   |
 
 Серверные секреты (`TELEGRAM_BOT_TOKEN`, `CHANGENOW_API_KEY`, пароль
@@ -224,7 +228,9 @@ CI runs all three on every pull request (see `.github/workflows/ci.yml`).
 Повторный запуск перезаписывает четыре файла конфигурации. Прежняя
 версия каждого файла сохраняется рядом с оригиналом как
 `<файл>.bak-YYYYmmdd-HHMMSS`, чтобы можно было сравнить или
-откатить.
+откатить. Service worker также получает новую версию кэша, чтобы
+браузеры с уже установленной PWA забирали свежие HTML/CSS/JS файлы, а
+не продолжали показывать старый кэш.
 
 ### Резервные копии
 

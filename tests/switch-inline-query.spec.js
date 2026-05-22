@@ -12,6 +12,13 @@ async function mockTelegramWebApp(page) {
   }));
 
   await page.addInitScript(() => {
+    localStorage.setItem('FinappConsent', JSON.stringify({
+      version: 1,
+      analytics: false,
+      marketing: false,
+      ts: Date.now(),
+    }));
+
     window.__switchInlineQueryCalls = [];
     const mainButton = {
       _text: '',
@@ -131,6 +138,13 @@ test.describe('"Send to chat" button — switchInlineQuery', () => {
     }));
 
     await page.addInitScript(() => {
+      localStorage.setItem('FinappConsent', JSON.stringify({
+        version: 1,
+        analytics: false,
+        marketing: false,
+        ts: Date.now(),
+      }));
+
       const mainButton = {
         _text: '', _visible: false, _handlers: [],
         setText(text) { this._text = text; },

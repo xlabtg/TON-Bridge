@@ -102,7 +102,8 @@ uploading the generated files to a PHP 8.1+ hosting account with MySQL:
    values exactly as issued.
 5. The installer writes `.env`, `config/tonbridge.php`,
    `assets/js/tonbridge-config.js`, updates deploy-time static placeholders, and
-   creates `installer/.installed`.
+   refreshes the service worker cache version before creating
+   `installer/.installed`.
 6. Update BotFather with the final mini-app URL, then remove the `installer/`
    directory from the hosting account.
 

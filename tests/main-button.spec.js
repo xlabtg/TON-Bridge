@@ -18,6 +18,13 @@ async function mockTelegramWebApp(page, options = {}) {
   }));
 
   await page.addInitScript(({ languageCode, cloudStorage, cloudStorageHangs, prefsTimeoutMs }) => {
+    localStorage.setItem('FinappConsent', JSON.stringify({
+      version: 1,
+      analytics: false,
+      marketing: false,
+      ts: Date.now(),
+    }));
+
     const mainButton = {
       _text: '',
       _visible: false,

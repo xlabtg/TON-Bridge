@@ -34,7 +34,7 @@
 <meta property="og:title" content="Exchange Crypto · TON Bridge">
 <meta property="og:description" content="Exchange 1200+ cryptocurrencies across 200 blockchains. Non-custodial crypto exchange by TONBANKCARD.">
 <meta property="og:url" content="https://tonbankcard.com/bridge/TMA/00.html/index2.html">
-<meta property="og:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/index2.png?v=81e2b63">
+<meta property="og:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/index2.png?v=4a66721">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Exchange Crypto · TON Bridge">
@@ -43,7 +43,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Exchange Crypto · TON Bridge">
 <meta name="twitter:description" content="Exchange 1200+ cryptocurrencies across 200 blockchains. Non-custodial crypto exchange by TONBANKCARD.">
-<meta name="twitter:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/index2.png?v=81e2b63">
+<meta name="twitter:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/index2.png?v=4a66721">
 <meta name="twitter:image:alt" content="Exchange Crypto · TON Bridge">
 
     <meta name="keywords"
@@ -69,7 +69,7 @@
 
     <link rel="manifest" href="__manifest.json">
     
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://changenow.io; connect-src 'self' https://*.changenow.io https://api.telegram.org https://tganalytics.xyz https://api.coingecko.com https://toncenter.com https://*.workers.dev https://mc.yandex.ru">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://changenow.io; connect-src 'self' https:">
 </head>
 
 <body>
@@ -521,64 +521,68 @@
     </div>
     <!-- * Address Book Action Sheet -->
 
-    <div id="cookiesbox" class="offcanvas offcanvas-bottom cookies-box" tabindex="-1" data-bs-scroll="true"
-        data-bs-backdrop="false" role="dialog" aria-labelledby="cookiesboxTitle" aria-modal="true">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="cookiesboxTitle" data-i18n="cookies_title">Privacy preferences</h5>
-        </div>
-        <div class="offcanvas-body">
-            <div class="mb-2">
-                <span data-i18n="cookies_body">We use necessary storage to keep the app working. With your consent, we also use analytics to improve TON Bridge and marketing storage for campaign attribution.</span>
-                <a href="privacy.html" class="text-secondary"><u data-i18n="cookies_learn_more">Privacy policy</u></a>
-            </div>
-            <ul class="listview image-listview text inset no-line mb-2">
-                <li>
-                    <div class="item">
-                        <div class="in">
-                            <div>
-                                <strong data-i18n="cookies_necessary_label">Necessary</strong>
-                                <div class="text-muted cookie-desc" data-i18n="cookies_necessary_desc">Required for language, theme, consent, security, and core app functionality.</div>
-                            </div>
-                            <div class="form-check form-switch ms-2">
-                                <input class="form-check-input" type="checkbox" id="consentNecessary" checked disabled>
-                                <label class="form-check-label" for="consentNecessary"></label>
-                            </div>
-                        </div>
+    <div id="cookiesbox" class="modal fade cookies-box" tabindex="-1" data-bs-backdrop="false"
+        data-bs-keyboard="false" role="dialog" aria-labelledby="cookiesboxTitle" aria-describedby="cookiesboxBody">
+        <div class="modal-dialog modal-dialog-centered cookies-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cookiesboxTitle" data-i18n="cookies_title">Privacy preferences</h5>
+                </div>
+                <div class="modal-body" id="cookiesboxBody">
+                    <div class="mb-2">
+                        <span data-i18n="cookies_body">We use necessary storage to keep the app working. With your consent, we also use analytics to improve TON Bridge and marketing storage for campaign attribution.</span>
+                        <a href="privacy.html" class="text-secondary"><u data-i18n="cookies_learn_more">Privacy policy</u></a>
                     </div>
-                </li>
-                <li>
-                    <div class="item">
-                        <div class="in">
-                            <div>
-                                <strong data-i18n="cookies_analytics_label">Analytics</strong>
-                                <div class="text-muted cookie-desc" data-i18n="cookies_analytics_desc">Allows Yandex.Metrika with Webvisor and Telegram Analytics after consent.</div>
+                    <ul class="listview image-listview text inset no-line mb-2">
+                        <li>
+                            <div class="item">
+                                <div class="in">
+                                    <div>
+                                        <strong data-i18n="cookies_necessary_label">Necessary</strong>
+                                        <div class="text-muted cookie-desc" data-i18n="cookies_necessary_desc">Required for language, theme, consent, security, and core app functionality.</div>
+                                    </div>
+                                    <div class="form-check form-switch ms-2">
+                                        <input class="form-check-input" type="checkbox" id="consentNecessary" checked disabled>
+                                        <label class="form-check-label" for="consentNecessary"></label>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-check form-switch ms-2">
-                                <input class="form-check-input consent-analytics-toggle" type="checkbox" id="consentAnalytics">
-                                <label class="form-check-label" for="consentAnalytics"></label>
+                        </li>
+                        <li>
+                            <div class="item">
+                                <div class="in">
+                                    <div>
+                                        <strong data-i18n="cookies_analytics_label">Analytics</strong>
+                                        <div class="text-muted cookie-desc" data-i18n="cookies_analytics_desc">Allows Yandex.Metrika with Webvisor and Telegram Analytics after consent.</div>
+                                    </div>
+                                    <div class="form-check form-switch ms-2">
+                                        <input class="form-check-input consent-analytics-toggle" type="checkbox" id="consentAnalytics">
+                                        <label class="form-check-label" for="consentAnalytics"></label>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </li>
+                        <li>
+                            <div class="item">
+                                <div class="in">
+                                    <div>
+                                        <strong data-i18n="cookies_marketing_label">Marketing</strong>
+                                        <div class="text-muted cookie-desc" data-i18n="cookies_marketing_desc">Allows campaign attribution and referral measurement after consent.</div>
+                                    </div>
+                                    <div class="form-check form-switch ms-2">
+                                        <input class="form-check-input consent-marketing-toggle" type="checkbox" id="consentMarketing">
+                                        <label class="form-check-label" for="consentMarketing"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="buttons">
+                        <a href="#" class="btn btn-primary btn-block accept-cookies accept-all-cookies mb-1" data-bs-dismiss="modal" data-i18n="cookies_accept">Accept all</a>
+                        <a href="#" class="btn btn-outline-primary btn-block accept-cookies accept-selected-cookies mb-1" data-bs-dismiss="modal" data-i18n="cookies_accept_selected">Save preferences</a>
+                        <a href="#" class="btn btn-link btn-block accept-cookies decline-optional-cookies" data-bs-dismiss="modal" data-i18n="cookies_decline">Decline optional</a>
                     </div>
-                </li>
-                <li>
-                    <div class="item">
-                        <div class="in">
-                            <div>
-                                <strong data-i18n="cookies_marketing_label">Marketing</strong>
-                                <div class="text-muted cookie-desc" data-i18n="cookies_marketing_desc">Allows campaign attribution and referral measurement after consent.</div>
-                            </div>
-                            <div class="form-check form-switch ms-2">
-                                <input class="form-check-input consent-marketing-toggle" type="checkbox" id="consentMarketing">
-                                <label class="form-check-label" for="consentMarketing"></label>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-            </ul>
-            <div class="buttons">
-                <a href="#" class="btn btn-primary btn-block accept-cookies accept-all-cookies mb-1" data-bs-dismiss="offcanvas" data-i18n="cookies_accept">Accept all</a>
-                <a href="#" class="btn btn-outline-primary btn-block accept-cookies accept-selected-cookies mb-1" data-bs-dismiss="offcanvas" data-i18n="cookies_accept_selected">Save preferences</a>
-                <a href="#" class="btn btn-link btn-block accept-cookies decline-optional-cookies" data-bs-dismiss="offcanvas" data-i18n="cookies_decline">Decline optional</a>
+                </div>
             </div>
         </div>
     </div>

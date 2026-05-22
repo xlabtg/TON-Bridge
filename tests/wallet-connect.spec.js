@@ -25,10 +25,15 @@ async function setupMocks(page, options = {}) {
                 TonConnectUI: function(opts) {
                     this._opts = opts;
                     window.__tcInstance = this;
+                    window.__tcInstances = window.__tcInstances || [];
+                    window.__tcInstances.push(this);
                 }
             };
             window.TON_CONNECT_UI.TonConnectUI.prototype.onStatusChange = function(fn) {
                 window.__tcStatusChange = fn;
+                if (this._opts.restoreConnection !== false && window.__tcRestoredWallet) {
+                    setTimeout(() => fn(window.__tcRestoredWallet), 0);
+                }
             };
             window.TON_CONNECT_UI.TonConnectUI.prototype.openModal = function() {
                 window.__tcOpenModalCalled = true;
@@ -220,6 +225,33 @@ test.describe('Wallet Connect — widget pages', () => {
         await page.waitForFunction(() => window.__tcOpenModalCalled === true);
     });
 
+    test('Bridge EN: restores TonConnect session on page load without a second click', async ({ page }) => {
+        await setupMocks(page);
+        await page.addInitScript((addr) => {
+            window.__tcRestoredWallet = { account: { address: addr }, device: { appName: 'tonkeeper' } };
+        }, TEST_ADDRESS);
+        await page.goto(distUrl('index.html'));
+
+        await expect.poll(() => page.evaluate(() => !!window.__tcInstance)).toBe(true);
+        await expect.poll(() => page.locator('#wallet-btn-label').textContent()).toContain('EQD123');
+        await expect(page.locator('#wallet-prefill-bar')).toBeVisible();
+    });
+
+    test('Bridge EN: does not create duplicate TonConnect instances after restore', async ({ page }) => {
+        await setupMocks(page);
+        await page.addInitScript((addr) => {
+            window.__tcRestoredWallet = { account: { address: addr }, device: { appName: 'tonkeeper' } };
+        }, TEST_ADDRESS);
+        await page.goto(distUrl('index.html'));
+
+        await expect.poll(() => page.evaluate(() => !!window.__tcInstance)).toBe(true);
+        await page.evaluate(() => { window.WalletConnect.connect(); });
+
+        const instanceCount = await page.evaluate(() => window.__tcInstances && window.__tcInstances.length);
+        expect(instanceCount).toBe(1);
+        await expect.poll(() => page.evaluate(() => window.__tcOpenModalCalled === true)).toBe(true);
+    });
+
     test('WalletConnect.shortenAddress trims long addresses to 6+4 chars', async ({ page }) => {
         await setupMocks(page);
         await page.goto(distUrl('index.html'));
@@ -288,9 +320,23 @@ test.describe('Wallet Connect — widget pages', () => {
 
         await expect.poll(() => page.evaluate(() => window.__tcOpenModalCalled === true)).toBe(true);
         const sdkOpts = await page.evaluate(() => window.__tcInstance && window.__tcInstance._opts);
-        expect(sdkOpts).toEqual({
+        expect(sdkOpts).toMatchObject({
             manifestUrl: 'https://example.com/bridge/tonconnect-manifest.json',
+            restoreConnection: true,
         });
+    });
+
+    test('Bridge and Settings EN: CSP allows TonConnect registry and wallet bridges', async () => {
+        const { readFileSync } = await import('fs');
+
+        for (const file of ['index.html', 'app-settings.html']) {
+            const html = readFileSync(resolve(__dirname, '..', 'dist', file), 'utf8');
+            const csp = html.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/i)?.[1] || '';
+            const connectSrc = csp.match(/connect-src\s+([^;]+)/i)?.[1] || '';
+
+            expect(connectSrc).toContain('https:');
+            expect(connectSrc).toContain("'self'");
+        }
     });
 
     test('Settings EN: connected wallet can be saved as payout address', async ({ page }) => {

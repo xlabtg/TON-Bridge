@@ -73,12 +73,11 @@ test.describe('Achievement / tier system', () => {
         await expect(badge).toBeAttached();
     });
 
-    test('tier progress bar element is present on Bridge page', async ({ page }) => {
+    test('tier progress bar element is not rendered on Bridge page', async ({ page }) => {
         await mockTelegramWebApp(page);
         await gotoPage(page, 'index.html');
         const bar = page.locator('#tier-progress-bar');
-        await expect(bar).toBeAttached();
-        await expect(bar).toHaveAttribute('aria-label', 'Tier progress');
+        await expect(bar).toHaveCount(0);
     });
 
     test('Achievements.computeTier returns null for 0 swaps', async ({ page }) => {
@@ -208,47 +207,39 @@ test.describe('Achievement / tier system', () => {
         expect(stats.swaps).toBe(1);
     });
 
-    test('progress label shows swaps until next tier', async ({ page }) => {
+    test('recordSwap works without the tier progress markup', async ({ page }) => {
         await mockTelegramWebApp(page);
         await gotoPage(page, 'index.html');
 
-        // Seed 1 swap (Bronze) so label shows distance to Silver
         await page.evaluate(() => window.Achievements.recordSwap(0));
         await page.waitForTimeout(100);
-        // Close modal first
-        await page.evaluate(() => {
-            const btn = document.querySelector('.tier-celebration-close');
-            if (btn) btn.click();
-        });
 
-        const label = await page.evaluate(() =>
-            document.getElementById('tier-progress-label').textContent
-        );
-        // Should show "9 swaps until 🥈 Silver"
-        expect(label).toContain('Silver');
+        await expect(page.locator('#tier-progress-label')).toHaveCount(0);
+        await expect(page.locator('#tier-progress-bar')).toHaveCount(0);
+        await expect(page.locator('#tier-badge')).toContainText('Bronze');
     });
 
-    test('tier badge and progress bar are present on Exchange page', async ({ page }) => {
+    test('tier badge remains present and progress bar is absent on Exchange page', async ({ page }) => {
         await mockTelegramWebApp(page);
         await gotoPage(page, 'index2.html');
         await expect(page.locator('#tier-badge')).toBeAttached();
-        await expect(page.locator('#tier-progress-bar')).toBeAttached();
+        await expect(page.locator('#tier-progress-bar')).toHaveCount(0);
     });
 
-    test('tier badge and progress bar are present on OTC page', async ({ page }) => {
+    test('tier badge remains present and progress bar is absent on OTC page', async ({ page }) => {
         await mockTelegramWebApp(page);
         await gotoPage(page, 'index3.html');
         await expect(page.locator('#tier-badge')).toBeAttached();
-        await expect(page.locator('#tier-progress-bar')).toBeAttached();
+        await expect(page.locator('#tier-progress-bar')).toHaveCount(0);
     });
 
-    test('tier badge and progress bar are present on RU Bridge page', async ({ page }) => {
+    test('tier badge remains present and progress bar is absent on RU Bridge page', async ({ page }) => {
         await mockTelegramWebApp(page);
         await setLangPref(page, 'ru');
         await gotoPage(page, 'index.html');
         await page.waitForFunction(() => document.documentElement.lang === 'ru');
         await expect(page.locator('#tier-badge')).toBeAttached();
-        await expect(page.locator('#tier-progress-bar')).toBeAttached();
+        await expect(page.locator('#tier-progress-bar')).toHaveCount(0);
     });
 
     test('celebration share button in RU page shows translated text', async ({ page }) => {

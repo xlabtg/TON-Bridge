@@ -240,21 +240,7 @@
     <!-- App Capsule -->
     <div id="appCapsule">
 
-        <!-- Tier progress bar -->
-        <div class="tier-progress-wrap">
-            <span id="tier-progress-label" class="tier-progress-label"></span>
-            <div class="progress">
-                <div id="tier-progress-bar" class="progress-bar tier-progress-bar-empty" role="progressbar" aria-label="Tier progress"></div>
-            </div>
-        </div>
-        <!-- * Tier progress bar -->
-
-
 		<!-- App Bridge -->
-            <div class="text-center mb-4 intro-img-frame">
-                <img src="assets/img/gfx-a-1-bridge.webp" alt="Bridge illustration" class="intro-img mx-auto d-block" width="300" height="200" fetchpriority="high">
-            </div>
-
                     <h3>&nbsp;<span data-i18n="bridge_heading">Security and privacy</span></h3>
                     <p>
                         &nbsp;<span data-i18n="bridge_intro_line1">TONBANKCARD preserves your privacy and  guarantees security.</span>
@@ -265,14 +251,6 @@
                         <li>&nbsp;<span data-i18n="bridge_point2">- We do not control your funds</span></li>
                         <li>&nbsp;<span data-i18n="bridge_point3">- We do not force you to register</span></li>
                     </ul>
-        
-        <div id="social-proof-pill" class="social-proof-pill" hidden
-             data-label-template="{count} bridges in the last 24 h · {volume} volume">
-            <span class="sp-dot" aria-hidden="true">●</span>
-            <span class="sp-text"></span>
-        </div>
-        <div id="social-proof-region" aria-live="polite" aria-atomic="true" class="visually-hidden"></div>
-        
         
         <div id="wallet-prefill-bar" class="wallet-prefill-bar is-hidden">
             <span class="chip chip-primary chip-outline wallet-prefill-chip wallet-prefill-chip--spaced" id="wallet-prefill-half" onclick="walletPrefillHalf()">
@@ -289,7 +267,7 @@
         </br>
         <!-- Lazy-load placeholder — replaced by iframe on user interaction or idle -->
         <div id="iframe-placeholder" class="iframe-placeholder iframe-placeholder--tall">
-            <img src="assets/img/loading-icon.webp" alt="" role="presentation" class="iframe-placeholder__icon">
+            <img src="assets/img/loading-icon.webp" alt="" role="presentation" class="iframe-placeholder__icon" width="64" height="64">
             <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button" data-i18n="open_exchange_btn">Open exchange</button>
         </div>
         <script>
@@ -446,7 +424,7 @@
         onclick="sendToChatFromButton(this)">
         Send to chat
     </button>
-    <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store - Top Bridge in Ton App" data-i18n-attr="alt:cede_badge_alt" loading="lazy"></a>
+    <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store - Top Bridge in Ton App" data-i18n-attr="alt:cede_badge_alt" loading="lazy" width="136" height="72"></a>
     <div class="info-action-row my-4">
         <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
             <div class="feature-icon dot text-center">
@@ -690,9 +668,9 @@
     <script defer src="assets/js/switch-inline-query.js"></script>
     <!-- Achievements -->
     <script defer src="assets/js/achievements.js"></script>
-    
+
     <script defer src="assets/js/social-proof.js"></script>
-    
+
     <!-- Deep-link presets -->
     <script defer src="assets/js/deep-link.js"></script>
     <script>document.addEventListener('DOMContentLoaded', function(){ TonBridgeDeepLink.init('bridge'); });</script>

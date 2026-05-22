@@ -201,21 +201,7 @@
     <!-- App Capsule -->
     <div id="appCapsule">
 
-        <!-- Tier progress bar -->
-        <div class="tier-progress-wrap">
-            <span id="tier-progress-label" class="tier-progress-label"></span>
-            <div class="progress">
-                <div id="tier-progress-bar" class="progress-bar tier-progress-bar-empty" role="progressbar" aria-label="{{ t.tier_progress_aria | default('Tier progress') }}"></div>
-            </div>
-        </div>
-        <!-- * Tier progress bar -->
-
-
 		<!-- App {{ sectionLabel }} -->
-            <div class="text-center mb-4 intro-img-frame">
-                <img src="{{ imgSrc }}" alt="{{ imgAlt | default(sectionLabel + ' illustration') }}" class="intro-img mx-auto d-block" width="{{ imgW | replace('px', '') }}" height="{{ imgH | replace('px', '') }}" fetchpriority="high">
-            </div>
-
                     <h3>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_heading{% else %}exchange_heading{% endif %}">{% if activePage == 'bridge' %}{{ t.bridge_heading }}{% else %}{{ t.exchange_heading }}{% endif %}</span></h3>
                     <p>
                         &nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_intro_line1{% else %}exchange_intro_line1{% endif %}">{% if activePage == 'bridge' %}{{ t.bridge_intro_line1 }}{% else %}{{ t.exchange_intro_line1 }}{% endif %}</span>
@@ -226,14 +212,6 @@
                         <li>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_point2{% else %}exchange_point2{% endif %}">{% if activePage == 'bridge' %}{{ t.bridge_point2 }}{% else %}{{ t.exchange_point2 }}{% endif %}</span></li>
                         <li>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_point3{% else %}exchange_point3{% endif %}">{% if activePage == 'bridge' %}{{ t.bridge_point3 }}{% else %}{{ t.exchange_point3 }}{% endif %}</span></li>
                     </ul>
-        {% if activePage == 'bridge' %}
-        <div id="social-proof-pill" class="social-proof-pill" hidden
-             data-label-template="{{ t.social_proof_label }}">
-            <span class="sp-dot" aria-hidden="true">●</span>
-            <span class="sp-text"></span>
-        </div>
-        <div id="social-proof-region" aria-live="polite" aria-atomic="true" class="visually-hidden"></div>
-        {% endif %}
         {% if activePage == 'bridge' %}
         <div id="wallet-prefill-bar" class="wallet-prefill-bar is-hidden">
             <span class="chip chip-primary chip-outline wallet-prefill-chip wallet-prefill-chip--spaced" id="wallet-prefill-half" onclick="walletPrefillHalf()">
@@ -250,7 +228,7 @@
         </br>
         <!-- Lazy-load placeholder — replaced by iframe on user interaction or idle -->
         <div id="iframe-placeholder" class="iframe-placeholder iframe-placeholder--tall">
-            <img src="assets/img/loading-icon.webp" alt="" role="presentation" class="iframe-placeholder__icon">
+            <img src="assets/img/loading-icon.webp" alt="" role="presentation" class="iframe-placeholder__icon" width="64" height="64">
             <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button" data-i18n="open_exchange_btn">{{ t.open_exchange_btn }}</button>
         </div>
         <script>
@@ -407,7 +385,7 @@
         onclick="sendToChatFromButton(this)">
         {{ t.send_to_chat_btn }}
     </button>
-    <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="{{ t.cede_badge_alt }}" data-i18n-attr="alt:cede_badge_alt" loading="lazy"></a>
+    <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="{{ t.cede_badge_alt }}" data-i18n-attr="alt:cede_badge_alt" loading="lazy" width="136" height="72"></a>
     <div class="info-action-row my-4">
         <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
             <div class="feature-icon dot text-center">
@@ -600,9 +578,9 @@
     <script defer src="assets/js/switch-inline-query.js"></script>
     <!-- Achievements -->
     <script defer src="assets/js/achievements.js"></script>
-    {% if activePage == 'bridge' %}
+{% if activePage == 'bridge' %}
     <script defer src="assets/js/social-proof.js"></script>
-    {% endif %}
+{% endif %}
     <!-- Deep-link presets -->
     <script defer src="assets/js/deep-link.js"></script>
     <script>document.addEventListener('DOMContentLoaded', function(){ TonBridgeDeepLink.init('{{ activePage }}'); });</script>
@@ -610,10 +588,10 @@
     <script defer src="assets/js/utm.js"></script>
     <!-- Share to Story -->
     <script defer src="assets/js/share-to-story.js"></script>
-    {% if activePage == 'bridge' %}
+{% if activePage == 'bridge' %}
     <!-- Wallet Connect -->
     <script defer src="assets/js/wallet-connect.js"></script>
-    {% endif %}
+{% endif %}
     <!-- Offline Indicator -->
     <script defer src="assets/js/offline.js"></script>
     <!-- Haptic Feedback -->

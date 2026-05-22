@@ -83,6 +83,9 @@ test.describe('Critical CSS and deferred stylesheet', () => {
       expect(css).toContain('.appHeader');
       expect(css).toContain('#appCapsule');
       expect(css).toContain('.intro-img');
+      expect(css).toContain('.is-hidden');
+      expect(css).toContain('.iframe-placeholder');
+      expect(css).toContain('.exchange-action-stack');
       expect(css).toContain('.appBottomMenu');
     });
 
@@ -129,22 +132,14 @@ test.describe('Critical CSS and deferred stylesheet', () => {
     }
   });
 
-  test('intro artwork declares dimensions matching the source image ratio', async () => {
-    for (const page of ['index.html', 'index2.html']) {
+  test('exchange entry pages no longer render intro artwork', async () => {
+    for (const page of ['index.html', 'index2.html', 'index3.html']) {
       const source = readFileSync(join(distDir, page), 'utf8');
       const imgMatch = source.match(/<img\b[^>]*\bclass="[^"]*\bintro-img\b[^"]*"[^>]*>/);
-      expect(imgMatch, `${page} should render intro artwork`).not.toBeNull();
+      const otcImgMatch = source.match(/<img\b[^>]*\bclass="[^"]*\botc-img\b[^"]*"[^>]*>/);
 
-      const tag = imgMatch[0];
-      const src = attrValue(tag, 'src');
-      const declaredWidth = Number(attrValue(tag, 'width'));
-      const declaredHeight = Number(attrValue(tag, 'height'));
-      const actual = readWebpDimensions(resolve(__dirname, '..', src));
-      const expectedHeight = Math.round((declaredWidth * actual.height) / actual.width);
-
-      expect(Number.isFinite(declaredWidth), `${page} intro image width should be numeric`).toBe(true);
-      expect(Number.isFinite(declaredHeight), `${page} intro image height should be numeric`).toBe(true);
-      expect(declaredHeight, `${page} intro image height should match ${actual.width}x${actual.height} ratio`).toBe(expectedHeight);
+      expect(imgMatch, `${page} should not render intro artwork`).toBeNull();
+      expect(otcImgMatch, `${page} should not render OTC artwork`).toBeNull();
     }
   });
 });

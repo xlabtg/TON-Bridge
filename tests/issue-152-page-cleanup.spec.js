@@ -7,56 +7,51 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = resolve(__dirname, '..');
 const distDir = resolve(__dirname, '..', 'dist');
 
-const exchangePages = [
-  'index.html',
-  'index-ru.html',
-  'index2.html',
-  'index2-ru.html',
-  'index3.html',
-  'index3-ru.html',
+const pageGroups = [
+  {
+    name: 'Bridge',
+    pages: ['index.html', 'index-ru.html'],
+    actionQueryKey: 'send_to_chat_query_bridge',
+  },
+  {
+    name: 'Exchange',
+    pages: ['index2.html', 'index2-ru.html'],
+    actionQueryKey: 'send_to_chat_query_exchange',
+  },
+  {
+    name: 'OTC',
+    pages: ['index3.html', 'index3-ru.html'],
+    actionQueryKey: 'send_to_chat_query_otc',
+  },
 ];
 
-async function waitForBuiltPage(page) {
-  const file = join(distDir, page);
-  const deadline = Date.now() + 30000;
-
-  while (!existsSync(file)) {
-    if (Date.now() > deadline) {
-      throw new Error(`${page} was not built within 30 seconds`);
-    }
-    await new Promise(resolve => setTimeout(resolve, 250));
-  }
-
-  return readFileSync(file, 'utf8');
+async function waitForDistFile(file) {
+  await expect.poll(() => existsSync(join(distDir, file)), { timeout: 30000 }).toBe(true);
 }
 
-async function readRenderedPageVariants(page) {
+async function readRenderedPageVariants(file) {
+  await waitForDistFile(file);
   return [
-    { label: page, source: readFileSync(join(rootDir, page), 'utf8') },
-    { label: `dist/${page}`, source: await waitForBuiltPage(page) },
+    { label: file, source: readFileSync(join(rootDir, file), 'utf8') },
+    { label: `dist/${file}`, source: readFileSync(join(distDir, file), 'utf8') },
   ];
 }
 
 test.describe('Issue #152 page cleanup', () => {
-  test('Bridge, Exchange and OTC pages do not render auxiliary progress or action blocks', async () => {
-    for (const page of exchangePages) {
-      for (const { label, source } of await readRenderedPageVariants(page)) {
-        expect(source, `${label} should not render the tier progress wrapper`).not.toContain('tier-progress-wrap');
-        expect(source, `${label} should not render the tier progress bar`).not.toContain('id="tier-progress-bar"');
-        expect(source, `${label} should not render the page action stack`).not.toContain('exchange-action-stack');
-        expect(source, `${label} should not render the send-to-chat button`).not.toContain('id="send-to-chat-btn"');
-        expect(source, `${label} should not render the Ton App badge`).not.toContain('ton.app/a2/badge/topapp');
+  for (const group of pageGroups) {
+    test(`${group.name} pages remove only the requested visual elements`, async () => {
+      for (const page of group.pages) {
+        for (const { label, source } of await readRenderedPageVariants(page)) {
+          expect(source, `${label} should not render the top tier progress wrapper`).not.toMatch(/<div\b[^>]*class="[^"]*\btier-progress-wrap\b/);
+          expect(source, `${label} should not render the top tier progress bar`).not.toContain('id="tier-progress-bar"');
+          expect(source, `${label} should not render the top illustration`).not.toMatch(/<img\b[^>]*class="[^"]*\b(?:intro-img|otc-img)\b/);
+          expect(source, `${label} should not render the bridge social-proof element`).not.toContain('id="social-proof-pill"');
+          expect(source, `${label} should keep the share/action stack`).toContain('exchange-action-stack');
+          expect(source, `${label} should keep the Send to chat button`).toContain('id="send-to-chat-btn"');
+          expect(source, `${label} should keep the page-specific send query`).toContain(group.actionQueryKey);
+          expect(source, `${label} should keep the Cede badge`).toContain('ton.app/a2/badge/topapp');
+        }
       }
-    }
-  });
-
-  test('Bridge pages do not render social-proof markup after the intro copy', async () => {
-    for (const page of ['index.html', 'index-ru.html']) {
-      for (const { label, source } of await readRenderedPageVariants(page)) {
-        expect(source, `${label} should not render the social proof pill`).not.toContain('id="social-proof-pill"');
-        expect(source, `${label} should not render the social proof live region`).not.toContain('id="social-proof-region"');
-        expect(source, `${label} should not load social-proof script`).not.toContain('assets/js/social-proof.js');
-      }
-    }
-  });
+    });
+  }
 });

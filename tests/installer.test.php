@@ -108,11 +108,11 @@ file_put_contents($tmpRoot . '/admin/index.html', '<meta name="admin-ids" conten
 file_put_contents($tmpRoot . '/dist/admin/index.html', '<meta name="admin-ids" content="__ADMIN_TELEGRAM_IDS__">');
 file_put_contents($tmpRoot . '/assets/js/base.js', "tgAnalyticsToken: '%%TG_ANALYTICS_TOKEN%%'\ntgAnalyticsAppName: '%%TG_ANALYTICS_APP_NAME%%'\nyandexMetrikaId: '%%YANDEX_METRIKA_ID%%'\n");
 file_put_contents($tmpRoot . '/assets/js/deep-link.js', "return 'https://t.me/TONBridge_robot/app?startapp=' + param;");
-file_put_contents($tmpRoot . '/assets/js/stats.js', 'https://api.changenow.io/v1/info/stats?link_id=3cc0024a18fd9d');
+file_put_contents($tmpRoot . '/assets/js/social-proof.js', 'https://api.changenow.io/v1/info/stats?link_id=3cc0024a18fd9d');
 
 $changed = tonbridge_installer_apply_static_config($tmpRoot, $config);
 sort($changed);
-assert_true($changed === ['0.html', 'admin/index.html', 'app-settings.html', 'assets/js/base.js', 'assets/js/deep-link.js', 'assets/js/stats.js', 'dist/admin/index.html', 'index.html'], 'static replacement should report changed deploy files');
+assert_true($changed === ['0.html', 'admin/index.html', 'app-settings.html', 'assets/js/base.js', 'assets/js/deep-link.js', 'assets/js/social-proof.js', 'dist/admin/index.html', 'index.html'], 'static replacement should report changed deploy files');
 assert_contains("token: 'analytics-token'", file_get_contents($tmpRoot . '/0.html'), 'static HTML should get analytics token');
 assert_contains('ym(98019798, "init")', file_get_contents($tmpRoot . '/0.html'), 'static HTML should get Yandex ID');
 assert_contains("tgAnalyticsToken: 'analytics-token'", file_get_contents($tmpRoot . '/assets/js/base.js'), 'base.js should get analytics token');
@@ -123,7 +123,7 @@ assert_contains('data-admin-ids="12345,67890"', file_get_contents($tmpRoot . '/a
 assert_contains('content="12345,67890"', file_get_contents($tmpRoot . '/admin/index.html'), 'admin page should get installer admin IDs');
 assert_contains('content="12345,67890"', file_get_contents($tmpRoot . '/dist/admin/index.html'), 'dist admin page should get installer admin IDs');
 assert_contains('https://t.me/ExampleBridgeBot/app?startapp=', file_get_contents($tmpRoot . '/assets/js/deep-link.js'), 'static JS should get bot username');
-assert_contains('link_id=partner123', file_get_contents($tmpRoot . '/assets/js/stats.js'), 'static JS should get stats link id');
+assert_contains('link_id=partner123', file_get_contents($tmpRoot . '/assets/js/social-proof.js'), 'static JS should get stats link id');
 
 array_map('unlink', glob($tmpRoot . '/assets/js/*.js'));
 rmdir($tmpRoot . '/assets/js');

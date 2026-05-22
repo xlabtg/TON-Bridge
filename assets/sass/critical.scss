@@ -50,6 +50,19 @@ h1,h2,h3,h4,h5,h6{color:$colorHeading;margin:0 0 10px 0}
 ////////////////////////////////////////////////////
 #offline-indicator{display:none}
 .tier-celebration-overlay{display:none}
+.offcanvas{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  z-index:1045;
+  max-width:100%;
+  visibility:hidden;
+  background:#fff;
+  transform:translateY(100%);
+}
+.offcanvas.show{
+  visibility:visible;
+  transform:none;
+}
 
 ////////////////////////////////////////////////////
 // Loader overlay — shown immediately, hides after JS
@@ -134,6 +147,15 @@ h1,h2,h3,h4,h5,h6{color:$colorHeading;margin:0 0 10px 0}
   max-width:100%;
 }
 
+////////////////////////////////////////////////////
+// Above-the-fold space reservations (CLS protection)
+// These prevent layout shift between initial render
+// (critical CSS only) and asynchronous style.css load.
+////////////////////////////////////////////////////
+.tier-progress-wrap{
+  padding:12px 16px 4px;
+  min-height:32px;
+}
 ////////////////////////////////////////////////////
 // App Bottom Menu
 ////////////////////////////////////////////////////

@@ -31,6 +31,45 @@
        intentionally omitted — they are silently ignored inside <meta> and need an
        HTTP response header to take effect. #}
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://changenow.io; connect-src 'self' https:">
+    <style>
+        .social-proof-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(27, 178, 218, 0.12);
+            border: 1px solid rgba(27, 178, 218, 0.35);
+            border-radius: 999px;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #1bb2da;
+            margin: 0 auto 12px;
+            max-width: fit-content;
+        }
+        .social-proof-pill .sp-dot {
+            font-size: 8px;
+            color: #1bb2da;
+            animation: sp-pulse 2s ease-in-out infinite;
+        }
+        @keyframes sp-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .social-proof-pill .sp-dot { animation: none; }
+        }
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
 </head>
 
 <body>
@@ -163,10 +202,6 @@
     <div id="appCapsule">
 
 		<!-- App {{ sectionLabel }} -->
-            <div class="text-center mb-4 intro-img-frame">
-                <img src="{{ imgSrc }}" alt="{{ imgAlt | default(sectionLabel + ' illustration') }}" class="intro-img mx-auto d-block" width="{{ imgW | replace('px', '') }}" height="{{ imgH | replace('px', '') }}" fetchpriority="high">
-            </div>
-
                     <h3>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_heading{% else %}exchange_heading{% endif %}">{% if activePage == 'bridge' %}{{ t.bridge_heading }}{% else %}{{ t.exchange_heading }}{% endif %}</span></h3>
                     <p>
                         &nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_intro_line1{% else %}exchange_intro_line1{% endif %}">{% if activePage == 'bridge' %}{{ t.bridge_intro_line1 }}{% else %}{{ t.exchange_intro_line1 }}{% endif %}</span>
@@ -342,6 +377,24 @@
         })();
         </script>
         <!-- * App {{ sectionLabel }} -->
+<div class="exchange-action-stack">
+    <button id="send-to-chat-btn" class="btn btn-secondary btn-lg mt-2 mb-2"
+        data-send-to-chat-query-key="{% if activePage == 'bridge' %}send_to_chat_query_bridge{% else %}send_to_chat_query_exchange{% endif %}"
+        data-send-to-chat-fallback-query="{% if activePage == 'bridge' %}{{ t.send_to_chat_query_bridge }}{% else %}{{ t.send_to_chat_query_exchange }}{% endif %}"
+        data-i18n="send_to_chat_btn"
+        onclick="sendToChatFromButton(this)">
+        {{ t.send_to_chat_btn }}
+    </button>
+    <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="{{ t.cede_badge_alt }}" data-i18n-attr="alt:cede_badge_alt" loading="lazy"></a>
+    <div class="info-action-row my-4">
+        <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
+            <div class="feature-icon dot text-center">
+                <ion-icon name="information-outline" class="feature-icon-md" aria-hidden="true"></ion-icon>
+            </div>
+        </div>
+        <a href="{% if activePage == 'bridge' %}1.html{% else %}2.html{% endif %}" class="btn btn-primary btn-lg" data-i18n="{% if activePage == 'bridge' %}bridge_instruction_btn{% else %}exchange_instruction_btn{% endif %}">{% if activePage == 'bridge' %}{{ t.bridge_instruction_btn }}{% else %}{{ t.exchange_instruction_btn }}{% endif %}</a>
+    </div>
+</div>
     </div>
     <!-- * App Capsule -->
 
@@ -521,8 +574,13 @@
     <script defer src="assets/js/base.js"></script>
     <!-- Sentry error reporting -->
     <script defer src="assets/js/sentry.js"></script>
+    <!-- switchInlineQuery helper -->
+    <script defer src="assets/js/switch-inline-query.js"></script>
     <!-- Achievements -->
     <script defer src="assets/js/achievements.js"></script>
+{% if activePage == 'bridge' %}
+    <script defer src="assets/js/social-proof.js"></script>
+{% endif %}
     <!-- Deep-link presets -->
     <script defer src="assets/js/deep-link.js"></script>
     <script>document.addEventListener('DOMContentLoaded', function(){ TonBridgeDeepLink.init('{{ activePage }}'); });</script>
@@ -530,10 +588,10 @@
     <script defer src="assets/js/utm.js"></script>
     <!-- Share to Story -->
     <script defer src="assets/js/share-to-story.js"></script>
-    {% if activePage == 'bridge' %}
+{% if activePage == 'bridge' %}
     <!-- Wallet Connect -->
     <script defer src="assets/js/wallet-connect.js"></script>
-    {% endif %}
+{% endif %}
     <!-- Offline Indicator -->
     <script defer src="assets/js/offline.js"></script>
     <!-- Haptic Feedback -->

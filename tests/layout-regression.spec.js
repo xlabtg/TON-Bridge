@@ -1,11 +1,31 @@
 import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'url';
 import { resolve, dirname } from 'path';
+import { existsSync } from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function distUrl(file) {
   return 'file://' + resolve(__dirname, '..', 'dist', file);
+}
+
+function distPath(file) {
+  return resolve(__dirname, '..', 'dist', file);
+}
+
+async function waitForDistFile(file) {
+  await expect.poll(() => existsSync(distPath(file)), { timeout: 30000 }).toBe(true);
+}
+
+async function seedStoredConsent(page) {
+  await page.addInitScript(() => {
+    localStorage.setItem('FinappConsent', JSON.stringify({
+      version: 1,
+      analytics: false,
+      marketing: false,
+      ts: Date.now(),
+    }));
+  });
 }
 
 async function mockTelegramWebApp(page, options = {}) {
@@ -32,6 +52,12 @@ async function mockTelegramWebApp(page, options = {}) {
     contentType: 'text/html',
     body: '<html><body>ChangeNOW</body></html>',
   }));
+  await page.route('https://ton.app/a2/badge/topapp?appId=2722', route => route.fulfill({
+    status: 200,
+    contentType: 'image/svg+xml',
+    body: '<svg xmlns="http://www.w3.org/2000/svg" width="136" height="72"></svg>',
+  }));
+
   await page.addInitScript(({ userId, adminIds }) => {
     window.__adminIds = adminIds;
     window.requestIdleCallback = function () { return 0; };
@@ -74,7 +100,36 @@ async function mockTelegramWebApp(page, options = {}) {
   }, { userId, adminIds });
 }
 
-test.describe('Layout regressions for issue #140 follow-up', () => {
+test.describe('Layout regressions', () => {
+  test('left sidebar does not expose hidden offcanvas panels', async ({ page }) => {
+    await mockTelegramWebApp(page);
+    await seedStoredConsent(page);
+    await page.setViewportSize({ width: 1360, height: 768 });
+    await waitForDistFile('index-ru.html');
+    await page.goto(distUrl('index-ru.html'));
+
+    await expect(page.locator('#address-book-action-sheet')).toBeHidden();
+    await expect(page.locator('#cookiesbox')).toBeHidden();
+
+    await page.locator('[data-bs-target="#sidebarPanel"]').click();
+    await expect(page.locator('#sidebarPanel')).toHaveClass(/show/);
+    await expect(page.locator('#support-link')).toBeVisible();
+
+    await expect(page.locator('#address-book-action-sheet')).toBeHidden();
+    await expect(page.locator('#cookiesbox')).toBeHidden();
+
+    const layout = await page.evaluate(() => {
+      const sidebar = document.querySelector('#sidebarPanel .modal-content').getBoundingClientRect();
+      return {
+        sidebarLeft: sidebar.left,
+        sidebarRight: sidebar.right,
+      };
+    });
+
+    expect(layout.sidebarLeft).toBeGreaterThanOrEqual(0);
+    expect(layout.sidebarRight).toBeLessThanOrEqual(300);
+  });
+
   test('mobile RU settings keeps switches and payout actions inside the cards', async ({ page }) => {
     await mockTelegramWebApp(page);
     await page.setViewportSize({ width: 390, height: 844 });
@@ -103,15 +158,21 @@ test.describe('Layout regressions for issue #140 follow-up', () => {
     expect(payoutOverlap).toBe(false);
   });
 
-  test('desktop exchange page omits removed auxiliary actions', async ({ page }) => {
+  test('desktop exchange actions are centered below the exchange form', async ({ page }) => {
     await mockTelegramWebApp(page);
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(distUrl('index2.html'));
     await page.locator('#open-exchange-btn').click();
 
-    await expect(page.locator('#iframe-widget')).toBeAttached();
-    await expect(page.locator('.exchange-action-stack')).toHaveCount(0);
-    await expect(page.locator('#send-to-chat-btn')).toHaveCount(0);
+    const stack = page.locator('.exchange-action-stack');
+    await expect(stack).toBeVisible();
+    await expect(page.locator('#send-to-chat-btn')).toBeVisible();
+
+    const centerDelta = await stack.evaluate(el => {
+      const rect = el.getBoundingClientRect();
+      return Math.abs((rect.left + rect.width / 2) - (window.innerWidth / 2));
+    });
+    expect(centerDelta).toBeLessThanOrEqual(1);
   });
 });
 

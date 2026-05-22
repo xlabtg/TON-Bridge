@@ -163,9 +163,6 @@
     <!-- App Capsule -->
     <div id="appCapsule">
         <!-- App Bridge -->
-        <div class="text-center mb-4">
-            <img src="assets/img/OTC.webp" alt="{{ t.otc_img_alt }}" data-i18n-attr="alt:otc_img_alt" class="otc-img mx-auto" width="288" height="288" fetchpriority="high" decoding="async">
-        </div>
                     <h3 class="text-center">&nbsp;<span data-i18n="otc_heading">{{ t.otc_heading }}</span></h3>
                     <p>
                         &nbsp;<span data-i18n="otc_buy_text">{{ t.otc_buy_text }}</span>
@@ -311,6 +308,16 @@
         })();
         </script></br></br>
         <!-- * App Bridge -->
+        <div class="exchange-action-stack">
+            <button id="send-to-chat-btn" class="btn btn-secondary btn-lg mt-2 mb-2"
+                data-send-to-chat-query-key="send_to_chat_query_otc"
+                data-send-to-chat-fallback-query="{{ t.send_to_chat_query_otc }}"
+                data-i18n="send_to_chat_btn"
+                onclick="sendToChatFromButton(this)">
+                {{ t.send_to_chat_btn }}
+            </button>
+            <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="{{ t.cede_badge_alt }}" data-i18n-attr="alt:cede_badge_alt" loading="lazy" /></a>
+        </div>
     </div>
     <!-- * App Capsule -->
 
@@ -454,6 +461,8 @@
     <script defer src="assets/js/base.js"></script>
     <!-- Sentry error reporting -->
     <script defer src="assets/js/sentry.js"></script>
+    <!-- switchInlineQuery helper -->
+    <script defer src="assets/js/switch-inline-query.js"></script>
     <!-- Achievements -->
     <script defer src="assets/js/achievements.js"></script>
     <!-- Deep-link presets -->

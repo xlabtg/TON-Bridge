@@ -421,6 +421,9 @@ function tonbridge_installer_public_config(array $config): array
         'changeNowLinkId' => $config['changenow_link_id'],
         'changeNowStatsUrl' => 'https://api.changenow.io/v1/info/stats?link_id=' . rawurlencode($config['changenow_link_id']),
         'workerBaseUrl' => $config['worker_base_url'],
+        'adminTelegramIds' => $config['admin_telegram_ids'] === ''
+            ? []
+            : explode(',', $config['admin_telegram_ids']),
         'sentryDsn' => $config['sentry_dsn'],
         'sentryEnvironment' => $config['sentry_environment'],
         'sentryTracesSampleRate' => $config['sentry_traces_sample_rate'],
@@ -492,6 +495,7 @@ function tonbridge_installer_static_replacements(array $config): array
         'your-yandex-metrika-id-here' => $config['yandex_metrika_id'],
         'your-changenow-link-id-here' => $config['changenow_link_id'],
         'your-bot-username' => $botUsername,
+        '__ADMIN_TELEGRAM_IDS__' => $config['admin_telegram_ids'],
         // Legacy hardcoded values that may appear in older distributions.
         'TONBridge_robot' => $botUsername,
         '98019798' => $config['yandex_metrika_id'],

@@ -262,6 +262,17 @@ test.describe('Wallet Connect — widget pages', () => {
         expect(disconnected).toBe(true);
     });
 
+    test('Settings EN: connect button opens the real TonConnect modal flow', async ({ page }) => {
+        await setupMocks(page);
+        await page.goto(distUrl('app-settings.html'));
+
+        await page.locator('#wallet-settings-btn').click();
+
+        await expect.poll(() => page.evaluate(() => window.__tcOpenModalCalled === true)).toBe(true);
+        const sdkOpts = await page.evaluate(() => window.__tcInstance && window.__tcInstance._opts);
+        expect(sdkOpts).toEqual({ manifestUrl: 'tonconnect-manifest.json' });
+    });
+
     test('Settings EN: connected wallet can be saved as payout address', async ({ page }) => {
         await setupMocks(page);
         await page.goto(distUrl('app-settings.html'));

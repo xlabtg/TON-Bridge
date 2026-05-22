@@ -15,7 +15,7 @@
     so the widget shell — which does load i18n.js — can still re-translate
     labels live when the user toggles language.
 #}
-<nav class="appBottomMenu" aria-label="{{ t.nav_aria_label }}" data-i18n-attr="aria-label:nav_aria_label">
+<nav class="appBottomMenu" aria-label="{{ t.nav_aria_label }}" data-i18n-attr="aria-label:nav_aria_label" data-admin-ids="{{ ADMIN_TELEGRAM_IDS | default('__ADMIN_TELEGRAM_IDS__') }}">
     <div role="tablist" aria-label="{{ t.nav_aria_label }}" data-i18n-attr="aria-label:nav_aria_label">
         <a href="index{{ t.suffix }}.html" class="item{% if activePage == 'bridge' %} active{% endif %}" role="tab" aria-selected="{% if activePage == 'bridge' %}true{% else %}false{% endif %}">
             <div class="col">
@@ -47,7 +47,7 @@
                 <strong data-i18n="nav_redeem">{{ t.nav_redeem }}</strong>
             </div>
         </a>
-        <a href="index4{{ t.suffix }}.html" class="item{% if activePage == 'statistics' %} active{% endif %}" role="tab" aria-selected="{% if activePage == 'statistics' %}true{% else %}false{% endif %}">
+        <a href="index4{{ t.suffix }}.html" class="item{% if activePage == 'statistics' %} active{% endif %}" role="tab" aria-selected="{% if activePage == 'statistics' %}true{% else %}false{% endif %}" data-admin-only hidden aria-hidden="true" tabindex="-1">
             <div class="col">
                 <ion-icon name="stats-chart" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_statistics">{{ t.nav_statistics }}</strong>
@@ -67,3 +67,4 @@
         </a>
     </div>
 </nav>
+<script defer src="assets/js/admin-access.js"></script>

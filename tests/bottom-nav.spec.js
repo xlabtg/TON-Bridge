@@ -4,13 +4,17 @@ import { resolve, dirname } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-async function mockTelegramWebApp(page) {
+async function mockTelegramWebApp(page, options = {}) {
+    const userId = options.userId || '12345';
+    const adminIds = options.adminIds || ['12345'];
+
     await page.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({
         status: 200,
         contentType: 'application/javascript',
         body: '/* mocked */',
     }));
-    await page.addInitScript(() => {
+    await page.addInitScript(({ userId, adminIds }) => {
+        window.__adminIds = adminIds;
         window.Telegram = {
             WebApp: {
                 ready() {},
@@ -18,6 +22,7 @@ async function mockTelegramWebApp(page) {
                 onEvent() {},
                 setHeaderColor() {},
                 colorScheme: 'light',
+                initDataUnsafe: userId ? { user: { id: Number(userId) } } : {},
                 BackButton: { show() {}, hide() {}, onClick() {}, offClick() {} },
                 MainButton: {
                     setText() {},
@@ -34,10 +39,9 @@ async function mockTelegramWebApp(page) {
                     setItem(_k, _v, cb) { if (cb) cb(null); },
                     getItem(_k, cb) { cb(null, null); },
                 },
-                initDataUnsafe: {},
             },
         };
-    });
+    }, { userId, adminIds });
 }
 
 function distUrl(file) {
@@ -83,6 +87,7 @@ test.describe('Bottom navigation – unified shape (issue #118)', () => {
 
             const tabs = nav.locator('a.item');
             await expect(tabs).toHaveCount(EXPECTED_TABS.length);
+            await expect(nav.locator('a.item:visible')).toHaveCount(EXPECTED_TABS.length);
 
             for (let i = 0; i < EXPECTED_TABS.length; i++) {
                 const { i18n, href, key } = EXPECTED_TABS[i];
@@ -131,5 +136,20 @@ test.describe('Bottom navigation – unified shape (issue #118)', () => {
             const ruShape = await navShape(ru);
             expect(ruShape).toEqual(enShape);
         }
+    });
+
+    test('hides Statistics from non-admin users and keeps it visible for admins', async ({ page }) => {
+        await mockTelegramWebApp(page, { userId: '99999', adminIds: ['12345'] });
+        await page.goto(distUrl('index.html'));
+
+        const statsTab = page.locator('nav.appBottomMenu a[href="index4.html"]');
+        await expect(statsTab).toBeHidden();
+        await expect(statsTab).toHaveAttribute('aria-hidden', 'true');
+        await expect(page.locator('nav.appBottomMenu a.item:visible')).toHaveCount(EXPECTED_TABS.length - 1);
+
+        await mockTelegramWebApp(page, { userId: '12345', adminIds: ['12345'] });
+        await page.goto(distUrl('index.html'));
+        await expect(page.locator('nav.appBottomMenu a[href="index4.html"]')).toBeVisible();
+        await expect(page.locator('nav.appBottomMenu a.item:visible')).toHaveCount(EXPECTED_TABS.length);
     });
 });

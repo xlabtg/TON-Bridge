@@ -209,7 +209,7 @@
 
     <!-- App Bottom Menu -->
     
-<nav class="appBottomMenu" aria-label="Main navigation" data-i18n-attr="aria-label:nav_aria_label">
+<nav class="appBottomMenu" aria-label="Main navigation" data-i18n-attr="aria-label:nav_aria_label" data-admin-ids="__ADMIN_TELEGRAM_IDS__">
     <div role="tablist" aria-label="Main navigation" data-i18n-attr="aria-label:nav_aria_label">
         <a href="index.html" class="item" role="tab" aria-selected="false">
             <div class="col">
@@ -241,7 +241,7 @@
                 <strong data-i18n="nav_redeem">Redeem</strong>
             </div>
         </a>
-        <a href="index4.html" class="item" role="tab" aria-selected="false">
+        <a href="index4.html" class="item" role="tab" aria-selected="false" data-admin-only hidden aria-hidden="true" tabindex="-1">
             <div class="col">
                 <ion-icon name="stats-chart" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_statistics">Statistics</strong>
@@ -261,6 +261,7 @@
         </a>
     </div>
 </nav>
+<script defer src="assets/js/admin-access.js"></script>
 
     <!-- * App Bottom Menu -->
 

@@ -92,6 +92,8 @@ assert_true(tonbridge_installer_env_value("quoted \"line\"\nnext") === '"quoted 
 $browserConfig = tonbridge_installer_build_browser_config($config);
 assert_contains('"botUsername": "ExampleBridgeBot"', $browserConfig, 'browser config should include bot username');
 assert_contains('"changeNowLinkId": "partner123"', $browserConfig, 'browser config should include public ChangeNOW link id');
+assert_contains('"adminTelegramIds": [', $browserConfig, 'browser config should include public admin IDs for client-side admin gates');
+assert_contains('"12345"', $browserConfig, 'browser config should include normalized admin ID');
 assert_not_contains('db-secret', $browserConfig, 'browser config must not expose database password');
 assert_not_contains('server-api-key', $browserConfig, 'browser config must not expose ChangeNOW API key');
 
@@ -99,19 +101,21 @@ $tmpRoot = sys_get_temp_dir() . '/tonbridge-installer-' . bin2hex(random_bytes(4
 mkdir($tmpRoot . '/assets/js', 0777, true);
 file_put_contents($tmpRoot . '/0.html', "token: '%%TG_ANALYTICS_TOKEN%%'\nappName: '%%TG_ANALYTICS_APP_NAME%%'\nym(%%YANDEX_METRIKA_ID%%, \"init\")\n");
 file_put_contents($tmpRoot . '/index.html', 'https://changenow.io/widget?link_id=00000000000000');
+file_put_contents($tmpRoot . '/app-settings.html', '<nav data-admin-ids="__ADMIN_TELEGRAM_IDS__"></nav>');
 file_put_contents($tmpRoot . '/assets/js/base.js', "tgAnalyticsToken: '%%TG_ANALYTICS_TOKEN%%'\ntgAnalyticsAppName: '%%TG_ANALYTICS_APP_NAME%%'\nyandexMetrikaId: '%%YANDEX_METRIKA_ID%%'\n");
 file_put_contents($tmpRoot . '/assets/js/deep-link.js', "return 'https://t.me/TONBridge_robot/app?startapp=' + param;");
 file_put_contents($tmpRoot . '/assets/js/social-proof.js', 'https://api.changenow.io/v1/info/stats?link_id=3cc0024a18fd9d');
 
 $changed = tonbridge_installer_apply_static_config($tmpRoot, $config);
 sort($changed);
-assert_true($changed === ['0.html', 'assets/js/base.js', 'assets/js/deep-link.js', 'assets/js/social-proof.js', 'index.html'], 'static replacement should report changed deploy files');
+assert_true($changed === ['0.html', 'app-settings.html', 'assets/js/base.js', 'assets/js/deep-link.js', 'assets/js/social-proof.js', 'index.html'], 'static replacement should report changed deploy files');
 assert_contains("token: 'analytics-token'", file_get_contents($tmpRoot . '/0.html'), 'static HTML should get analytics token');
 assert_contains('ym(98019798, "init")', file_get_contents($tmpRoot . '/0.html'), 'static HTML should get Yandex ID');
 assert_contains("tgAnalyticsToken: 'analytics-token'", file_get_contents($tmpRoot . '/assets/js/base.js'), 'base.js should get analytics token');
 assert_contains("tgAnalyticsAppName: 'ExampleBridgeBot'", file_get_contents($tmpRoot . '/assets/js/base.js'), 'base.js should get analytics app name');
 assert_contains("yandexMetrikaId: '98019798'", file_get_contents($tmpRoot . '/assets/js/base.js'), 'base.js should get Yandex ID');
 assert_contains('link_id=partner123', file_get_contents($tmpRoot . '/index.html'), 'static HTML should get ChangeNOW link id');
+assert_contains('data-admin-ids="12345,67890"', file_get_contents($tmpRoot . '/app-settings.html'), 'static HTML should get installer admin IDs');
 assert_contains('https://t.me/ExampleBridgeBot/app?startapp=', file_get_contents($tmpRoot . '/assets/js/deep-link.js'), 'static JS should get bot username');
 assert_contains('link_id=partner123', file_get_contents($tmpRoot . '/assets/js/social-proof.js'), 'static JS should get stats link id');
 

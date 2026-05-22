@@ -56,7 +56,7 @@
     <!-- * App Header -->
 
     <!-- App Capsule -->
-    <div id="appCapsule">
+    <div id="appCapsule" class="settings-screen">
 
     <div class="listview-title mt-1" data-i18n="settings_theme_section">{{ t.settings_theme_section }}</div>
     <ul class="listview image-listview text inset no-line">
@@ -144,7 +144,7 @@
 
     <div class="listview-title mt-1" data-i18n="settings_wallet_section">{{ t.settings_wallet_section }}</div>
     <ul class="listview image-listview text inset no-line" id="wallet-payout-list">
-        <li id="wallet-payout-empty-row">
+        <li id="wallet-payout-empty-row" class="settings-stack-mobile">
             <div class="item">
                 <div class="in">
                     <small class="text-muted" data-i18n="settings_wallet_empty">{{ t.settings_wallet_empty }}</small>
@@ -155,7 +155,7 @@
                 </div>
             </div>
         </li>
-        <li id="wallet-payout-connected-row" class="d-none">
+        <li id="wallet-payout-connected-row" class="d-none settings-stack-mobile">
             <div class="item">
                 <div class="in">
                     <div>
@@ -183,7 +183,7 @@
                 </div>
             </div>
         </li>
-        <li id="wallet-payout-remove-row" class="d-none">
+        <li id="wallet-payout-remove-row" class="d-none settings-stack-mobile">
             <div class="item">
                 <div class="in">
                     <button class="btn btn-dark btn-sm" id="wallet-payout-remove-btn" type="button">
@@ -308,6 +308,10 @@
             <a href="/humans.txt" target="_blank" rel="noopener" class="text-muted">humans.txt</a>
             &nbsp;·&nbsp;
             <a href="https://github.com/xlabtg/TON-Bridge/blob/main/THIRD_PARTY.md" target="_blank" rel="noopener" class="text-muted" data-i18n="settings_credits_third_party">{{ t.settings_credits_third_party }}</a>
+            <span data-admin-only hidden aria-hidden="true">
+                &nbsp;·&nbsp;
+                <a href="admin/index.html" class="text-primary" data-i18n="settings_admin_panel_link">{{ t.settings_admin_panel_link }}</a>
+            </span>
         </small>
     </div>
 

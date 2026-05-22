@@ -27,6 +27,17 @@ Bundled as `assets/js/lib/bootstrap.bundle.min.js`.
 
 ---
 
+## TonConnect UI
+
+- **Author:** TonConnect
+- **Source:** https://github.com/ton-connect/sdk
+- **License:** Apache License 2.0 — https://github.com/ton-connect/sdk/blob/main/LICENSE
+
+Bundled as `assets/js/vendor/tonconnect-ui.min.js` for the self-hosted
+wallet connection flow.
+
+---
+
 ## Ionicons
 
 - **Author:** Ionic Team

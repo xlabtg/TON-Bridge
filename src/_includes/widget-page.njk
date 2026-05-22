@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ locales.en.lang_attr }}">
+<html lang="{{ t.lang_attr }}">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -8,13 +8,13 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title data-i18n="{% if activePage == 'bridge' %}title_bridge{% else %}title_exchange{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.title_bridge }}{% else %}{{ locales.en.title_exchange }}{% endif %}</title>
+    <title data-i18n="{% if activePage == 'bridge' %}title_bridge{% else %}title_exchange{% endif %}">{% if activePage == 'bridge' %}{{ t.title_bridge }}{% else %}{{ t.title_exchange }}{% endif %}</title>
     {% if activePage == 'bridge' %}
-    {% set seoTitle = locales.en.title_bridge %}
-    {% set seoDesc = locales.en.desc_bridge %}
+    {% set seoTitle = t.title_bridge %}
+    {% set seoDesc = t.desc_bridge %}
     {% else %}
-    {% set seoTitle = locales.en.title_exchange %}
-    {% set seoDesc = locales.en.desc_exchange %}
+    {% set seoTitle = t.title_exchange %}
+    {% set seoDesc = t.desc_exchange %}
     {% endif %}
     {% include "seo-head.njk" %}
     <meta name="keywords"
@@ -92,6 +92,14 @@
 
         // Apply themeParams CSS variables on first load
         (function() {
+            var localDarkMode = false;
+            try {
+                localDarkMode = localStorage.getItem('FinappDarkmode') === '1' || document.body.classList.contains('dark-mode');
+            } catch (e) {
+                localDarkMode = document.body.classList.contains('dark-mode');
+            }
+            if (localDarkMode && Telegram.WebApp.colorScheme !== 'dark') return;
+
             var params = Telegram.WebApp.themeParams || {};
             var root = document.documentElement;
             for (var key in params) {
@@ -161,12 +169,12 @@
     <!-- App Header -->
     <div class="appHeader bg-primary text-light">
         <div class="left">
-            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel" aria-label="{{ locales.en.menu_open_aria_label }}" data-i18n-attr="aria-label:menu_open_aria_label" aria-controls="sidebarPanel" aria-expanded="false">
+            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel" aria-label="{{ t.menu_open_aria_label }}" data-i18n-attr="aria-label:menu_open_aria_label" aria-controls="sidebarPanel" aria-expanded="false">
                 <ion-icon name="menu-outline" aria-hidden="true"></ion-icon>
             </a>
         </div>
         <div class="pageTitle">
-            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="{{ locales.en.logo_alt }}" data-i18n-attr="alt:logo_alt" class="logo" width="143" height="24" loading="eager" decoding="async" style="height:24px;width:auto;max-width:160px;object-fit:contain;">
+            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="{{ t.logo_alt }}" data-i18n-attr="alt:logo_alt" class="logo" width="143" height="24" loading="eager" decoding="async" style="height:24px;width:auto;max-width:160px;object-fit:contain;">
             <span id="tier-badge" class="tier-badge"></span>
         </div>
     </div>
@@ -174,18 +182,18 @@
 
     <!-- Hidden wallet button for JS/test compatibility (not shown in header per design) -->
     <button id="wallet-btn" class="d-none" aria-hidden="true" onclick="WalletConnect.connect()">
-        <span id="wallet-btn-label" data-i18n="wallet_connect_btn">{{ locales.en.wallet_connect_btn }}</span>
+        <span id="wallet-btn-label" data-i18n="wallet_connect_btn">{{ t.wallet_connect_btn }}</span>
     </button>
     <!-- * Hidden wallet button -->
 
     <!-- Tier-up celebration modal -->
-    <div id="tier-celebration-modal" class="tier-celebration-overlay" role="dialog" aria-modal="true" aria-label="{{ locales.en.tier_celebration_title | default('Tier unlocked') }}">
+    <div id="tier-celebration-modal" class="tier-celebration-overlay" role="dialog" aria-modal="true" aria-label="{{ t.tier_celebration_title | default('Tier unlocked') }}">
         <div class="tier-celebration-card">
             <span class="tier-celebration-icon" aria-hidden="true"></span>
             <div class="tier-celebration-title"></div>
             <div class="tier-celebration-sub"></div>
-            <button class="btn btn-primary tier-celebration-share" data-i18n="tier_share_btn">{{ locales.en.tier_share_btn | default('Share') }}</button>
-            <button class="btn tier-celebration-close" data-i18n="tier_close_btn">{{ locales.en.tier_close_btn | default('Close') }}</button>
+            <button class="btn btn-primary tier-celebration-share" data-i18n="tier_share_btn">{{ t.tier_share_btn | default('Share') }}</button>
+            <button class="btn tier-celebration-close" data-i18n="tier_close_btn">{{ t.tier_close_btn | default('Close') }}</button>
         </div>
     </div>
     <!-- * Tier-up celebration modal -->
@@ -197,7 +205,7 @@
         <div class="tier-progress-wrap">
             <span id="tier-progress-label" class="tier-progress-label"></span>
             <div class="progress">
-                <div id="tier-progress-bar" class="progress-bar tier-progress-bar-empty" role="progressbar" aria-label="{{ locales.en.tier_progress_aria | default('Tier progress') }}"></div>
+                <div id="tier-progress-bar" class="progress-bar tier-progress-bar-empty" role="progressbar" aria-label="{{ t.tier_progress_aria | default('Tier progress') }}"></div>
             </div>
         </div>
         <!-- * Tier progress bar -->
@@ -208,15 +216,15 @@
                 <img src="{{ imgSrc }}" alt="{{ imgAlt | default(sectionLabel + ' illustration') }}" class="intro-img mx-auto d-block" width="{{ imgW | replace('px', '') }}" height="{{ imgH | replace('px', '') }}" fetchpriority="high">
             </div>
 
-                    <h3>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_heading{% else %}exchange_heading{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_heading }}{% else %}{{ locales.en.exchange_heading }}{% endif %}</span></h3>
+                    <h3>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_heading{% else %}exchange_heading{% endif %}">{% if activePage == 'bridge' %}{{ t.bridge_heading }}{% else %}{{ t.exchange_heading }}{% endif %}</span></h3>
                     <p>
-                        &nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_intro_line1{% else %}exchange_intro_line1{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_intro_line1 }}{% else %}{{ locales.en.exchange_intro_line1 }}{% endif %}</span>
-                        <span data-i18n="{% if activePage == 'bridge' %}bridge_intro_line2{% else %}exchange_intro_line2{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_intro_line2 }}{% else %}{{ locales.en.exchange_intro_line2 }}{% endif %}</span>
+                        &nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_intro_line1{% else %}exchange_intro_line1{% endif %}">{% if activePage == 'bridge' %}{{ t.bridge_intro_line1 }}{% else %}{{ t.exchange_intro_line1 }}{% endif %}</span>
+                        <span data-i18n="{% if activePage == 'bridge' %}bridge_intro_line2{% else %}exchange_intro_line2{% endif %}">{% if activePage == 'bridge' %}{{ t.bridge_intro_line2 }}{% else %}{{ t.exchange_intro_line2 }}{% endif %}</span>
                     </p>
                     <ul class="list-unstyled">
-                        <li>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_point1{% else %}exchange_point1{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_point1 }}{% else %}{{ locales.en.exchange_point1 }}{% endif %}</span></li>
-                        <li>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_point2{% else %}exchange_point2{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_point2 }}{% else %}{{ locales.en.exchange_point2 }}{% endif %}</span></li>
-                        <li>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_point3{% else %}exchange_point3{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_point3 }}{% else %}{{ locales.en.exchange_point3 }}{% endif %}</span></li>
+                        <li>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_point1{% else %}exchange_point1{% endif %}">{% if activePage == 'bridge' %}{{ t.bridge_point1 }}{% else %}{{ t.exchange_point1 }}{% endif %}</span></li>
+                        <li>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_point2{% else %}exchange_point2{% endif %}">{% if activePage == 'bridge' %}{{ t.bridge_point2 }}{% else %}{{ t.exchange_point2 }}{% endif %}</span></li>
+                        <li>&nbsp;<span data-i18n="{% if activePage == 'bridge' %}bridge_point3{% else %}exchange_point3{% endif %}">{% if activePage == 'bridge' %}{{ t.bridge_point3 }}{% else %}{{ t.exchange_point3 }}{% endif %}</span></li>
                     </ul>
         {% if activePage == 'bridge' %}
         <div id="social-proof-pill" class="social-proof-pill" hidden
@@ -229,10 +237,10 @@
         {% if activePage == 'bridge' %}
         <div id="wallet-prefill-bar" class="wallet-prefill-bar is-hidden">
             <span class="chip chip-primary chip-outline wallet-prefill-chip wallet-prefill-chip--spaced" id="wallet-prefill-half" onclick="walletPrefillHalf()">
-                <span class="chip-label" id="wallet-prefill-half-label" data-i18n="wallet_prefill_half">{{ locales.en.wallet_prefill_half }}</span>
+                <span class="chip-label" id="wallet-prefill-half-label" data-i18n="wallet_prefill_half">{{ t.wallet_prefill_half }}</span>
             </span>
             <span class="chip chip-primary chip-outline wallet-prefill-chip" id="wallet-prefill-max" onclick="walletPrefillMax()">
-                <span class="chip-label" data-i18n="wallet_prefill_max">{{ locales.en.wallet_prefill_max }}</span>
+                <span class="chip-label" data-i18n="wallet_prefill_max">{{ t.wallet_prefill_max }}</span>
             </span>
         </div>
         {% endif %}
@@ -243,15 +251,15 @@
         <!-- Lazy-load placeholder — replaced by iframe on user interaction or idle -->
         <div id="iframe-placeholder" class="iframe-placeholder iframe-placeholder--tall">
             <img src="assets/img/loading-icon.webp" alt="" role="presentation" class="iframe-placeholder__icon">
-            <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button" data-i18n="open_exchange_btn">{{ locales.en.open_exchange_btn }}</button>
+            <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button" data-i18n="open_exchange_btn">{{ t.open_exchange_btn }}</button>
         </div>
         <script>
         (function() {
-            var BASE_IFRAME_SRC = 'https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount={{ iframeAmount }}&amountFiat&backgroundColor=f6fafd&darkMode=false&from={{ iframeFrom }}&horizontal=false&isFiat=false&lang={{ locales.en.widget_lang }}&link_id={{ env.CHANGENOW_LINK_ID }}&locales=true&logo=false&primaryColor=1bb2da&to={{ iframeTo }}&toTheMoon=false';
+            var BASE_IFRAME_SRC = 'https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount={{ iframeAmount }}&amountFiat&backgroundColor=f6fafd&darkMode=false&from={{ iframeFrom }}&horizontal=false&isFiat=false&lang={{ t.widget_lang }}&link_id={{ env.CHANGENOW_LINK_ID }}&locales=true&logo=false&primaryColor=1bb2da&to={{ iframeTo }}&toTheMoon=false';
             var STEPPER_SRC = 'https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js';
             var IFRAME_HEIGHT = '450px';
             var I18N_LANG_KEY = 'widget_lang';
-            var FALLBACK_LANG = '{{ locales.en.widget_lang }}';
+            var FALLBACK_LANG = '{{ t.widget_lang }}';
             var idleTimer = null;
             var idleCallbackId = null;
             var interactionEvents = ['pointerdown', 'keydown', 'touchstart', 'wheel'];
@@ -277,7 +285,7 @@
                 var url = new URL(BASE_IFRAME_SRC, window.location.href);
                 var primaryColor = stripHash(cssVar('--tg-theme-button-color') || cssVar('--tg-theme-link-color') || '#1bb2da');
                 var backgroundColor = stripHash(cssVar('--tg-theme-bg-color') || '#f6fafd');
-                var colorScheme = cssVar('--tg-color-scheme') || (document.documentElement.className === 'dark' ? 'dark' : 'light');
+                var colorScheme = cssVar('--tg-color-scheme') || (document.body.classList.contains('dark-mode') || document.documentElement.className === 'dark' ? 'dark' : 'light');
 
                 url.searchParams.set('from', selectedFrom);
                 url.searchParams.set('lang', widgetLang());
@@ -319,7 +327,7 @@
 
                 var iframe = document.createElement('iframe');
                 iframe.id = 'iframe-widget';
-                iframe.title = window.i18n && i18n.t ? i18n.t('iframe_widget_title', '{{ locales.en.iframe_widget_title }}') : '{{ locales.en.iframe_widget_title }}';
+                iframe.title = window.i18n && i18n.t ? i18n.t('iframe_widget_title', '{{ t.iframe_widget_title }}') : '{{ t.iframe_widget_title }}';
                 iframe.src = buildIframeSrc();
                 iframe.loading = 'lazy';
                 iframe.setAttribute('importance', 'high');
@@ -391,25 +399,23 @@
         })();
         </script>
         <!-- * App {{ sectionLabel }} -->
-<div class="text-center">
+<div class="exchange-action-stack">
     <button id="send-to-chat-btn" class="btn btn-secondary btn-lg mt-2 mb-2"
         data-send-to-chat-query-key="{% if activePage == 'bridge' %}send_to_chat_query_bridge{% else %}send_to_chat_query_exchange{% endif %}"
-        data-send-to-chat-fallback-query="{% if activePage == 'bridge' %}{{ locales.en.send_to_chat_query_bridge }}{% else %}{{ locales.en.send_to_chat_query_exchange }}{% endif %}"
+        data-send-to-chat-fallback-query="{% if activePage == 'bridge' %}{{ t.send_to_chat_query_bridge }}{% else %}{{ t.send_to_chat_query_exchange }}{% endif %}"
         data-i18n="send_to_chat_btn"
         onclick="sendToChatFromButton(this)">
-        {{ locales.en.send_to_chat_btn }}
+        {{ t.send_to_chat_btn }}
     </button>
-</div>
-<div class="text-center mb-2">
-    <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="{{ locales.en.cede_badge_alt }}" data-i18n-attr="alt:cede_badge_alt" loading="lazy"></a>
-</div>
-<div class="info-action-row my-4">
-    <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
-        <div class="feature-icon dot text-center">
-            <ion-icon name="information-outline" class="feature-icon-md" aria-hidden="true"></ion-icon>
+    <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="{{ t.cede_badge_alt }}" data-i18n-attr="alt:cede_badge_alt" loading="lazy"></a>
+    <div class="info-action-row my-4">
+        <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
+            <div class="feature-icon dot text-center">
+                <ion-icon name="information-outline" class="feature-icon-md" aria-hidden="true"></ion-icon>
+            </div>
         </div>
+        <a href="{% if activePage == 'bridge' %}1.html{% else %}2.html{% endif %}" class="btn btn-primary btn-lg" data-i18n="{% if activePage == 'bridge' %}bridge_instruction_btn{% else %}exchange_instruction_btn{% endif %}">{% if activePage == 'bridge' %}{{ t.bridge_instruction_btn }}{% else %}{{ t.exchange_instruction_btn }}{% endif %}</a>
     </div>
-    <a href="{% if activePage == 'bridge' %}1.html{% else %}2.html{% endif %}" class="btn btn-primary btn-lg" data-i18n="{% if activePage == 'bridge' %}bridge_instruction_btn{% else %}exchange_instruction_btn{% endif %}">{% if activePage == 'bridge' %}{{ locales.en.bridge_instruction_btn }}{% else %}{{ locales.en.exchange_instruction_btn }}{% endif %}</a>
 </div>
     </div>
     <!-- * App Capsule -->
@@ -419,46 +425,46 @@
     <!-- * App Bottom Menu -->
 
     <!-- App Sidebar -->
-    <div class="modal fade panelbox panelbox-left" id="sidebarPanel" tabindex="-1" role="dialog" aria-modal="true" aria-label="{{ locales.en.menu_sidebar_aria_label }}" data-i18n-attr="aria-label:menu_sidebar_aria_label">
+    <div class="modal fade panelbox panelbox-left" id="sidebarPanel" tabindex="-1" role="dialog" aria-modal="true" aria-label="{{ t.menu_sidebar_aria_label }}" data-i18n-attr="aria-label:menu_sidebar_aria_label">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-body p-0">
 
 <!-- menu -->
-<div class="listview-title mt-1" data-i18n="menu_title">{{ locales.en.menu_title }}</div>
+<div class="listview-title mt-1" data-i18n="menu_title">{{ t.menu_title }}</div>
 <ul class="listview flush transparent no-line image-listview">
     <li>
-        <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_bot');" class="item">
+        <a href="https://t.me/tonbankcard_bot" class="item" id="support-link" target="_blank" rel="noopener noreferrer" data-telegram-link="support">
             <div class="icon-box bg-primary">
                 <ion-icon name="chatbubble-outline"></ion-icon>
             </div>
             <div class="in" data-i18n="menu_support">
-                {{ locales.en.menu_support }}
+                {{ t.menu_support }}
             </div>
         </a>
     </li>
 </ul>
 
                      <!-- community section -->
-<div class="listview-title mt-1" data-i18n="community_title">{{ locales.en.community_title }}</div>
+<div class="listview-title mt-1" data-i18n="community_title">{{ t.community_title }}</div>
 <ul class="listview flush transparent no-line image-listview">
     <li>
-        <a href="javascript:Telegram.WebApp.openTelegramLink('{{ locales.en.community_group_link }}');" class="item" id="community-group-link">
+        <a href="{{ t.community_group_link }}" class="item" id="community-group-link" target="_blank" rel="noopener noreferrer" data-telegram-link="community_group_link" data-i18n-attr="href:community_group_link">
             <div class="icon-box bg-secondary">
                 <ion-icon name="people-circle-outline"></ion-icon>
             </div>
             <div class="in" data-i18n="community_group">
-                {{ locales.en.community_group }}
+                {{ t.community_group }}
             </div>
         </a>
     </li>
     <li>
-        <a href="javascript:Telegram.WebApp.openTelegramLink('{{ locales.en.community_chat_link }}');" class="item" id="community-chat-link">
+        <a href="{{ t.community_chat_link }}" class="item" id="community-chat-link" target="_blank" rel="noopener noreferrer" data-telegram-link="community_chat_link" data-i18n-attr="href:community_chat_link">
             <div class="icon-box bg-secondary">
                 <ion-icon name="chatbubbles-outline"></ion-icon>
             </div>
             <div class="in" data-i18n="community_chat">
-                {{ locales.en.community_chat }}
+                {{ t.community_chat }}
             </div>
         </a>
     </li>
@@ -474,7 +480,7 @@
     <!-- Address Book Action Sheet -->
     <div class="offcanvas offcanvas-bottom" id="address-book-action-sheet" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" data-i18n="ab_section">{{ locales.en.ab_section }}</h5>
+            <h5 class="offcanvas-title" data-i18n="ab_section">{{ t.ab_section }}</h5>
             <small class="text-muted ab-sheet-address"></small>
         </div>
         <div class="offcanvas-body">
@@ -482,24 +488,24 @@
                 <li>
                     <a href="#" class="item" data-ab-action="edit">
                         <div class="icon-box bg-primary"><ion-icon name="pencil-outline"></ion-icon></div>
-                        <div class="in" data-i18n="ab_action_edit">{{ locales.en.ab_action_edit }}</div>
+                        <div class="in" data-i18n="ab_action_edit">{{ t.ab_action_edit }}</div>
                     </a>
                 </li>
                 <li>
                     <a href="#" class="item" data-ab-action="pin">
                         <div class="icon-box bg-secondary"><ion-icon name="pin-outline"></ion-icon></div>
-                        <div class="in" data-i18n="ab_action_pin">{{ locales.en.ab_action_pin }}</div>
+                        <div class="in" data-i18n="ab_action_pin">{{ t.ab_action_pin }}</div>
                     </a>
                 </li>
                 <li>
                     <a href="#" class="item" data-ab-action="remove">
                         <div class="icon-box bg-danger"><ion-icon name="trash-outline"></ion-icon></div>
-                        <div class="in" data-i18n="ab_action_remove">{{ locales.en.ab_action_remove }}</div>
+                        <div class="in" data-i18n="ab_action_remove">{{ t.ab_action_remove }}</div>
                     </a>
                 </li>
             </ul>
             <div class="mt-2">
-                <button type="button" class="btn btn-block btn-secondary" data-bs-dismiss="offcanvas" data-i18n="ab_action_cancel">{{ locales.en.ab_action_cancel }}</button>
+                <button type="button" class="btn btn-block btn-secondary" data-bs-dismiss="offcanvas" data-i18n="ab_action_cancel">{{ t.ab_action_cancel }}</button>
             </div>
         </div>
     </div>
@@ -508,20 +514,20 @@
     <div id="cookiesbox" class="offcanvas offcanvas-bottom cookies-box" tabindex="-1" data-bs-scroll="true"
         data-bs-backdrop="false" role="dialog" aria-labelledby="cookiesboxTitle" aria-modal="true">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="cookiesboxTitle" data-i18n="cookies_title">{{ locales.en.cookies_title }}</h5>
+            <h5 class="offcanvas-title" id="cookiesboxTitle" data-i18n="cookies_title">{{ t.cookies_title }}</h5>
         </div>
         <div class="offcanvas-body">
             <div class="mb-2">
-                <span data-i18n="cookies_body">{{ locales.en.cookies_body }}</span>
-                <a href="{{ t.privacy_link }}" class="text-secondary"><u data-i18n="cookies_learn_more">{{ locales.en.cookies_learn_more }}</u></a>
+                <span data-i18n="cookies_body">{{ t.cookies_body }}</span>
+                <a href="{{ t.privacy_link }}" class="text-secondary"><u data-i18n="cookies_learn_more">{{ t.cookies_learn_more }}</u></a>
             </div>
             <ul class="listview image-listview text inset no-line mb-2">
                 <li>
                     <div class="item">
                         <div class="in">
                             <div>
-                                <strong data-i18n="cookies_necessary_label">{{ locales.en.cookies_necessary_label }}</strong>
-                                <div class="text-muted cookie-desc" data-i18n="cookies_necessary_desc">{{ locales.en.cookies_necessary_desc }}</div>
+                                <strong data-i18n="cookies_necessary_label">{{ t.cookies_necessary_label }}</strong>
+                                <div class="text-muted cookie-desc" data-i18n="cookies_necessary_desc">{{ t.cookies_necessary_desc }}</div>
                             </div>
                             <div class="form-check form-switch ms-2">
                                 <input class="form-check-input" type="checkbox" id="consentNecessary" checked disabled>
@@ -534,8 +540,8 @@
                     <div class="item">
                         <div class="in">
                             <div>
-                                <strong data-i18n="cookies_analytics_label">{{ locales.en.cookies_analytics_label }}</strong>
-                                <div class="text-muted cookie-desc" data-i18n="cookies_analytics_desc">{{ locales.en.cookies_analytics_desc }}</div>
+                                <strong data-i18n="cookies_analytics_label">{{ t.cookies_analytics_label }}</strong>
+                                <div class="text-muted cookie-desc" data-i18n="cookies_analytics_desc">{{ t.cookies_analytics_desc }}</div>
                             </div>
                             <div class="form-check form-switch ms-2">
                                 <input class="form-check-input consent-analytics-toggle" type="checkbox" id="consentAnalytics">
@@ -548,8 +554,8 @@
                     <div class="item">
                         <div class="in">
                             <div>
-                                <strong data-i18n="cookies_marketing_label">{{ locales.en.cookies_marketing_label }}</strong>
-                                <div class="text-muted cookie-desc" data-i18n="cookies_marketing_desc">{{ locales.en.cookies_marketing_desc }}</div>
+                                <strong data-i18n="cookies_marketing_label">{{ t.cookies_marketing_label }}</strong>
+                                <div class="text-muted cookie-desc" data-i18n="cookies_marketing_desc">{{ t.cookies_marketing_desc }}</div>
                             </div>
                             <div class="form-check form-switch ms-2">
                                 <input class="form-check-input consent-marketing-toggle" type="checkbox" id="consentMarketing">
@@ -560,9 +566,9 @@
                 </li>
             </ul>
             <div class="buttons">
-                <a href="#" class="btn btn-primary btn-block accept-cookies accept-all-cookies mb-1" data-bs-dismiss="offcanvas" data-i18n="cookies_accept">{{ locales.en.cookies_accept }}</a>
-                <a href="#" class="btn btn-outline-primary btn-block accept-cookies accept-selected-cookies mb-1" data-bs-dismiss="offcanvas" data-i18n="cookies_accept_selected">{{ locales.en.cookies_accept_selected }}</a>
-                <a href="#" class="btn btn-link btn-block accept-cookies decline-optional-cookies" data-bs-dismiss="offcanvas" data-i18n="cookies_decline">{{ locales.en.cookies_decline }}</a>
+                <a href="#" class="btn btn-primary btn-block accept-cookies accept-all-cookies mb-1" data-bs-dismiss="offcanvas" data-i18n="cookies_accept">{{ t.cookies_accept }}</a>
+                <a href="#" class="btn btn-outline-primary btn-block accept-cookies accept-selected-cookies mb-1" data-bs-dismiss="offcanvas" data-i18n="cookies_accept_selected">{{ t.cookies_accept_selected }}</a>
+                <a href="#" class="btn btn-link btn-block accept-cookies decline-optional-cookies" data-bs-dismiss="offcanvas" data-i18n="cookies_decline">{{ t.cookies_decline }}</a>
             </div>
         </div>
     </div>
@@ -645,10 +651,10 @@
                 var groupLink = document.getElementById('community-group-link');
                 var chatLink = document.getElementById('community-chat-link');
                 if (groupLink && t.community_group_link) {
-                    groupLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_group_link + "');";
+                    groupLink.href = t.community_group_link;
                 }
                 if (chatLink && t.community_chat_link) {
-                    chatLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_chat_link + "');";
+                    chatLink.href = t.community_chat_link;
                 }
             });
 
@@ -663,9 +669,9 @@
     <script>
         {% if activePage == 'bridge' %}
         var i18nWallet = {
-            connectBtn: '{{ locales.en.wallet_connect_btn }}',
-            disconnectBtn: '{{ locales.en.wallet_disconnect_btn }}',
-            prefillHalf: '{{ locales.en.wallet_prefill_half }}'
+            connectBtn: '{{ t.wallet_connect_btn }}',
+            disconnectBtn: '{{ t.wallet_disconnect_btn }}',
+            prefillHalf: '{{ t.wallet_prefill_half }}'
         };
         var _walletBalance = null;
 
@@ -741,11 +747,11 @@
     <script defer src="assets/js/address-book.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            AddressBook.init('{{ locales.en.ab_chain }}', {
-                ab_edit_label_prompt: '{{ locales.en.ab_edit_label_prompt }}',
-                ab_pin: '{{ locales.en.ab_pin }}',
-                ab_unpin: '{{ locales.en.ab_unpin }}',
-                ab_empty: '{{ locales.en.ab_empty }}'
+            AddressBook.init('{{ t.ab_chain }}', {
+                ab_edit_label_prompt: '{{ t.ab_edit_label_prompt }}',
+                ab_pin: '{{ t.ab_pin }}',
+                ab_unpin: '{{ t.ab_unpin }}',
+                ab_empty: '{{ t.ab_empty }}'
             });
         });
     </script>

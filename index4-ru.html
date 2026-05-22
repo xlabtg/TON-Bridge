@@ -33,7 +33,7 @@
 <meta property="og:title" content="Статистика · TON Bridge">
 <meta property="og:description" content="Смотрите статистику TON Bridge: объем, топ пар и динамику активности моста.">
 <meta property="og:url" content="https://tonbankcard.com/bridge/TMA/00.html/index4-ru.html">
-<meta property="og:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/index4-ru.png?v=e435aed">
+<meta property="og:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/index4-ru.png?v=cdce4b4">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Статистика · TON Bridge">
@@ -42,7 +42,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Статистика · TON Bridge">
 <meta name="twitter:description" content="Смотрите статистику TON Bridge: объем, топ пар и динамику активности моста.">
-<meta name="twitter:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/index4-ru.png?v=e435aed">
+<meta name="twitter:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/index4-ru.png?v=cdce4b4">
 <meta name="twitter:image:alt" content="Статистика · TON Bridge">
 
     <meta name="keywords" content="ton, blockchain, crypto, statistics, dashboard, web3" />
@@ -307,7 +307,7 @@
 
     <!-- App Bottom Menu -->
     
-<nav class="appBottomMenu" aria-label="Основная навигация" data-i18n-attr="aria-label:nav_aria_label">
+<nav class="appBottomMenu" aria-label="Основная навигация" data-i18n-attr="aria-label:nav_aria_label" data-admin-ids="__ADMIN_TELEGRAM_IDS__">
     <div role="tablist" aria-label="Основная навигация" data-i18n-attr="aria-label:nav_aria_label">
         <a href="index-ru.html" class="item" role="tab" aria-selected="false">
             <div class="col">
@@ -339,7 +339,7 @@
                 <strong data-i18n="nav_redeem">Баллы</strong>
             </div>
         </a>
-        <a href="index4-ru.html" class="item active" role="tab" aria-selected="true">
+        <a href="index4-ru.html" class="item active" role="tab" aria-selected="true" data-admin-only hidden aria-hidden="true" tabindex="-1">
             <div class="col">
                 <ion-icon name="stats-chart" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_statistics">Статистика</strong>
@@ -359,6 +359,7 @@
         </a>
     </div>
 </nav>
+<script defer src="assets/js/admin-access.js"></script>
 
 
     <!-- App Sidebar -->
@@ -377,7 +378,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_bot');" class="item">
+                            <a href="https://t.me/tonbankcard_bot" class="item" id="support-link" target="_blank" rel="noopener noreferrer" data-telegram-link="support">
                                 <div class="icon-box bg-primary">
                                     <ion-icon name="chatbubble-outline"></ion-icon>
                                 </div>
@@ -388,7 +389,7 @@
                     <div class="listview-title mt-1">Сообщество</div>
                     <ul class="listview flush transparent no-line image-listview">
                         <li>
-                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_ru');" class="item">
+                            <a href="https://t.me/tonbankcard_ru" class="item" id="community-group-link" target="_blank" rel="noopener noreferrer" data-telegram-link="community_group_link" data-i18n-attr="href:community_group_link">
                                 <div class="icon-box bg-secondary">
                                     <ion-icon name="people-circle-outline"></ion-icon>
                                 </div>
@@ -396,7 +397,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_chat_ru');" class="item">
+                            <a href="https://t.me/tonbankcard_chat_ru" class="item" id="community-chat-link" target="_blank" rel="noopener noreferrer" data-telegram-link="community_chat_link" data-i18n-attr="href:community_chat_link">
                                 <div class="icon-box bg-secondary">
                                     <ion-icon name="chatbubbles-outline"></ion-icon>
                                 </div>

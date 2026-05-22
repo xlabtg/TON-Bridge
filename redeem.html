@@ -121,8 +121,8 @@
 <script>
     function initAnalytics() {
       window.telegramAnalytics.init({
-        token: "your-tganalytics-jwt-here",
-        appName: "your-analytics-app-name",
+        token: "test",
+        appName: "test",
       });
     }
 </script>
@@ -209,7 +209,7 @@
 
     <!-- App Bottom Menu -->
     
-<nav class="appBottomMenu" aria-label="Main navigation" data-i18n-attr="aria-label:nav_aria_label">
+<nav class="appBottomMenu" aria-label="Main navigation" data-i18n-attr="aria-label:nav_aria_label" data-admin-ids="__ADMIN_TELEGRAM_IDS__">
     <div role="tablist" aria-label="Main navigation" data-i18n-attr="aria-label:nav_aria_label">
         <a href="index.html" class="item" role="tab" aria-selected="false">
             <div class="col">
@@ -241,7 +241,7 @@
                 <strong data-i18n="nav_redeem">Redeem</strong>
             </div>
         </a>
-        <a href="index4.html" class="item" role="tab" aria-selected="false">
+        <a href="index4.html" class="item" role="tab" aria-selected="false" data-admin-only hidden aria-hidden="true" tabindex="-1">
             <div class="col">
                 <ion-icon name="stats-chart" aria-hidden="true"></ion-icon>
                 <strong data-i18n="nav_statistics">Statistics</strong>
@@ -261,6 +261,7 @@
         </a>
     </div>
 </nav>
+<script defer src="assets/js/admin-access.js"></script>
 
     <!-- * App Bottom Menu -->
 
@@ -506,7 +507,7 @@
    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-   var metrikaId = "your-yandex-metrika-id-here";
+   var metrikaId = "0";
    ym(Number(metrikaId) || metrikaId, "init", {
         clickmap:true,
         trackLinks:true,
@@ -514,7 +515,7 @@
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/your-yandex-metrika-id-here" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/0" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
 </body>
 

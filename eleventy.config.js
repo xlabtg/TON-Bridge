@@ -51,7 +51,7 @@ export default function(eleventyConfig) {
   eleventyConfig.addGlobalData('criticalCss', criticalCss);
   eleventyConfig.addGlobalData('baseUrl', baseUrl);
   eleventyConfig.addGlobalData('buildSha', buildSha);
-  eleventyConfig.addGlobalData('ADMIN_TELEGRAM_IDS', process.env.ADMIN_TELEGRAM_IDS || '');
+  eleventyConfig.addGlobalData('ADMIN_TELEGRAM_IDS', process.env.ADMIN_TELEGRAM_IDS || '__ADMIN_TELEGRAM_IDS__');
   eleventyConfig.addGlobalData('ADMIN_API_BASE', process.env.ADMIN_API_BASE || '');
   eleventyConfig.addFilter('jsString', jsStringValue);
 
@@ -62,9 +62,11 @@ export default function(eleventyConfig) {
   });
 
   eleventyConfig.addPassthroughCopy({ 'assets': 'assets' });
-  eleventyConfig.addPassthroughCopy({
-    'node_modules/@tonconnect/ui/dist/tonconnect-ui.min.js': 'assets/js/vendor/tonconnect-ui.min.js'
-  });
+  if (!existsSync(join(__dirname, 'assets/js/vendor/tonconnect-ui.min.js'))) {
+    eleventyConfig.addPassthroughCopy({
+      'node_modules/@tonconnect/ui/dist/tonconnect-ui.min.js': 'assets/js/vendor/tonconnect-ui.min.js'
+    });
+  }
   // Self-host Chart.js (issue #119) so statistics-page.njk no longer relies on a
   // CDN script tag without SRI; the file is precached by build-sw.js because it
   // lands under assets/js/.

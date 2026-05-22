@@ -43,6 +43,22 @@
         return Promise.resolve(null);
     }
 
+    function pageLang() {
+        try {
+            var path = window.location && window.location.pathname || '';
+            var match = path.match(/-([a-z]{2})(?:\.[a-z0-9]+)?$/i);
+            var pathLang = match && resolveSupported(match[1]);
+            if (pathLang) return pathLang;
+        } catch (e) {}
+
+        try {
+            var htmlLang = resolveSupported(document.documentElement.getAttribute('lang'));
+            if (htmlLang && htmlLang !== defaultLang()) return htmlLang;
+        } catch (e) {}
+
+        return null;
+    }
+
     function writeStoredLang(lang) {
         if (window.prefs && typeof window.prefs.set === 'function') {
             return window.prefs.set(STORAGE_KEY, lang).catch(function () {
@@ -59,7 +75,11 @@
             var storedLang = resolveSupported(stored);
             if (storedLang) return storedLang;
 
-            // 2. Telegram WebApp user language
+            // 2. Explicit localized page, e.g. index-ru.html.
+            var routeLang = pageLang();
+            if (routeLang) return routeLang;
+
+            // 3. Telegram WebApp user language
             try {
                 var tgLang = window.Telegram &&
                     window.Telegram.WebApp &&
@@ -71,14 +91,14 @@
                 if (tgLang) return defaultLang();
             } catch (e) {}
 
-            // 3. Browser language
+            // 4. Browser language
             try {
                 var nav = navigator.language || navigator.userLanguage || '';
                 var resolvedNavLang = resolveSupported(nav);
                 if (resolvedNavLang) return resolvedNavLang;
             } catch (e) {}
 
-            // 4. Default
+            // 5. Default
             return defaultLang();
         }).catch(function () {
             return defaultLang();

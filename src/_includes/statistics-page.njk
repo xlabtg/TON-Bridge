@@ -297,7 +297,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_bot');" class="item">
+                            <a href="https://t.me/tonbankcard_bot" class="item" id="support-link" target="_blank" rel="noopener noreferrer" data-telegram-link="support">
                                 <div class="icon-box bg-primary">
                                     <ion-icon name="chatbubble-outline"></ion-icon>
                                 </div>
@@ -308,7 +308,7 @@
                     <div class="listview-title mt-1">{{ t.community_title }}</div>
                     <ul class="listview flush transparent no-line image-listview">
                         <li>
-                            <a href="javascript:Telegram.WebApp.openTelegramLink('{{ t.community_group_link }}');" class="item">
+                            <a href="{{ t.community_group_link }}" class="item" id="community-group-link" target="_blank" rel="noopener noreferrer" data-telegram-link="community_group_link" data-i18n-attr="href:community_group_link">
                                 <div class="icon-box bg-secondary">
                                     <ion-icon name="people-circle-outline"></ion-icon>
                                 </div>
@@ -316,7 +316,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="javascript:Telegram.WebApp.openTelegramLink('{{ t.community_chat_link }}');" class="item">
+                            <a href="{{ t.community_chat_link }}" class="item" id="community-chat-link" target="_blank" rel="noopener noreferrer" data-telegram-link="community_chat_link" data-i18n-attr="href:community_chat_link">
                                 <div class="icon-box bg-secondary">
                                     <ion-icon name="chatbubbles-outline"></ion-icon>
                                 </div>

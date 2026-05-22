@@ -176,6 +176,28 @@ aWithHref.forEach(function (el) {
 
 
 //-----------------------------------------------------------------------
+// Telegram links with browser fallback
+//-----------------------------------------------------------------------
+document.addEventListener("click", function (e) {
+    var target = e.target;
+    if (!target || typeof target.closest !== "function") return;
+
+    var link = target.closest("a[data-telegram-link]");
+    if (!link) return;
+
+    var href = link.getAttribute("href");
+    if (!href || href.indexOf("javascript:") === 0) return;
+
+    var tg = window.Telegram && window.Telegram.WebApp;
+    if (tg && typeof tg.openTelegramLink === "function" && /^https:\/\/t\.me\//.test(href)) {
+        e.preventDefault();
+        tg.openTelegramLink(href);
+    }
+});
+//-----------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------
 // Input
 // Clear input
 var clearInput = document.querySelectorAll(".clear-input");
@@ -559,6 +581,18 @@ function switchDarkModeCheck(value) {
         el.checked = value
     })
 }
+function notifyThemePreferenceChanged() {
+    var isDark = pageBody.classList.contains("dark-mode");
+    var event;
+    try {
+        event = new CustomEvent("tonbridge:theme-preference-changed", { detail: { darkMode: isDark } });
+    }
+    catch (e) {
+        event = document.createEvent("CustomEvent");
+        event.initCustomEvent("tonbridge:theme-preference-changed", false, false, { darkMode: isDark });
+    }
+    window.dispatchEvent(event);
+}
 // if dark mode on
 if (checkDarkModeStatus === 1 || checkDarkModeStatus === "1" || pageBody.classList.contains('dark-mode')) {
     switchDarkModeCheck(true);
@@ -572,6 +606,7 @@ if (checkDarkModeStatus === 1 || checkDarkModeStatus === "1" || pageBody.classLi
 else {
     switchDarkModeCheck(false);
 }
+notifyThemePreferenceChanged();
 switchDarkMode.forEach(function (el) {
     el.addEventListener("click", function () {
         var darkmodeCheck = localStorage.getItem("FinappDarkmode");
@@ -580,11 +615,13 @@ switchDarkMode.forEach(function (el) {
             pageBody.classList.remove("dark-mode");
             localStorage.setItem("FinappDarkmode", "0");
             switchDarkModeCheck(false);
+            notifyThemePreferenceChanged();
         }
         else {
             pageBody.classList.add("dark-mode")
             switchDarkModeCheck(true);
             localStorage.setItem("FinappDarkmode", "1");
+            notifyThemePreferenceChanged();
         }
     })
 })

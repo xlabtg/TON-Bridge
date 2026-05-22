@@ -5,13 +5,16 @@
     display: flex;
     flex-direction: column;
     max-width: 100%;
+    color: $colorText;
     visibility: hidden;
     background-color: #fff;
     background-clip: padding-box;
     outline: 0;
-    transition: transform 0.3s ease-in-out;
+    transition: transform 0.3s ease-in-out, visibility 0.3s ease-in-out;
 }
 
+.offcanvas.showing,
+.offcanvas.show:not(.hiding),
 .offcanvas.show {
     visibility: visible;
     transform: none;
@@ -45,6 +48,7 @@
 
 .offcanvas-bottom {
     right: 0;
+    bottom: 0;
     left: 0;
     height: 30vh;
     max-height: 100%;
@@ -60,7 +64,7 @@
 }
 
 .offcanvas-title {
-    margin-bottom: 0;
+    margin: 0;
     line-height: 1.5;
 }
 
@@ -78,18 +82,55 @@
     width: 100vw;
     height: 100vh;
     background-color: #000;
+    &.fade {
+        opacity: 0;
+    }
+    &.show {
+        opacity: 0.5;
+    }
 }
 
-.offcanvas-backdrop.fade {
-    opacity: 0;
+#address-book-action-sheet {
+    z-index: 12000;
+    left: 50%;
+    right: auto;
+    width: min(100%, 520px);
+    height: auto;
+    max-height: calc(100vh - env(safe-area-inset-top) - 16px);
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid $colorLine;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
+    transform: translate(-50%, 100%);
+    .offcanvas-header {
+        align-items: flex-start;
+        gap: 12px;
+        padding-bottom: 8px;
+    }
+    .ab-sheet-address {
+        max-width: 60%;
+        overflow: hidden;
+        text-align: right;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .offcanvas-body {
+        padding: 0 16px 16px;
+    }
+    .listview {
+        border-radius: 8px;
+        overflow: hidden;
+    }
 }
 
-.offcanvas-backdrop.show {
-    opacity: 0.5;
+#address-book-action-sheet.showing,
+#address-book-action-sheet.show:not(.hiding),
+#address-book-action-sheet.show {
+    transform: translate(-50%, 0);
 }
 
 @media (prefers-reduced-motion: reduce) {
     .offcanvas {
-        transition: none;
+        transition: none !important;
     }
 }

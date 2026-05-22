@@ -62,9 +62,21 @@ h1,h2,h3,h4,h5,h6{color:$colorHeading;margin:0 0 10px 0}
   background:#fff;
   transform:translateY(100%);
 }
+.offcanvas.showing,
 .offcanvas.show{
   visibility:visible;
   transform:none;
+}
+#address-book-action-sheet{
+  z-index:12000;
+  left:50%;right:auto;
+  width:min(100%,520px);
+  transform:translate(-50%,100%);
+}
+#address-book-action-sheet.showing,
+#address-book-action-sheet.show:not(.hiding),
+#address-book-action-sheet.show{
+  transform:translate(-50%,0);
 }
 
 ////////////////////////////////////////////////////

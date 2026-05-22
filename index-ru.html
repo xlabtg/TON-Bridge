@@ -1,6 +1,6 @@
 
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title data-i18n="title_bridge">Bridge TON &lt;-&gt; TON-BSC · TON Bridge</title>
+    <title data-i18n="title_bridge">Мост TON &lt;-&gt; TON-BSC · TON Bridge</title>
     
     
     
@@ -18,7 +18,7 @@
 
 
 
-<meta name="description" content="Bridge TON between TON and BSC blockchains quickly and securely. Non-custodial, no registration required.">
+<meta name="description" content="Переводите TON между блокчейнами TON и BSC быстро и безопасно. Без хранения средств, без регистрации.">
 <link rel="canonical" href="https://tonbankcard.com/bridge/TMA/00.html/index-ru.html">
 
 
@@ -31,20 +31,20 @@
 <meta property="og:site_name" content="TON Bridge">
 <meta property="og:locale" content="ru_RU">
 
-<meta property="og:title" content="Bridge TON &lt;-&gt; TON-BSC · TON Bridge">
-<meta property="og:description" content="Bridge TON between TON and BSC blockchains quickly and securely. Non-custodial, no registration required.">
+<meta property="og:title" content="Мост TON &lt;-&gt; TON-BSC · TON Bridge">
+<meta property="og:description" content="Переводите TON между блокчейнами TON и BSC быстро и безопасно. Без хранения средств, без регистрации.">
 <meta property="og:url" content="https://tonbankcard.com/bridge/TMA/00.html/index-ru.html">
-<meta property="og:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/index-ru.png?v=e435aed">
+<meta property="og:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/index-ru.png?v=4081bcc">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Bridge TON &lt;-&gt; TON-BSC · TON Bridge">
+<meta property="og:image:alt" content="Мост TON &lt;-&gt; TON-BSC · TON Bridge">
 
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Bridge TON &lt;-&gt; TON-BSC · TON Bridge">
-<meta name="twitter:description" content="Bridge TON between TON and BSC blockchains quickly and securely. Non-custodial, no registration required.">
-<meta name="twitter:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/index-ru.png?v=e435aed">
-<meta name="twitter:image:alt" content="Bridge TON &lt;-&gt; TON-BSC · TON Bridge">
+<meta name="twitter:title" content="Мост TON &lt;-&gt; TON-BSC · TON Bridge">
+<meta name="twitter:description" content="Переводите TON между блокчейнами TON и BSC быстро и безопасно. Без хранения средств, без регистрации.">
+<meta name="twitter:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/index-ru.png?v=4081bcc">
+<meta name="twitter:image:alt" content="Мост TON &lt;-&gt; TON-BSC · TON Bridge">
 
     <meta name="keywords"
         content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
@@ -131,6 +131,14 @@
 
         // Apply themeParams CSS variables on first load
         (function() {
+            var localDarkMode = false;
+            try {
+                localDarkMode = localStorage.getItem('FinappDarkmode') === '1' || document.body.classList.contains('dark-mode');
+            } catch (e) {
+                localDarkMode = document.body.classList.contains('dark-mode');
+            }
+            if (localDarkMode && Telegram.WebApp.colorScheme !== 'dark') return;
+
             var params = Telegram.WebApp.themeParams || {};
             var root = document.documentElement;
             for (var key in params) {
@@ -200,12 +208,12 @@
     <!-- App Header -->
     <div class="appHeader bg-primary text-light">
         <div class="left">
-            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel" aria-label="Open menu" data-i18n-attr="aria-label:menu_open_aria_label" aria-controls="sidebarPanel" aria-expanded="false">
+            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel" aria-label="Открыть меню" data-i18n-attr="aria-label:menu_open_aria_label" aria-controls="sidebarPanel" aria-expanded="false">
                 <ion-icon name="menu-outline" aria-hidden="true"></ion-icon>
             </a>
         </div>
         <div class="pageTitle">
-            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="TON Bridge logo" data-i18n-attr="alt:logo_alt" class="logo" width="143" height="24" loading="eager" decoding="async" style="height:24px;width:auto;max-width:160px;object-fit:contain;">
+            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="Логотип TON Bridge" data-i18n-attr="alt:logo_alt" class="logo" width="143" height="24" loading="eager" decoding="async" style="height:24px;width:auto;max-width:160px;object-fit:contain;">
             <span id="tier-badge" class="tier-badge"></span>
         </div>
     </div>
@@ -213,18 +221,18 @@
 
     <!-- Hidden wallet button for JS/test compatibility (not shown in header per design) -->
     <button id="wallet-btn" class="d-none" aria-hidden="true" onclick="WalletConnect.connect()">
-        <span id="wallet-btn-label" data-i18n="wallet_connect_btn">Connect wallet</span>
+        <span id="wallet-btn-label" data-i18n="wallet_connect_btn">Подключить кошелёк</span>
     </button>
     <!-- * Hidden wallet button -->
 
     <!-- Tier-up celebration modal -->
-    <div id="tier-celebration-modal" class="tier-celebration-overlay" role="dialog" aria-modal="true" aria-label="Tier unlocked">
+    <div id="tier-celebration-modal" class="tier-celebration-overlay" role="dialog" aria-modal="true" aria-label="Уровень разблокирован">
         <div class="tier-celebration-card">
             <span class="tier-celebration-icon" aria-hidden="true"></span>
             <div class="tier-celebration-title"></div>
             <div class="tier-celebration-sub"></div>
-            <button class="btn btn-primary tier-celebration-share" data-i18n="tier_share_btn">Share</button>
-            <button class="btn tier-celebration-close" data-i18n="tier_close_btn">Close</button>
+            <button class="btn btn-primary tier-celebration-share" data-i18n="tier_share_btn">Поделиться</button>
+            <button class="btn tier-celebration-close" data-i18n="tier_close_btn">Закрыть</button>
         </div>
     </div>
     <!-- * Tier-up celebration modal -->
@@ -236,7 +244,7 @@
         <div class="tier-progress-wrap">
             <span id="tier-progress-label" class="tier-progress-label"></span>
             <div class="progress">
-                <div id="tier-progress-bar" class="progress-bar tier-progress-bar-empty" role="progressbar" aria-label="Tier progress"></div>
+                <div id="tier-progress-bar" class="progress-bar tier-progress-bar-empty" role="progressbar" aria-label="Прогресс уровня"></div>
             </div>
         </div>
         <!-- * Tier progress bar -->
@@ -247,15 +255,15 @@
                 <img src="assets/img/gfx-a-1-bridge.webp" alt="Bridge illustration" class="intro-img mx-auto d-block" width="300" height="200" fetchpriority="high">
             </div>
 
-                    <h3>&nbsp;<span data-i18n="bridge_heading">Security and privacy</span></h3>
+                    <h3>&nbsp;<span data-i18n="bridge_heading">Безопасность и конфиденциальность</span></h3>
                     <p>
-                        &nbsp;<span data-i18n="bridge_intro_line1">TONBANKCARD preserves your privacy and  guarantees security.</span>
-                        <span data-i18n="bridge_intro_line2">We are not a custodial  exchange service:</span>
+                        &nbsp;<span data-i18n="bridge_intro_line1">TONBANKCARD сохраняет вашу  конфиденциальность и гарантирует безопасность.</span>
+                        <span data-i18n="bridge_intro_line2">Мы не являемся службой кастодиального обмена:</span>
                     </p>
                     <ul class="list-unstyled">
-                        <li>&nbsp;<span data-i18n="bridge_point1">- We do not save your data</span></li>
-                        <li>&nbsp;<span data-i18n="bridge_point2">- We do not control your funds</span></li>
-                        <li>&nbsp;<span data-i18n="bridge_point3">- We do not force you to register</span></li>
+                        <li>&nbsp;<span data-i18n="bridge_point1">- Мы не сохраняем ваши данные</span></li>
+                        <li>&nbsp;<span data-i18n="bridge_point2">- Мы не контролируем ваши средства</span></li>
+                        <li>&nbsp;<span data-i18n="bridge_point3">- Мы не заставляем вас регистрироваться</span></li>
                     </ul>
         
         <div id="social-proof-pill" class="social-proof-pill" hidden
@@ -268,10 +276,10 @@
         
         <div id="wallet-prefill-bar" class="wallet-prefill-bar is-hidden">
             <span class="chip chip-primary chip-outline wallet-prefill-chip wallet-prefill-chip--spaced" id="wallet-prefill-half" onclick="walletPrefillHalf()">
-                <span class="chip-label" id="wallet-prefill-half-label" data-i18n="wallet_prefill_half">Use {bal} TON</span>
+                <span class="chip-label" id="wallet-prefill-half-label" data-i18n="wallet_prefill_half">Использовать {bal} TON</span>
             </span>
             <span class="chip chip-primary chip-outline wallet-prefill-chip" id="wallet-prefill-max" onclick="walletPrefillMax()">
-                <span class="chip-label" data-i18n="wallet_prefill_max">Max</span>
+                <span class="chip-label" data-i18n="wallet_prefill_max">Макс</span>
             </span>
         </div>
         
@@ -282,15 +290,15 @@
         <!-- Lazy-load placeholder — replaced by iframe on user interaction or idle -->
         <div id="iframe-placeholder" class="iframe-placeholder iframe-placeholder--tall">
             <img src="assets/img/loading-icon.webp" alt="" role="presentation" class="iframe-placeholder__icon">
-            <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button" data-i18n="open_exchange_btn">Open exchange</button>
+            <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button" data-i18n="open_exchange_btn">Открыть обмен</button>
         </div>
         <script>
         (function() {
-            var BASE_IFRAME_SRC = 'https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=10&amountFiat&backgroundColor=f6fafd&darkMode=false&from=ton&horizontal=false&isFiat=false&lang=en-EN&link_id=your-changenow-link-id-here&locales=true&logo=false&primaryColor=1bb2da&to=tonbsc&toTheMoon=false';
+            var BASE_IFRAME_SRC = 'https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=10&amountFiat&backgroundColor=f6fafd&darkMode=false&from=ton&horizontal=false&isFiat=false&lang=ru-RU&link_id=test&locales=true&logo=false&primaryColor=1bb2da&to=tonbsc&toTheMoon=false';
             var STEPPER_SRC = 'https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js';
             var IFRAME_HEIGHT = '450px';
             var I18N_LANG_KEY = 'widget_lang';
-            var FALLBACK_LANG = 'en-EN';
+            var FALLBACK_LANG = 'ru-RU';
             var idleTimer = null;
             var idleCallbackId = null;
             var interactionEvents = ['pointerdown', 'keydown', 'touchstart', 'wheel'];
@@ -316,7 +324,7 @@
                 var url = new URL(BASE_IFRAME_SRC, window.location.href);
                 var primaryColor = stripHash(cssVar('--tg-theme-button-color') || cssVar('--tg-theme-link-color') || '#1bb2da');
                 var backgroundColor = stripHash(cssVar('--tg-theme-bg-color') || '#f6fafd');
-                var colorScheme = cssVar('--tg-color-scheme') || (document.documentElement.className === 'dark' ? 'dark' : 'light');
+                var colorScheme = cssVar('--tg-color-scheme') || (document.body.classList.contains('dark-mode') || document.documentElement.className === 'dark' ? 'dark' : 'light');
 
                 url.searchParams.set('from', selectedFrom);
                 url.searchParams.set('lang', widgetLang());
@@ -358,7 +366,7 @@
 
                 var iframe = document.createElement('iframe');
                 iframe.id = 'iframe-widget';
-                iframe.title = window.i18n && i18n.t ? i18n.t('iframe_widget_title', 'Currency exchange widget') : 'Currency exchange widget';
+                iframe.title = window.i18n && i18n.t ? i18n.t('iframe_widget_title', 'Виджет обмена валют') : 'Виджет обмена валют';
                 iframe.src = buildIframeSrc();
                 iframe.loading = 'lazy';
                 iframe.setAttribute('importance', 'high');
@@ -436,11 +444,11 @@
         data-send-to-chat-fallback-query="bridge ton 10"
         data-i18n="send_to_chat_btn"
         onclick="sendToChatFromButton(this)">
-        Send to chat
+        Отправить в чат
     </button>
 </div>
 <div class="text-center mb-2">
-    <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store - Top Bridge in Ton App" data-i18n-attr="alt:cede_badge_alt" loading="lazy"></a>
+    <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="Cede.store - лучший мост в Ton App" data-i18n-attr="alt:cede_badge_alt" loading="lazy"></a>
 </div>
 <div class="info-action-row my-4">
     <div class="feature animated" data-animate="fadeInUp" data-delay=".7">
@@ -448,7 +456,7 @@
             <ion-icon name="information-outline" class="feature-icon-md" aria-hidden="true"></ion-icon>
         </div>
     </div>
-    <a href="1.html" class="btn btn-primary btn-lg" data-i18n="bridge_instruction_btn">Instruction</a>
+    <a href="1.html" class="btn btn-primary btn-lg" data-i18n="bridge_instruction_btn">Инструкция</a>
 </div>
     </div>
     <!-- * App Capsule -->
@@ -511,46 +519,46 @@
     <!-- * App Bottom Menu -->
 
     <!-- App Sidebar -->
-    <div class="modal fade panelbox panelbox-left" id="sidebarPanel" tabindex="-1" role="dialog" aria-modal="true" aria-label="Navigation menu" data-i18n-attr="aria-label:menu_sidebar_aria_label">
+    <div class="modal fade panelbox panelbox-left" id="sidebarPanel" tabindex="-1" role="dialog" aria-modal="true" aria-label="Меню навигации" data-i18n-attr="aria-label:menu_sidebar_aria_label">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-body p-0">
 
 <!-- menu -->
-<div class="listview-title mt-1" data-i18n="menu_title">Menu</div>
+<div class="listview-title mt-1" data-i18n="menu_title">Меню</div>
 <ul class="listview flush transparent no-line image-listview">
     <li>
-        <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_bot');" class="item">
+        <a href="https://t.me/tonbankcard_bot" class="item" id="support-link" target="_blank" rel="noopener noreferrer" data-telegram-link="support">
             <div class="icon-box bg-primary">
                 <ion-icon name="chatbubble-outline"></ion-icon>
             </div>
             <div class="in" data-i18n="menu_support">
-                Support
+                Поддержка
             </div>
         </a>
     </li>
 </ul>
 
                      <!-- community section -->
-<div class="listview-title mt-1" data-i18n="community_title">Community</div>
+<div class="listview-title mt-1" data-i18n="community_title">Сообщество</div>
 <ul class="listview flush transparent no-line image-listview">
     <li>
-        <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard');" class="item" id="community-group-link">
+        <a href="https://t.me/tonbankcard_ru" class="item" id="community-group-link" target="_blank" rel="noopener noreferrer" data-telegram-link="community_group_link" data-i18n-attr="href:community_group_link">
             <div class="icon-box bg-secondary">
                 <ion-icon name="people-circle-outline"></ion-icon>
             </div>
             <div class="in" data-i18n="community_group">
-                Telegram Group
+                Группа в Telegram
             </div>
         </a>
     </li>
     <li>
-        <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_chat');" class="item" id="community-chat-link">
+        <a href="https://t.me/tonbankcard_chat_ru" class="item" id="community-chat-link" target="_blank" rel="noopener noreferrer" data-telegram-link="community_chat_link" data-i18n-attr="href:community_chat_link">
             <div class="icon-box bg-secondary">
                 <ion-icon name="chatbubbles-outline"></ion-icon>
             </div>
             <div class="in" data-i18n="community_chat">
-                Telegram Chat
+                Чат в Telegram
             </div>
         </a>
     </li>
@@ -566,7 +574,7 @@
     <!-- Address Book Action Sheet -->
     <div class="offcanvas offcanvas-bottom" id="address-book-action-sheet" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" data-i18n="ab_section">Address Book</h5>
+            <h5 class="offcanvas-title" data-i18n="ab_section">Адресная книга</h5>
             <small class="text-muted ab-sheet-address"></small>
         </div>
         <div class="offcanvas-body">
@@ -574,24 +582,24 @@
                 <li>
                     <a href="#" class="item" data-ab-action="edit">
                         <div class="icon-box bg-primary"><ion-icon name="pencil-outline"></ion-icon></div>
-                        <div class="in" data-i18n="ab_action_edit">Edit label</div>
+                        <div class="in" data-i18n="ab_action_edit">Изменить метку</div>
                     </a>
                 </li>
                 <li>
                     <a href="#" class="item" data-ab-action="pin">
                         <div class="icon-box bg-secondary"><ion-icon name="pin-outline"></ion-icon></div>
-                        <div class="in" data-i18n="ab_action_pin">Pin</div>
+                        <div class="in" data-i18n="ab_action_pin">Закрепить</div>
                     </a>
                 </li>
                 <li>
                     <a href="#" class="item" data-ab-action="remove">
                         <div class="icon-box bg-danger"><ion-icon name="trash-outline"></ion-icon></div>
-                        <div class="in" data-i18n="ab_action_remove">Remove</div>
+                        <div class="in" data-i18n="ab_action_remove">Удалить</div>
                     </a>
                 </li>
             </ul>
             <div class="mt-2">
-                <button type="button" class="btn btn-block btn-secondary" data-bs-dismiss="offcanvas" data-i18n="ab_action_cancel">Cancel</button>
+                <button type="button" class="btn btn-block btn-secondary" data-bs-dismiss="offcanvas" data-i18n="ab_action_cancel">Отмена</button>
             </div>
         </div>
     </div>
@@ -600,20 +608,20 @@
     <div id="cookiesbox" class="offcanvas offcanvas-bottom cookies-box" tabindex="-1" data-bs-scroll="true"
         data-bs-backdrop="false" role="dialog" aria-labelledby="cookiesboxTitle" aria-modal="true">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="cookiesboxTitle" data-i18n="cookies_title">Privacy preferences</h5>
+            <h5 class="offcanvas-title" id="cookiesboxTitle" data-i18n="cookies_title">Настройки конфиденциальности</h5>
         </div>
         <div class="offcanvas-body">
             <div class="mb-2">
-                <span data-i18n="cookies_body">We use necessary storage to keep the app working. With your consent, we also use analytics to improve TON Bridge and marketing storage for campaign attribution.</span>
-                <a href="privacy-ru.html" class="text-secondary"><u data-i18n="cookies_learn_more">Privacy policy</u></a>
+                <span data-i18n="cookies_body">Мы используем необходимое хранилище для работы приложения. С вашего согласия мы также используем аналитику для улучшения TON Bridge и маркетинговое хранилище для атрибуции кампаний.</span>
+                <a href="privacy-ru.html" class="text-secondary"><u data-i18n="cookies_learn_more">Политика конфиденциальности</u></a>
             </div>
             <ul class="listview image-listview text inset no-line mb-2">
                 <li>
                     <div class="item">
                         <div class="in">
                             <div>
-                                <strong data-i18n="cookies_necessary_label">Necessary</strong>
-                                <div class="text-muted cookie-desc" data-i18n="cookies_necessary_desc">Required for language, theme, consent, security, and core app functionality.</div>
+                                <strong data-i18n="cookies_necessary_label">Необходимые</strong>
+                                <div class="text-muted cookie-desc" data-i18n="cookies_necessary_desc">Нужны для языка, темы, согласия, безопасности и основных функций приложения.</div>
                             </div>
                             <div class="form-check form-switch ms-2">
                                 <input class="form-check-input" type="checkbox" id="consentNecessary" checked disabled>
@@ -626,8 +634,8 @@
                     <div class="item">
                         <div class="in">
                             <div>
-                                <strong data-i18n="cookies_analytics_label">Analytics</strong>
-                                <div class="text-muted cookie-desc" data-i18n="cookies_analytics_desc">Allows Yandex.Metrika with Webvisor and Telegram Analytics after consent.</div>
+                                <strong data-i18n="cookies_analytics_label">Аналитика</strong>
+                                <div class="text-muted cookie-desc" data-i18n="cookies_analytics_desc">Разрешает Yandex.Metrika с Webvisor и Telegram Analytics после согласия.</div>
                             </div>
                             <div class="form-check form-switch ms-2">
                                 <input class="form-check-input consent-analytics-toggle" type="checkbox" id="consentAnalytics">
@@ -640,8 +648,8 @@
                     <div class="item">
                         <div class="in">
                             <div>
-                                <strong data-i18n="cookies_marketing_label">Marketing</strong>
-                                <div class="text-muted cookie-desc" data-i18n="cookies_marketing_desc">Allows campaign attribution and referral measurement after consent.</div>
+                                <strong data-i18n="cookies_marketing_label">Маркетинг</strong>
+                                <div class="text-muted cookie-desc" data-i18n="cookies_marketing_desc">Разрешает атрибуцию кампаний и измерение рефералов после согласия.</div>
                             </div>
                             <div class="form-check form-switch ms-2">
                                 <input class="form-check-input consent-marketing-toggle" type="checkbox" id="consentMarketing">
@@ -652,9 +660,9 @@
                 </li>
             </ul>
             <div class="buttons">
-                <a href="#" class="btn btn-primary btn-block accept-cookies accept-all-cookies mb-1" data-bs-dismiss="offcanvas" data-i18n="cookies_accept">Accept all</a>
-                <a href="#" class="btn btn-outline-primary btn-block accept-cookies accept-selected-cookies mb-1" data-bs-dismiss="offcanvas" data-i18n="cookies_accept_selected">Save preferences</a>
-                <a href="#" class="btn btn-link btn-block accept-cookies decline-optional-cookies" data-bs-dismiss="offcanvas" data-i18n="cookies_decline">Decline optional</a>
+                <a href="#" class="btn btn-primary btn-block accept-cookies accept-all-cookies mb-1" data-bs-dismiss="offcanvas" data-i18n="cookies_accept">Принять все</a>
+                <a href="#" class="btn btn-outline-primary btn-block accept-cookies accept-selected-cookies mb-1" data-bs-dismiss="offcanvas" data-i18n="cookies_accept_selected">Сохранить настройки</a>
+                <a href="#" class="btn btn-link btn-block accept-cookies decline-optional-cookies" data-bs-dismiss="offcanvas" data-i18n="cookies_decline">Отклонить необязательные</a>
             </div>
         </div>
     </div>
@@ -737,10 +745,10 @@
                 var groupLink = document.getElementById('community-group-link');
                 var chatLink = document.getElementById('community-chat-link');
                 if (groupLink && t.community_group_link) {
-                    groupLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_group_link + "');";
+                    groupLink.href = t.community_group_link;
                 }
                 if (chatLink && t.community_chat_link) {
-                    chatLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_chat_link + "');";
+                    chatLink.href = t.community_chat_link;
                 }
             });
 
@@ -755,9 +763,9 @@
     <script>
         
         var i18nWallet = {
-            connectBtn: 'Connect wallet',
-            disconnectBtn: 'Disconnect',
-            prefillHalf: 'Use {bal} TON'
+            connectBtn: 'Подключить кошелёк',
+            disconnectBtn: 'Отключить',
+            prefillHalf: 'Использовать {bal} TON'
         };
         var _walletBalance = null;
 
@@ -834,10 +842,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             AddressBook.init('ton', {
-                ab_edit_label_prompt: 'Enter label:',
-                ab_pin: 'Pin',
-                ab_unpin: 'Unpin',
-                ab_empty: 'No saved addresses'
+                ab_edit_label_prompt: 'Введите метку:',
+                ab_pin: 'Закрепить',
+                ab_unpin: 'Открепить',
+                ab_empty: 'Нет сохранённых адресов'
             });
         });
     </script>

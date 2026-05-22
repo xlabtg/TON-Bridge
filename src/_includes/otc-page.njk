@@ -1,6 +1,6 @@
 {% set activePage = 'otc' %}
 <!doctype html>
-<html lang="{{ locales.en.lang_attr }}">
+<html lang="{{ t.lang_attr }}">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -9,9 +9,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title data-i18n="title_otc">{{ locales.en.title_otc }}</title>
-    {% set seoTitle = locales.en.title_otc %}
-    {% set seoDesc = locales.en.desc_otc %}
+    <title data-i18n="title_otc">{{ t.title_otc }}</title>
+    {% set seoTitle = t.title_otc %}
+    {% set seoDesc = t.desc_otc %}
     {% include "seo-head.njk" %}
     <meta name="keywords"
         content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
@@ -49,6 +49,14 @@
 
         // Apply themeParams CSS variables on first load
         (function() {
+            var localDarkMode = false;
+            try {
+                localDarkMode = localStorage.getItem('FinappDarkmode') === '1' || document.body.classList.contains('dark-mode');
+            } catch (e) {
+                localDarkMode = document.body.classList.contains('dark-mode');
+            }
+            if (localDarkMode && Telegram.WebApp.colorScheme !== 'dark') return;
+
             var params = Telegram.WebApp.themeParams || {};
             var root = document.documentElement;
             for (var key in params) {
@@ -129,25 +137,25 @@
     <!-- App Header -->
     <div class="appHeader bg-primary text-light">
         <div class="left">
-            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel" aria-label="{{ locales.en.menu_open_aria_label }}" data-i18n-attr="aria-label:menu_open_aria_label" aria-controls="sidebarPanel" aria-expanded="false">
+            <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel" aria-label="{{ t.menu_open_aria_label }}" data-i18n-attr="aria-label:menu_open_aria_label" aria-controls="sidebarPanel" aria-expanded="false">
                 <ion-icon name="menu-outline" aria-hidden="true"></ion-icon>
             </a>
         </div>
         <div class="pageTitle">
-            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="{{ locales.en.logo_alt }}" data-i18n-attr="alt:logo_alt" class="logo" width="143" height="24" loading="eager" decoding="async" style="height:24px;width:auto;max-width:160px;object-fit:contain;">
+            <img src="https://tonbankcard.com/images/logo-full-white.png" alt="{{ t.logo_alt }}" data-i18n-attr="alt:logo_alt" class="logo" width="143" height="24" loading="eager" decoding="async" style="height:24px;width:auto;max-width:160px;object-fit:contain;">
             <span id="tier-badge" class="tier-badge"></span>
         </div>
     </div>
     <!-- * App Header -->
 
     <!-- Tier-up celebration modal -->
-    <div id="tier-celebration-modal" class="tier-celebration-overlay" role="dialog" aria-modal="true" aria-label="{{ locales.en.tier_celebration_title | default('Tier unlocked') }}">
+    <div id="tier-celebration-modal" class="tier-celebration-overlay" role="dialog" aria-modal="true" aria-label="{{ t.tier_celebration_title | default('Tier unlocked') }}">
         <div class="tier-celebration-card">
             <span class="tier-celebration-icon" aria-hidden="true"></span>
             <div class="tier-celebration-title"></div>
             <div class="tier-celebration-sub"></div>
-            <button class="btn btn-primary tier-celebration-share" data-i18n="tier_share_btn">{{ locales.en.tier_share_btn | default('Share') }}</button>
-            <button class="btn tier-celebration-close" data-i18n="tier_close_btn">{{ locales.en.tier_close_btn | default('Close') }}</button>
+            <button class="btn btn-primary tier-celebration-share" data-i18n="tier_share_btn">{{ t.tier_share_btn | default('Share') }}</button>
+            <button class="btn tier-celebration-close" data-i18n="tier_close_btn">{{ t.tier_close_btn | default('Close') }}</button>
         </div>
     </div>
     <!-- * Tier-up celebration modal -->
@@ -158,36 +166,36 @@
         <div class="tier-progress-wrap">
             <span id="tier-progress-label" class="tier-progress-label"></span>
             <div class="progress">
-                <div id="tier-progress-bar" class="progress-bar tier-progress-bar-empty" role="progressbar" aria-label="{{ locales.en.tier_progress_aria | default('Tier progress') }}"></div>
+                <div id="tier-progress-bar" class="progress-bar tier-progress-bar-empty" role="progressbar" aria-label="{{ t.tier_progress_aria | default('Tier progress') }}"></div>
             </div>
         </div>
         <!-- * Tier progress bar -->
 
         <!-- App Bridge -->
         <div class="text-center mb-4">
-            <img src="assets/img/OTC.webp" alt="{{ locales.en.otc_img_alt }}" data-i18n-attr="alt:otc_img_alt" class="otc-img mx-auto" width="288" height="288" fetchpriority="high" decoding="async">
+            <img src="assets/img/OTC.webp" alt="{{ t.otc_img_alt }}" data-i18n-attr="alt:otc_img_alt" class="otc-img mx-auto" width="288" height="288" fetchpriority="high" decoding="async">
         </div>
-                    <h3 class="text-center">&nbsp;<span data-i18n="otc_heading">{{ locales.en.otc_heading }}</span></h3>
+                    <h3 class="text-center">&nbsp;<span data-i18n="otc_heading">{{ t.otc_heading }}</span></h3>
                     <p>
-                        &nbsp;<span data-i18n="otc_buy_text">{{ locales.en.otc_buy_text }}</span>
+                        &nbsp;<span data-i18n="otc_buy_text">{{ t.otc_buy_text }}</span>
                     </p>
                     <ul class="list-unstyled">
-                        <li>&nbsp;<span data-i18n="otc_point1">{{ locales.en.otc_point1 }}</span></li>
-                        <li>&nbsp;<span data-i18n="otc_point2">{{ locales.en.otc_point2 }}</span></li>
-                        <li>&nbsp;<span data-i18n="otc_point3">{{ locales.en.otc_point3 }}</span></li>
+                        <li>&nbsp;<span data-i18n="otc_point1">{{ t.otc_point1 }}</span></li>
+                        <li>&nbsp;<span data-i18n="otc_point2">{{ t.otc_point2 }}</span></li>
+                        <li>&nbsp;<span data-i18n="otc_point3">{{ t.otc_point3 }}</span></li>
                     </ul>
         <!-- Lazy-load placeholder — replaced by iframe on user interaction or idle -->
         <div id="iframe-placeholder" class="iframe-placeholder iframe-placeholder--medium">
             <img src="assets/img/loading-icon.webp" alt="" role="presentation" class="iframe-placeholder__icon">
-            <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button" data-i18n="open_exchange_btn">{{ locales.en.open_exchange_btn }}</button>
+            <button id="open-exchange-btn" class="btn btn-primary btn-lg" type="button" data-i18n="open_exchange_btn">{{ t.open_exchange_btn }}</button>
         </div>
         <script>
         (function() {
-            var BASE_IFRAME_SRC = 'https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=1000000&amountFiat&backgroundColor=f6fafd&darkMode=false&from=usdtton&horizontal=false&isFiat=false&lang={{ locales.en.otc_widget_lang }}&link_id={{ env.CHANGENOW_LINK_ID }}&locales=false&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false';
+            var BASE_IFRAME_SRC = 'https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=1000000&amountFiat&backgroundColor=f6fafd&darkMode=false&from=usdtton&horizontal=false&isFiat=false&lang={{ t.otc_widget_lang }}&link_id={{ env.CHANGENOW_LINK_ID }}&locales=false&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false';
             var STEPPER_SRC = 'https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js';
             var IFRAME_HEIGHT = '356px';
             var I18N_LANG_KEY = 'otc_widget_lang';
-            var FALLBACK_LANG = '{{ locales.en.otc_widget_lang }}';
+            var FALLBACK_LANG = '{{ t.otc_widget_lang }}';
             var idleTimer = null;
             var idleCallbackId = null;
             var interactionEvents = ['pointerdown', 'keydown', 'touchstart', 'wheel'];
@@ -212,7 +220,7 @@
                 var url = new URL(BASE_IFRAME_SRC, window.location.href);
                 var primaryColor = stripHash(cssVar('--tg-theme-button-color') || cssVar('--tg-theme-link-color') || '#1bb2da');
                 var backgroundColor = stripHash(cssVar('--tg-theme-bg-color') || '#f6fafd');
-                var colorScheme = cssVar('--tg-color-scheme') || (document.documentElement.className === 'dark' ? 'dark' : 'light');
+                var colorScheme = cssVar('--tg-color-scheme') || (document.body.classList.contains('dark-mode') || document.documentElement.className === 'dark' ? 'dark' : 'light');
 
                 url.searchParams.set('lang', widgetLang());
                 url.searchParams.set('primaryColor', primaryColor);
@@ -253,7 +261,7 @@
 
                 var iframe = document.createElement('iframe');
                 iframe.id = 'iframe-widget';
-                iframe.title = window.i18n && i18n.t ? i18n.t('iframe_otc_title', '{{ locales.en.iframe_otc_title }}') : '{{ locales.en.iframe_otc_title }}';
+                iframe.title = window.i18n && i18n.t ? i18n.t('iframe_otc_title', '{{ t.iframe_otc_title }}') : '{{ t.iframe_otc_title }}';
                 iframe.src = buildIframeSrc();
                 iframe.loading = 'lazy';
                 iframe.setAttribute('importance', 'high');
@@ -315,14 +323,14 @@
         <div class="text-center">
             <button id="send-to-chat-btn" class="btn btn-secondary btn-lg mt-2 mb-2"
                 data-send-to-chat-query-key="send_to_chat_query_otc"
-                data-send-to-chat-fallback-query="{{ locales.en.send_to_chat_query_otc }}"
+                data-send-to-chat-fallback-query="{{ t.send_to_chat_query_otc }}"
                 data-i18n="send_to_chat_btn"
                 onclick="sendToChatFromButton(this)">
-                {{ locales.en.send_to_chat_btn }}
+                {{ t.send_to_chat_btn }}
             </button>
         </div>
         <div class="text-center mb-2">
-            <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="{{ locales.en.cede_badge_alt }}" data-i18n-attr="alt:cede_badge_alt" loading="lazy" /></a>
+            <a href="https://ton.app/bridges/cede.store?id=2722" target="_blank" rel="noopener noreferrer"><img src="https://ton.app/a2/badge/topapp?appId=2722" alt="{{ t.cede_badge_alt }}" data-i18n-attr="alt:cede_badge_alt" loading="lazy" /></a>
         </div>
     </div>
     <!-- * App Capsule -->
@@ -332,44 +340,44 @@
     <!-- * App Bottom Menu -->
 
     <!-- App Sidebar -->
-    <div class="modal fade panelbox panelbox-left" id="sidebarPanel" tabindex="-1" role="dialog" aria-modal="true" aria-label="{{ locales.en.menu_sidebar_aria_label }}" data-i18n-attr="aria-label:menu_sidebar_aria_label">
+    <div class="modal fade panelbox panelbox-left" id="sidebarPanel" tabindex="-1" role="dialog" aria-modal="true" aria-label="{{ t.menu_sidebar_aria_label }}" data-i18n-attr="aria-label:menu_sidebar_aria_label">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-body p-0">
                     <!-- menu -->
-                    <div class="listview-title mt-1" data-i18n="menu_title">{{ locales.en.menu_title }}</div>
+                    <div class="listview-title mt-1" data-i18n="menu_title">{{ t.menu_title }}</div>
                     <ul class="listview flush transparent no-line image-listview">
                         <li>
-                            <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_bot');" class="item">
+                            <a href="https://t.me/tonbankcard_bot" class="item" id="support-link" target="_blank" rel="noopener noreferrer" data-telegram-link="support">
                                 <div class="icon-box bg-primary">
                                     <ion-icon name="chatbubble-outline"></ion-icon>
                                 </div>
                                 <div class="in" data-i18n="menu_support">
-                                    {{ locales.en.menu_support }}
+                                    {{ t.menu_support }}
                                 </div>
                             </a>
                         </li>
                     </ul>
                     <!-- community section -->
-                    <div class="listview-title mt-1" data-i18n="community_title">{{ locales.en.community_title }}</div>
+                    <div class="listview-title mt-1" data-i18n="community_title">{{ t.community_title }}</div>
                     <ul class="listview flush transparent no-line image-listview">
                         <li>
-                            <a href="javascript:Telegram.WebApp.openTelegramLink('{{ locales.en.community_group_link }}');" class="item" id="community-group-link">
+                            <a href="{{ t.community_group_link }}" class="item" id="community-group-link" target="_blank" rel="noopener noreferrer" data-telegram-link="community_group_link" data-i18n-attr="href:community_group_link">
                                 <div class="icon-box bg-secondary">
                                     <ion-icon name="people-circle-outline"></ion-icon>
                                 </div>
                                 <div class="in" data-i18n="community_group">
-                                    {{ locales.en.community_group }}
+                                    {{ t.community_group }}
                                 </div>
                             </a>
                         </li>
                         <li>
-                            <a href="javascript:Telegram.WebApp.openTelegramLink('{{ locales.en.community_chat_link }}');" class="item" id="community-chat-link">
+                            <a href="{{ t.community_chat_link }}" class="item" id="community-chat-link" target="_blank" rel="noopener noreferrer" data-telegram-link="community_chat_link" data-i18n-attr="href:community_chat_link">
                                 <div class="icon-box bg-secondary">
                                     <ion-icon name="chatbubbles-outline"></ion-icon>
                                 </div>
                                 <div class="in" data-i18n="community_chat">
-                                    {{ locales.en.community_chat }}
+                                    {{ t.community_chat }}
                                 </div>
                             </a>
                         </li>
@@ -385,20 +393,20 @@
     <div id="cookiesbox" class="offcanvas offcanvas-bottom cookies-box" tabindex="-1" data-bs-scroll="true"
         data-bs-backdrop="false" role="dialog" aria-labelledby="cookiesboxTitle" aria-modal="true">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="cookiesboxTitle" data-i18n="cookies_title">{{ locales.en.cookies_title }}</h5>
+            <h5 class="offcanvas-title" id="cookiesboxTitle" data-i18n="cookies_title">{{ t.cookies_title }}</h5>
         </div>
         <div class="offcanvas-body">
             <div class="mb-2">
-                <span data-i18n="cookies_body">{{ locales.en.cookies_body }}</span>
-                <a href="{{ t.privacy_link }}" class="text-secondary"><u data-i18n="cookies_learn_more">{{ locales.en.cookies_learn_more }}</u></a>
+                <span data-i18n="cookies_body">{{ t.cookies_body }}</span>
+                <a href="{{ t.privacy_link }}" class="text-secondary"><u data-i18n="cookies_learn_more">{{ t.cookies_learn_more }}</u></a>
             </div>
             <ul class="listview image-listview text inset no-line mb-2">
                 <li>
                     <div class="item">
                         <div class="in">
                             <div>
-                                <strong data-i18n="cookies_necessary_label">{{ locales.en.cookies_necessary_label }}</strong>
-                                <div class="text-muted cookie-desc" data-i18n="cookies_necessary_desc">{{ locales.en.cookies_necessary_desc }}</div>
+                                <strong data-i18n="cookies_necessary_label">{{ t.cookies_necessary_label }}</strong>
+                                <div class="text-muted cookie-desc" data-i18n="cookies_necessary_desc">{{ t.cookies_necessary_desc }}</div>
                             </div>
                             <div class="form-check form-switch ms-2">
                                 <input class="form-check-input" type="checkbox" id="consentNecessary" checked disabled>
@@ -411,8 +419,8 @@
                     <div class="item">
                         <div class="in">
                             <div>
-                                <strong data-i18n="cookies_analytics_label">{{ locales.en.cookies_analytics_label }}</strong>
-                                <div class="text-muted cookie-desc" data-i18n="cookies_analytics_desc">{{ locales.en.cookies_analytics_desc }}</div>
+                                <strong data-i18n="cookies_analytics_label">{{ t.cookies_analytics_label }}</strong>
+                                <div class="text-muted cookie-desc" data-i18n="cookies_analytics_desc">{{ t.cookies_analytics_desc }}</div>
                             </div>
                             <div class="form-check form-switch ms-2">
                                 <input class="form-check-input consent-analytics-toggle" type="checkbox" id="consentAnalytics">
@@ -425,8 +433,8 @@
                     <div class="item">
                         <div class="in">
                             <div>
-                                <strong data-i18n="cookies_marketing_label">{{ locales.en.cookies_marketing_label }}</strong>
-                                <div class="text-muted cookie-desc" data-i18n="cookies_marketing_desc">{{ locales.en.cookies_marketing_desc }}</div>
+                                <strong data-i18n="cookies_marketing_label">{{ t.cookies_marketing_label }}</strong>
+                                <div class="text-muted cookie-desc" data-i18n="cookies_marketing_desc">{{ t.cookies_marketing_desc }}</div>
                             </div>
                             <div class="form-check form-switch ms-2">
                                 <input class="form-check-input consent-marketing-toggle" type="checkbox" id="consentMarketing">
@@ -437,9 +445,9 @@
                 </li>
             </ul>
             <div class="buttons">
-                <a href="#" class="btn btn-primary btn-block accept-cookies accept-all-cookies mb-1" data-bs-dismiss="offcanvas" data-i18n="cookies_accept">{{ locales.en.cookies_accept }}</a>
-                <a href="#" class="btn btn-outline-primary btn-block accept-cookies accept-selected-cookies mb-1" data-bs-dismiss="offcanvas" data-i18n="cookies_accept_selected">{{ locales.en.cookies_accept_selected }}</a>
-                <a href="#" class="btn btn-link btn-block accept-cookies decline-optional-cookies" data-bs-dismiss="offcanvas" data-i18n="cookies_decline">{{ locales.en.cookies_decline }}</a>
+                <a href="#" class="btn btn-primary btn-block accept-cookies accept-all-cookies mb-1" data-bs-dismiss="offcanvas" data-i18n="cookies_accept">{{ t.cookies_accept }}</a>
+                <a href="#" class="btn btn-outline-primary btn-block accept-cookies accept-selected-cookies mb-1" data-bs-dismiss="offcanvas" data-i18n="cookies_accept_selected">{{ t.cookies_accept_selected }}</a>
+                <a href="#" class="btn btn-link btn-block accept-cookies decline-optional-cookies" data-bs-dismiss="offcanvas" data-i18n="cookies_decline">{{ t.cookies_decline }}</a>
             </div>
         </div>
     </div>
@@ -520,10 +528,10 @@
                 var groupLink = document.getElementById('community-group-link');
                 var chatLink = document.getElementById('community-chat-link');
                 if (groupLink && t.community_group_link) {
-                    groupLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_group_link + "');";
+                    groupLink.href = t.community_group_link;
                 }
                 if (chatLink && t.community_chat_link) {
-                    chatLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_chat_link + "');";
+                    chatLink.href = t.community_chat_link;
                 }
             });
 

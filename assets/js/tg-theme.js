@@ -53,11 +53,24 @@
         }
     }
 
+    function localDarkModeEnabled() {
+        try {
+            return window.localStorage.getItem('FinappDarkmode') === '1' ||
+                document.body.classList.contains('dark-mode');
+        }
+        catch (e) {
+            return document.body.classList.contains('dark-mode');
+        }
+    }
+
     function currentTheme() {
-        var colorScheme = tg.colorScheme === 'dark' ? 'dark' : 'light';
+        var forceDark = localDarkModeEnabled();
+        var colorScheme = forceDark ? 'dark' : (tg.colorScheme === 'dark' ? 'dark' : 'light');
         var params = {};
         copyThemeParams(fallbackThemeParams[colorScheme], params);
-        copyThemeParams(tg.themeParams || {}, params);
+        if (!forceDark || tg.colorScheme === 'dark') {
+            copyThemeParams(tg.themeParams || {}, params);
+        }
         return {
             colorScheme: colorScheme,
             params: params
@@ -119,5 +132,9 @@
     if (typeof tg.onEvent === 'function') {
         tg.onEvent('themeChanged', applyTheme);
     }
+    window.addEventListener('tonbridge:theme-preference-changed', applyTheme);
+    window.addEventListener('storage', function (event) {
+        if (event.key === 'FinappDarkmode') applyTheme();
+    });
     applyTheme();
 })();

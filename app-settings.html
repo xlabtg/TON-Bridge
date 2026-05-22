@@ -33,7 +33,7 @@
 <meta property="og:title" content="Settings · TON Bridge">
 <meta property="og:description" content="Manage your TON Bridge settings: theme, language, notifications, security, and leaderboard preferences.">
 <meta property="og:url" content="https://tonbankcard.com/bridge/TMA/00.html/app-settings.html">
-<meta property="og:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/app-settings.png?v=e435aed">
+<meta property="og:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/app-settings.png?v=4081bcc">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Settings · TON Bridge">
@@ -42,7 +42,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Settings · TON Bridge">
 <meta name="twitter:description" content="Manage your TON Bridge settings: theme, language, notifications, security, and leaderboard preferences.">
-<meta name="twitter:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/app-settings.png?v=e435aed">
+<meta name="twitter:image" content="https://tonbankcard.com/bridge/TMA/00.html/assets/img/og/app-settings.png?v=4081bcc">
 <meta name="twitter:image:alt" content="Settings · TON Bridge">
 
     <meta name="keywords" content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
@@ -536,7 +536,7 @@
 <div class="listview-title mt-1" data-i18n="menu_title">Menu</div>
 <ul class="listview flush transparent no-line image-listview">
     <li>
-        <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_bot');" class="item">
+        <a href="https://t.me/tonbankcard_bot" class="item" id="support-link" target="_blank" rel="noopener noreferrer" data-telegram-link="support">
             <div class="icon-box bg-primary">
                 <ion-icon name="chatbubble-outline"></ion-icon>
             </div>
@@ -551,7 +551,7 @@
 <div class="listview-title mt-1" data-i18n="community_title">Community</div>
 <ul class="listview flush transparent no-line image-listview">
     <li>
-        <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard');" class="item" id="community-group-link">
+        <a href="https://t.me/tonbankcard" class="item" id="community-group-link" target="_blank" rel="noopener noreferrer" data-telegram-link="community_group_link" data-i18n-attr="href:community_group_link">
             <div class="icon-box bg-secondary">
                 <ion-icon name="people-circle-outline"></ion-icon>
             </div>
@@ -561,7 +561,7 @@
         </a>
     </li>
     <li>
-        <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/tonbankcard_chat');" class="item" id="community-chat-link">
+        <a href="https://t.me/tonbankcard_chat" class="item" id="community-chat-link" target="_blank" rel="noopener noreferrer" data-telegram-link="community_chat_link" data-i18n-attr="href:community_chat_link">
             <div class="icon-box bg-secondary">
                 <ion-icon name="chatbubbles-outline"></ion-icon>
             </div>
@@ -616,10 +616,10 @@
             var groupLink = document.getElementById('community-group-link');
             var chatLink = document.getElementById('community-chat-link');
             if (groupLink && t.community_group_link) {
-                groupLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_group_link + "');";
+                groupLink.href = t.community_group_link;
             }
             if (chatLink && t.community_chat_link) {
-                chatLink.href = "javascript:Telegram.WebApp.openTelegramLink('" + t.community_chat_link + "');";
+                chatLink.href = t.community_chat_link;
             }
         });
 

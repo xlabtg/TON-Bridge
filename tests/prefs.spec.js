@@ -41,6 +41,25 @@ async function loadPrefsModule(page, cloudStorageAvailable = true) {
   await openPrefsTestPage(page);
 }
 
+async function loadPrefsModuleWithHangingCloudStorage(page) {
+  await page.addInitScript(() => {
+    localStorage.setItem('pref:lang', 'en');
+    window.__prefsCloudStorageTimeoutMs = 50;
+    window.Telegram = {
+      WebApp: {
+        isVersionAtLeast() { return true; },
+        CloudStorage: {
+          setItem() {},
+          getItem() {},
+          removeItems() {},
+        },
+      },
+    };
+  });
+  await page.addInitScript({ path: resolve(__dirname, '..', 'assets', 'js', 'prefs.js') });
+  await openPrefsTestPage(page);
+}
+
 test.describe('prefs module — CloudStorage available', () => {
   test('set and get a preference via CloudStorage', async ({ page }) => {
     await loadPrefsModule(page, true);
@@ -159,6 +178,22 @@ test.describe('prefs module — CloudStorage available', () => {
     expect(langInLS).toBe('ru');
     // CloudStorage should NOT have been written with old value
     expect(langInCloud).toBeUndefined();
+  });
+
+  test('falls back to localStorage when CloudStorage callbacks do not return', async ({ page }) => {
+    await loadPrefsModuleWithHangingCloudStorage(page);
+
+    const result = await page.evaluate(async () => {
+      await window.prefs.init();
+      await window.prefs.set('pref:lang', 'ru');
+      return {
+        value: await window.prefs.get('pref:lang'),
+        localValue: localStorage.getItem('pref:lang'),
+      };
+    });
+
+    expect(result.value).toBe('ru');
+    expect(result.localValue).toBe('ru');
   });
 });
 

@@ -13,12 +13,31 @@
 
     var DEFAULT_API_BASE = 'https://ton-bridge-auth.YOUR_ACCOUNT.workers.dev';
 
+    function publicConfig() {
+        return window.__TON_BRIDGE_CONFIG__ || {};
+    }
+
+    function parseIds(raw) {
+        if (Array.isArray(raw)) {
+            return raw.map(String).map(function (s) { return s.trim(); }).filter(function (s) {
+                return /^\d+$/.test(s);
+            });
+        }
+        if (!raw || typeof raw !== 'string') return [];
+        return raw.split(',')
+            .map(function (s) { return s.trim(); })
+            .filter(function (s) { return /^\d+$/.test(s); });
+    }
+
     function getApiBase() {
         if (typeof window.__adminApiBase === 'string' && window.__adminApiBase) {
             return window.__adminApiBase;
         }
         var meta = document.querySelector('meta[name="admin-api-base"]');
         if (meta && meta.content) return meta.content;
+        var config = publicConfig();
+        if (config.adminApiBase) return String(config.adminApiBase);
+        if (config.workerBaseUrl) return String(config.workerBaseUrl);
         if (window.location && window.location.hostname === 'localhost') {
             return 'http://localhost:8787';
         }
@@ -30,10 +49,14 @@
     // ---------------------------------------------------------------------------
 
     function getAllowedIds() {
-        if (Array.isArray(window.__adminIds)) return window.__adminIds;
+        if (Array.isArray(window.__adminIds)) return parseIds(window.__adminIds);
+        var config = publicConfig();
+        if (Array.isArray(config.adminTelegramIds) || typeof config.adminTelegramIds === 'string') {
+            return parseIds(config.adminTelegramIds);
+        }
         var meta = document.querySelector('meta[name="admin-ids"]');
         if (!meta) return [];
-        return meta.content.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        return parseIds(meta.content);
     }
 
     function getCurrentUserId() {

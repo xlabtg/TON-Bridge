@@ -447,7 +447,7 @@ function tonbridge_installer_apply_static_config(string $rootDir, array $config)
     $rootDir = rtrim($rootDir, DIRECTORY_SEPARATOR);
     $files = [];
 
-    foreach (['/*.html', '/dist/*.html', '/assets/js/*.js', '/dist/assets/js/*.js'] as $pattern) {
+    foreach (['/*.html', '/*/*.html', '/dist/*.html', '/dist/*/*.html', '/assets/js/*.js', '/dist/assets/js/*.js'] as $pattern) {
         foreach (glob($rootDir . $pattern) ?: [] as $file) {
             if (is_file($file) && basename($file) !== 'tonbridge-config.js') {
                 $files[] = $file;

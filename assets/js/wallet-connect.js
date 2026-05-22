@@ -94,6 +94,23 @@
         }
     }
 
+    function publicConfig() {
+        return window.__TON_BRIDGE_CONFIG__ || {};
+    }
+
+    function resolveManifestUrl(manifestUrl) {
+        var configured = publicConfig().tonConnectManifestUrl;
+        var raw = configured || manifestUrl || '';
+        raw = String(raw).trim();
+        if (!raw) return raw;
+
+        try {
+            return new URL(raw, window.location.href).toString();
+        } catch (_) {
+            return raw;
+        }
+    }
+
     function notifyPayoutLinked(addr) {
         window.dispatchEvent(new CustomEvent('tbc:wallet-linked', { detail: { address: addr } }));
     }
@@ -209,7 +226,7 @@
         /** Call once per page after the DOM is ready. */
         init: function (manifestUrl, options) {
             options = options || {};
-            _manifestUrl = manifestUrl;
+            _manifestUrl = resolveManifestUrl(manifestUrl);
             _sdkUrl = options.sdkUrl || _sdkUrl;
 
             if (!options.lazy) {

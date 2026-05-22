@@ -58,15 +58,20 @@ const FIXTURES = {
  * blocks real network requests to test hostnames; patching fetch before
  * admin.js runs sidesteps the CSP entirely.
  */
-async function mockTelegramAdmin(page, userId, adminIds) {
+async function mockTelegramAdmin(page, userId, adminIds, options = {}) {
   await page.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({
     status: 200,
     contentType: 'application/javascript',
     body: '/* mocked */',
   }));
 
-  await page.addInitScript(({ uid, ids, fixtures }) => {
-    window.__adminIds = ids || [];
+  await page.addInitScript(({ uid, ids, fixtures, config }) => {
+    if (ids !== undefined) {
+      window.__adminIds = ids || [];
+    }
+    if (config) {
+      window.__TON_BRIDGE_CONFIG__ = config;
+    }
     window.__adminInitData = uid ? 'user=%7B%22id%22%3A' + uid + '%7D' : '';
 
     const backButton = {
@@ -138,7 +143,7 @@ async function mockTelegramAdmin(page, userId, adminIds) {
       }
       return Promise.resolve(new Response('Not found', { status: 404 }));
     };
-  }, { uid: userId || null, ids: adminIds, fixtures: FIXTURES });
+  }, { uid: userId || null, ids: adminIds, fixtures: FIXTURES, config: options.config || null });
 }
 
 test.describe('Admin page — access control', () => {
@@ -165,6 +170,18 @@ test.describe('Admin page — access control', () => {
 
   test('shows admin content when user ID matches allow-list', async ({ page }) => {
     await mockTelegramAdmin(page, '12345', ['12345', '67890']);
+    await page.goto(distUrl('admin/index.html'));
+    await expect(page.locator('#admin-content')).toBeVisible();
+    await expect(page.locator('#access-denied')).toBeHidden();
+  });
+
+  test('uses installer browser config allow-list when static meta still has placeholder', async ({ page }) => {
+    await mockTelegramAdmin(page, '12345', undefined, {
+      config: {
+        adminTelegramIds: ['12345', '67890'],
+        workerBaseUrl: 'https://worker.example.com',
+      },
+    });
     await page.goto(distUrl('admin/index.html'));
     await expect(page.locator('#admin-content')).toBeVisible();
     await expect(page.locator('#access-denied')).toBeHidden();

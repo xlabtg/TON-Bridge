@@ -198,9 +198,9 @@
 
     function setLang(lang) {
         lang = resolveSupported(lang) || defaultLang();
-        return writeStoredLang(lang).then(function () {
-            return loadAndApply(lang);
-        });
+        var stored = writeStoredLang(lang);
+        stored.catch(function () {});
+        return loadAndApply(lang);
     }
 
     function init() {

@@ -716,12 +716,15 @@ function _loadAnalytics(consent) {
 var _existingConsent = _readConsent();
 _loadAnalytics(_existingConsent);
 
-// Cookies Box
+// Consent modal
 if (document.querySelector("#cookiesbox") === null) {
-    // No banner on this page.
+    // No consent dialog on this page.
 }
 else {
-    var elCookiesBox = new bootstrap.Offcanvas(document.getElementById('cookiesbox'));
+    var elCookiesBox = new bootstrap.Modal(document.getElementById('cookiesbox'), {
+        backdrop: false,
+        keyboard: false
+    });
 
     function CookiesBox(time) {
         if (_readConsent() !== null) {
@@ -729,18 +732,15 @@ else {
             return;
         }
         if (time) {
-            setTimeout(() => { elCookiesBox.toggle(); }, time);
+            setTimeout(() => { elCookiesBox.show(); }, time);
         } else {
-            elCookiesBox.toggle();
+            elCookiesBox.show();
         }
     }
 
-    // Keyboard: Esc closes the offcanvas (Bootstrap handles this natively via
-    // data-bs-keyboard="true" which is the default, so no extra code needed).
-
     document.querySelectorAll(".accept-all-cookies").forEach(function(el) {
         el.addEventListener("click", function() {
-            var consent = _saveConsent(true, false);
+            var consent = _saveConsent(true, true);
             _loadAnalytics(consent);
         });
     });
@@ -763,7 +763,7 @@ else {
         });
     });
 
-    // Show the consent banner automatically on first visit (1.5 s delay)
+    // Show the consent dialog automatically on first visit (1.5 s delay)
     document.addEventListener('DOMContentLoaded', function() {
         CookiesBox(1500);
     });

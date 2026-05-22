@@ -300,6 +300,16 @@ body.dark-mode {
             }
         }
     }
+    .offcanvas {
+        color: $darkmode_colorHeading;
+        background: $darkmode_contentBackground;
+        border-color: $darkmode_colorLine;
+    }
+    #address-book-action-sheet {
+        .listview {
+            background: $darkmode_contentBackground;
+        }
+    }
     .action-button-list {
         > li {
             .btn {

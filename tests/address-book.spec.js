@@ -26,6 +26,12 @@ async function mockTelegramWebApp(page) {
 
   await page.addInitScript(() => {
     const _store = {};
+    window.localStorage.setItem('FinappConsent', JSON.stringify({
+      version: 1,
+      ts: Date.now(),
+      analytics: false,
+      marketing: false,
+    }));
     const cloudStorage = {
       _store,
       getItem(key, cb) {
@@ -142,6 +148,7 @@ test.describe('Address book chip list', () => {
       document.querySelectorAll('.address-book-chip').length
     );
     expect(chipsCount).toBeGreaterThan(0);
+    await expect(page.locator('#address-book-chips')).toBeVisible();
   });
 
   test('chip container is present in DOM on widget page', async ({ page }) => {
@@ -175,6 +182,55 @@ test.describe('Address book action sheet', () => {
     await expect(page.locator('[data-ab-action="edit"]')).toBeAttached();
     await expect(page.locator('[data-ab-action="pin"]')).toBeAttached();
     await expect(page.locator('[data-ab-action="remove"]')).toBeAttached();
+  });
+
+  for (const file of ['index.html', 'index2.html']) {
+    test(`action sheet stays hidden on initial load and while sidebar is open: ${file}`, async ({ page }) => {
+      await mockTelegramWebApp(page);
+      await page.setViewportSize({ width: 1360, height: 768 });
+      await page.goto(distUrl(file));
+
+      const sheet = page.locator('#address-book-action-sheet');
+      await expect(sheet).toBeHidden();
+
+      await page.locator('[data-bs-target="#sidebarPanel"]').click();
+      await expect(page.locator('#sidebarPanel')).toHaveClass(/show/);
+      await expect(sheet).toBeHidden();
+    });
+  }
+
+  test('action sheet opens as a fixed bottom sheet without covering the bottom nav state', async ({ page }) => {
+    await mockTelegramWebApp(page);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(distUrl('index.html'));
+
+    await page.evaluate((addr) => AddressBook.save('ton', addr), VALID_TON_ADDR);
+    await page.waitForTimeout(200);
+    await page.locator('.address-book-chip').dispatchEvent('contextmenu');
+
+    const sheet = page.locator('#address-book-action-sheet');
+    await expect(sheet).toBeVisible();
+    await expect.poll(() => sheet.evaluate(el => {
+      const rect = el.getBoundingClientRect();
+      return Math.abs(Math.round(window.innerHeight - rect.bottom));
+    })).toBeLessThanOrEqual(1);
+
+    const layout = await sheet.evaluate(el => {
+      const rect = el.getBoundingClientRect();
+      const navRect = document.querySelector('.appBottomMenu').getBoundingClientRect();
+      const style = window.getComputedStyle(el);
+      return {
+        position: style.position,
+        bottomGap: Math.round(window.innerHeight - rect.bottom),
+        navTop: Math.round(navRect.top),
+        sheetTop: Math.round(rect.top),
+        sheetBottom: Math.round(rect.bottom),
+      };
+    });
+    expect(layout.position).toBe('fixed');
+    expect(Math.abs(layout.bottomGap)).toBeLessThanOrEqual(1);
+    expect(layout.sheetTop).toBeGreaterThan(0);
+    expect(layout.sheetBottom).toBeGreaterThan(layout.navTop);
   });
 });
 

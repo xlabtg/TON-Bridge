@@ -17,6 +17,17 @@ async function waitForDistFile(file) {
   await expect.poll(() => existsSync(distPath(file)), { timeout: 30000 }).toBe(true);
 }
 
+async function seedStoredConsent(page) {
+  await page.addInitScript(() => {
+    localStorage.setItem('FinappConsent', JSON.stringify({
+      version: 1,
+      analytics: false,
+      marketing: false,
+      ts: Date.now(),
+    }));
+  });
+}
+
 async function mockTelegramWebApp(page, options = {}) {
   const userId = options.userId || '12345';
   const adminIds = options.adminIds || ['12345'];
@@ -92,6 +103,7 @@ async function mockTelegramWebApp(page, options = {}) {
 test.describe('Layout regressions', () => {
   test('left sidebar does not expose hidden offcanvas panels', async ({ page }) => {
     await mockTelegramWebApp(page);
+    await seedStoredConsent(page);
     await page.setViewportSize({ width: 1360, height: 768 });
     await waitForDistFile('index-ru.html');
     await page.goto(distUrl('index-ru.html'));
@@ -161,5 +173,94 @@ test.describe('Layout regressions', () => {
       return Math.abs((rect.left + rect.width / 2) - (window.innerWidth / 2));
     });
     expect(centerDelta).toBeLessThanOrEqual(1);
+  });
+});
+
+test.describe('Privacy consent modal for issue #144', () => {
+  test('desktop first visit shows centered popup and stores the selected consent', async ({ page }) => {
+    await mockTelegramWebApp(page);
+    await page.setViewportSize({ width: 1360, height: 768 });
+    await page.goto(distUrl('index-ru.html'));
+
+    const popup = page.locator('#cookiesbox');
+    await expect(popup).toHaveClass(/modal/);
+    await expect(popup).toHaveClass(/show/, { timeout: 3500 });
+
+    const geometry = await page.locator('#cookiesbox .modal-content').evaluate(content => {
+      const rect = content.getBoundingClientRect();
+      return {
+        left: rect.left,
+        right: rect.right,
+        top: rect.top,
+        bottom: rect.bottom,
+        width: rect.width,
+        centerDelta: Math.abs((rect.left + rect.width / 2) - window.innerWidth / 2),
+      };
+    });
+    expect(geometry.width).toBeLessThanOrEqual(620);
+    expect(geometry.centerDelta).toBeLessThanOrEqual(1);
+    expect(geometry.left).toBeGreaterThanOrEqual(16);
+    expect(geometry.right).toBeLessThanOrEqual(1344);
+    expect(geometry.top).toBeGreaterThanOrEqual(16);
+    expect(geometry.bottom).toBeLessThanOrEqual(752);
+
+    await page.locator('.accept-selected-cookies').click();
+    await expect(popup).not.toHaveClass(/show/);
+
+    const storedConsent = await page.evaluate(() => JSON.parse(localStorage.getItem('FinappConsent')));
+    expect(storedConsent).toMatchObject({ version: 1, analytics: false, marketing: false });
+
+    await page.reload();
+    await page.waitForTimeout(1800);
+    await expect(page.locator('#cookiesbox')).not.toHaveClass(/show/);
+  });
+
+  test('mobile popup keeps consent controls and actions inside the viewport', async ({ page }) => {
+    await mockTelegramWebApp(page);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(distUrl('index.html'));
+
+    const popup = page.locator('#cookiesbox');
+    await expect(popup).toHaveClass(/modal/);
+    await expect(popup).toHaveClass(/show/, { timeout: 3500 });
+
+    const popupBounds = await page.locator('#cookiesbox .modal-content').evaluate(content => {
+      const rect = content.getBoundingClientRect();
+      return {
+        left: rect.left,
+        right: rect.right,
+        top: rect.top,
+        bottom: rect.bottom,
+      };
+    });
+    expect(popupBounds.left).toBeGreaterThanOrEqual(8);
+    expect(popupBounds.right).toBeLessThanOrEqual(382);
+    expect(popupBounds.top).toBeGreaterThanOrEqual(8);
+    expect(popupBounds.bottom).toBeLessThanOrEqual(836);
+
+    const overflowingControls = await page.locator('#cookiesbox .form-switch .form-check-label')
+      .evaluateAll(labels => labels.map(label => {
+        const rect = label.getBoundingClientRect();
+        return {
+          left: rect.left,
+          right: rect.right,
+          top: rect.top,
+          bottom: rect.bottom,
+          viewportWidth: window.innerWidth,
+          viewportHeight: window.innerHeight,
+        };
+      }).filter(rect => (
+        rect.left < 0 ||
+        rect.right > rect.viewportWidth ||
+        rect.top < 0 ||
+        rect.bottom > rect.viewportHeight
+      )));
+    expect(overflowingControls).toEqual([]);
+
+    const actionOverflow = await page.locator('#cookiesbox .buttons').evaluate(buttons => {
+      const rect = buttons.getBoundingClientRect();
+      return rect.left < 0 || rect.right > window.innerWidth || rect.top < 0 || rect.bottom > window.innerHeight;
+    });
+    expect(actionOverflow).toBe(false);
   });
 });

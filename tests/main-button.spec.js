@@ -17,7 +17,7 @@ async function mockTelegramWebApp(page, options = {}) {
     body: '/* mocked */',
   }));
 
-  await page.addInitScript(({ languageCode, cloudStorage }) => {
+  await page.addInitScript(({ languageCode, cloudStorage, cloudStorageHangs, prefsTimeoutMs }) => {
     const mainButton = {
       _text: '',
       _visible: false,
@@ -29,6 +29,9 @@ async function mockTelegramWebApp(page, options = {}) {
       offClick(fn) { this._handlers = this._handlers.filter(h => h !== fn); },
     };
     const cloudStore = cloudStorage ? { ...cloudStorage } : null;
+    if (prefsTimeoutMs) {
+      window.__prefsCloudStorageTimeoutMs = prefsTimeoutMs;
+    }
     window.__tgMainButton = mainButton;
     window.__tgCloudStorageStore = cloudStore;
     window.Telegram = {
@@ -42,7 +45,14 @@ async function mockTelegramWebApp(page, options = {}) {
         initDataUnsafe: languageCode ? { user: { language_code: languageCode } } : {},
       },
     };
-    if (cloudStore) {
+    if (cloudStorageHangs) {
+      window.Telegram.WebApp.CloudStorage = {
+        setItem() {},
+        getItem() {},
+        removeItems() {},
+      };
+      window.Telegram.WebApp.isVersionAtLeast = () => true;
+    } else if (cloudStore) {
       window.Telegram.WebApp.CloudStorage = {
         setItem(key, value, cb) { cloudStore[key] = value; cb && cb(null); },
         getItem(key, cb) { cb && cb(null, cloudStore[key] || ''); },
@@ -273,6 +283,28 @@ test.describe('Runtime i18n', () => {
 
     const navText = await page.locator('[data-i18n="nav_bridge"]').first().textContent();
     expect(navText).toBe('Мост');
+  });
+
+  test('language switch persists through reload when CloudStorage callbacks hang', async ({ page }) => {
+    await mockTelegramWebApp(page, {
+      cloudStorageHangs: true,
+      prefsTimeoutMs: 50,
+    });
+
+    await page.goto(distUrl('app-settings.html'));
+    await page.waitForFunction(() => document.documentElement.lang === 'en');
+
+    await page.evaluate(() => {
+      var sw = document.getElementById('languageSwitch');
+      sw.checked = true;
+      sw.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    await page.waitForFunction(() => document.documentElement.lang === 'ru');
+    expect(await page.evaluate(() => localStorage.getItem('pref:lang'))).toBe('ru');
+
+    await page.reload();
+    await page.waitForFunction(() => document.documentElement.lang === 'ru');
+    await expect(page.locator('#languageSwitch')).toBeChecked();
   });
 
   test('language switch updates lazy placeholder and ChangeNOW iframe lang parameter', async ({ page }) => {

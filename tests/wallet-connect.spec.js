@@ -14,7 +14,7 @@ const TEST_BALANCE_NANO = '5000000000'; // 5 TON
 /**
  * Sets up mocks for all external dependencies.
  */
-async function setupMocks(page) {
+async function setupMocks(page, options = {}) {
     await page.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({
         status: 200, contentType: 'application/javascript', body: '/* mocked */',
     }));
@@ -57,7 +57,10 @@ async function setupMocks(page) {
         body: JSON.stringify({ ok: true, result: { balance: TEST_BALANCE_NANO } }),
     }));
 
-    await page.addInitScript(() => {
+    await page.addInitScript(({ config }) => {
+        if (config) {
+            window.__TON_BRIDGE_CONFIG__ = config;
+        }
         const mainButton = {
             _text: '', _visible: false, _handlers: [],
             setText(t) { this._text = t; },
@@ -88,7 +91,7 @@ async function setupMocks(page) {
         };
 
         window.__tcStatusChange = null;
-    });
+    }, { config: options.config || null });
 }
 
 /** Simulate a wallet connecting and wait for the UI to update. */
@@ -270,7 +273,24 @@ test.describe('Wallet Connect — widget pages', () => {
 
         await expect.poll(() => page.evaluate(() => window.__tcOpenModalCalled === true)).toBe(true);
         const sdkOpts = await page.evaluate(() => window.__tcInstance && window.__tcInstance._opts);
-        expect(sdkOpts).toEqual({ manifestUrl: 'tonconnect-manifest.json' });
+        expect(sdkOpts.manifestUrl).toMatch(/tonconnect-manifest\.json$/);
+    });
+
+    test('Settings EN: uses configured absolute TonConnect manifest URL', async ({ page }) => {
+        await setupMocks(page, {
+            config: {
+                tonConnectManifestUrl: 'https://example.com/bridge/tonconnect-manifest.json',
+            },
+        });
+        await page.goto(distUrl('app-settings.html'));
+
+        await page.locator('#wallet-settings-btn').click();
+
+        await expect.poll(() => page.evaluate(() => window.__tcOpenModalCalled === true)).toBe(true);
+        const sdkOpts = await page.evaluate(() => window.__tcInstance && window.__tcInstance._opts);
+        expect(sdkOpts).toEqual({
+            manifestUrl: 'https://example.com/bridge/tonconnect-manifest.json',
+        });
     });
 
     test('Settings EN: connected wallet can be saved as payout address', async ({ page }) => {

@@ -50,6 +50,8 @@ test.describe('Issue #152 page cleanup', () => {
           expect(source, `${label} should keep the Send to chat button`).toContain('id="send-to-chat-btn"');
           expect(source, `${label} should keep the page-specific send query`).toContain(group.actionQueryKey);
           expect(source, `${label} should keep the Cede badge`).toContain('ton.app/a2/badge/topapp');
+          expect(source, `${label} should reserve space for the Cede badge`).toMatch(/<img\b[^>]*src="https:\/\/ton\.app\/a2\/badge\/topapp\?appId=2722"[^>]*\bwidth="136"[^>]*\bheight="72"/);
+          expect(source, `${label} should reserve space for the loading placeholder icon`).toMatch(/<img\b[^>]*src="assets\/img\/loading-icon\.webp"[^>]*class="iframe-placeholder__icon"[^>]*\bwidth="64"[^>]*\bheight="64"/);
         }
       }
     });

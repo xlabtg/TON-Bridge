@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////
 $bodyBackground: #EDEDF5;
 $colorPrimary:   #6236FF;
+$colorSecondary: #8494A8;
 $colorHeading:   #27173E;
 $colorLine:      #DCDCE9;
 $safeBottom:     env(safe-area-inset-bottom);
@@ -40,6 +41,8 @@ a{color:$colorPrimary;outline:0 !important;text-decoration:none}
 // between the critical-CSS-only paint and the async style.css paint.
 ////////////////////////////////////////////////////
 h1,h2,h3,h4,h5,h6{color:$colorHeading;margin:0 0 10px 0}
+.mt-2{margin-top:16px !important}
+.mb-2{margin-bottom:16px !important}
 .mb-4{margin-bottom:32px !important}
 .list-unstyled{margin:0;padding:0;list-style:none}
 
@@ -155,6 +158,95 @@ h1,h2,h3,h4,h5,h6{color:$colorHeading;margin:0 0 10px 0}
 .tier-progress-wrap{
   padding:12px 16px 4px;
   min-height:32px;
+}
+.is-hidden,
+.address-book-chips-wrap--hidden{display:none}
+
+.btn{
+  height:36px;
+  padding:3px 18px;
+  font-size:13px;
+  line-height:1.2em;
+  font-weight:500;
+  box-shadow:none !important;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none !important;
+  border-radius:10px;
+  border-width:2px;
+}
+.btn-lg{
+  height:52px;
+  padding:3px 24px;
+  font-size:15px;
+}
+.btn-primary{
+  background:$colorPrimary !important;
+  border-color:$colorPrimary !important;
+  color:#fff !important;
+}
+.btn-secondary{
+  background:$colorSecondary !important;
+  border-color:$colorSecondary !important;
+  color:#fff !important;
+}
+
+.iframe-placeholder{
+  width:100%;
+  aspect-ratio:auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  background:#f6fafd;
+  border-radius:8px;
+}
+.iframe-placeholder--tall{height:450px}
+.iframe-placeholder--medium{height:356px}
+.iframe-placeholder__icon{
+  width:64px;
+  height:64px;
+  opacity:.6;
+}
+
+.feature-icon-md{
+  font-size:64px;
+  display:block;
+  line-height:1;
+}
+.info-action-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+}
+.exchange-action-stack{
+  width:100%;
+  max-width:640px;
+  margin:16px auto 24px;
+  padding:0 16px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  text-align:center;
+  img{
+    max-width:100%;
+    height:auto;
+  }
+  .btn{
+    max-width:100%;
+    white-space:normal;
+  }
+  .info-action-row{
+    width:100%;
+    flex-wrap:wrap;
+    margin-top:8px !important;
+    margin-bottom:8px !important;
+  }
 }
 ////////////////////////////////////////////////////
 // App Bottom Menu

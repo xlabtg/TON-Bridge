@@ -83,6 +83,9 @@ test.describe('Critical CSS and deferred stylesheet', () => {
       expect(css).toContain('.appHeader');
       expect(css).toContain('#appCapsule');
       expect(css).toContain('.intro-img');
+      expect(css).toContain('.is-hidden');
+      expect(css).toContain('.iframe-placeholder');
+      expect(css).toContain('.exchange-action-stack');
       expect(css).toContain('.appBottomMenu');
     });
 

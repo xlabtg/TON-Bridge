@@ -1,11 +1,20 @@
 import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'url';
 import { resolve, dirname } from 'path';
+import { existsSync } from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function distUrl(file) {
   return 'file://' + resolve(__dirname, '..', 'dist', file);
+}
+
+function distPath(file) {
+  return resolve(__dirname, '..', 'dist', file);
+}
+
+async function waitForDistFile(file) {
+  await expect.poll(() => existsSync(distPath(file)), { timeout: 30000 }).toBe(true);
 }
 
 async function mockTelegramWebApp(page, options = {}) {
@@ -80,7 +89,35 @@ async function mockTelegramWebApp(page, options = {}) {
   }, { userId, adminIds });
 }
 
-test.describe('Layout regressions for issue #140 follow-up', () => {
+test.describe('Layout regressions', () => {
+  test('left sidebar does not expose hidden offcanvas panels', async ({ page }) => {
+    await mockTelegramWebApp(page);
+    await page.setViewportSize({ width: 1360, height: 768 });
+    await waitForDistFile('index-ru.html');
+    await page.goto(distUrl('index-ru.html'));
+
+    await expect(page.locator('#address-book-action-sheet')).toBeHidden();
+    await expect(page.locator('#cookiesbox')).toBeHidden();
+
+    await page.locator('[data-bs-target="#sidebarPanel"]').click();
+    await expect(page.locator('#sidebarPanel')).toHaveClass(/show/);
+    await expect(page.locator('#support-link')).toBeVisible();
+
+    await expect(page.locator('#address-book-action-sheet')).toBeHidden();
+    await expect(page.locator('#cookiesbox')).toBeHidden();
+
+    const layout = await page.evaluate(() => {
+      const sidebar = document.querySelector('#sidebarPanel .modal-content').getBoundingClientRect();
+      return {
+        sidebarLeft: sidebar.left,
+        sidebarRight: sidebar.right,
+      };
+    });
+
+    expect(layout.sidebarLeft).toBeGreaterThanOrEqual(0);
+    expect(layout.sidebarRight).toBeLessThanOrEqual(300);
+  });
+
   test('mobile RU settings keeps switches and payout actions inside the cards', async ({ page }) => {
     await mockTelegramWebApp(page);
     await page.setViewportSize({ width: 390, height: 844 });

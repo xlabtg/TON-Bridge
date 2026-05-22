@@ -25,6 +25,13 @@ async function mockTelegramWebApp(page, initialTheme, initialColorScheme = 'ligh
   }));
 
   await page.addInitScript(({ initialTheme, initialColorScheme }) => {
+    localStorage.setItem('FinappConsent', JSON.stringify({
+      version: 1,
+      analytics: false,
+      marketing: false,
+      ts: Date.now(),
+    }));
+
     const eventHandlers = {};
     const mainButton = {
       _text: '',

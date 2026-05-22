@@ -920,6 +920,8 @@ body.dark-mode {
     }
 
     .cookies-box {
-        background: lighten($darkmode_contentBackground, 5%);
+        .modal-content {
+            background: lighten($darkmode_contentBackground, 5%);
+        }
     }
 }

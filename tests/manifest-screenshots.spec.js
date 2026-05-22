@@ -42,6 +42,13 @@ async function mockTelegramWebApp(page, {
   }));
 
   await page.addInitScript(({ colorScheme, themeParams }) => {
+    localStorage.setItem('FinappConsent', JSON.stringify({
+      version: 1,
+      analytics: false,
+      marketing: false,
+      ts: Date.now(),
+    }));
+
     window.Telegram = {
       WebApp: {
         themeParams: { ...themeParams },

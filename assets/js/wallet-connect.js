@@ -13,6 +13,8 @@
     var _sdkUrl = null;
     var _sdkLoading = null;
     var _listeners = [];         // callbacks registered by page code
+    var _lastState = null;
+    var _statusSeq = 0;
 
     // ---------- helpers ----------
 
@@ -89,8 +91,29 @@
     }
 
     function notifyListeners(state) {
+        _lastState = state;
         for (var i = 0; i < _listeners.length; i++) {
             try { _listeners[i](state); } catch (_) {}
+        }
+    }
+
+    function handleWalletStatus(wallet) {
+        var seq = ++_statusSeq;
+
+        if (wallet) {
+            var addr = wallet.account && wallet.account.address;
+            saveAddress(addr);
+            if (addr) {
+                fetchBalance(addr, function (bal) {
+                    if (seq !== _statusSeq) return;
+                    notifyListeners({ connected: true, address: addr, balance: bal });
+                });
+            } else {
+                notifyListeners({ connected: true, address: null, balance: null });
+            }
+        } else {
+            saveAddress('');
+            notifyListeners({ connected: false, address: null, balance: null });
         }
     }
 
@@ -196,25 +219,11 @@
 
             _ui = new UI({
                 manifestUrl: _manifestUrl,
+                restoreConnection: true,
                 // No buttonRootId — we manage our own button UI
             });
 
-            _ui.onStatusChange(function (wallet) {
-                if (wallet) {
-                    var addr = wallet.account && wallet.account.address;
-                    saveAddress(addr);
-                    if (addr) {
-                        fetchBalance(addr, function (bal) {
-                            notifyListeners({ connected: true, address: addr, balance: bal });
-                        });
-                    } else {
-                        notifyListeners({ connected: true, address: null, balance: null });
-                    }
-                } else {
-                    saveAddress('');
-                    notifyListeners({ connected: false, address: null, balance: null });
-                }
-            });
+            _ui.onStatusChange(handleWalletStatus);
 
             if (cb) cb();
         });
@@ -229,14 +238,19 @@
             _manifestUrl = resolveManifestUrl(manifestUrl);
             _sdkUrl = options.sdkUrl || _sdkUrl;
 
-            if (!options.lazy) {
+            if (!options.lazy || options.restoreOnLoad !== false) {
                 ensureUi();
             }
 
-            // Restore previously stored address while waiting for the SDK to reconnect
+            // Restore previously stored address while waiting for the SDK to reconnect.
+            // If TonConnect reports a fresh status first, do not let this fallback
+            // overwrite it.
+            var initialStatusSeq = _statusSeq;
             loadAddress(function (addr) {
+                if (_statusSeq !== initialStatusSeq) return;
                 if (addr) {
                     fetchBalance(addr, function (bal) {
+                        if (_statusSeq !== initialStatusSeq) return;
                         notifyListeners({ connected: true, address: addr, balance: bal, restoring: true });
                     });
                 }
@@ -246,7 +260,13 @@
         /** Open the TonConnect modal. */
         connect: function () {
             ensureUi(function () {
-                if (_ui) _ui.openModal();
+                if (!_ui) return;
+                var modal = _ui.openModal();
+                if (modal && modal.catch) {
+                    modal.catch(function (err) {
+                        console.warn('TonConnectUI modal failed to open', err);
+                    });
+                }
             });
         },
 
@@ -260,6 +280,11 @@
         /** Register a callback: fn({ connected, address, balance, restoring? }) */
         onChange: function (fn) {
             _listeners.push(fn);
+            if (_lastState) {
+                setTimeout(function () {
+                    try { fn(_lastState); } catch (_) {}
+                }, 0);
+            }
         },
 
         shortenAddress: shortenAddress,

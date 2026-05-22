@@ -30,7 +30,7 @@
        follow-up. `report-uri`, `report-to`, `frame-ancestors`, and `sandbox` are
        intentionally omitted — they are silently ignored inside <meta> and need an
        HTTP response header to take effect. #}
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://changenow.io; connect-src 'self' https://*.changenow.io https://api.telegram.org https://tganalytics.xyz https://api.coingecko.com https://toncenter.com https://*.workers.dev https://mc.yandex.ru">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://changenow.io; connect-src 'self' https:">
     <style>
         .social-proof-pill {
             display: inline-flex;
@@ -511,64 +511,68 @@
     </div>
     <!-- * Address Book Action Sheet -->
 
-    <div id="cookiesbox" class="offcanvas offcanvas-bottom cookies-box" tabindex="-1" data-bs-scroll="true"
-        data-bs-backdrop="false" role="dialog" aria-labelledby="cookiesboxTitle" aria-modal="true">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="cookiesboxTitle" data-i18n="cookies_title">{{ t.cookies_title }}</h5>
-        </div>
-        <div class="offcanvas-body">
-            <div class="mb-2">
-                <span data-i18n="cookies_body">{{ t.cookies_body }}</span>
-                <a href="{{ t.privacy_link }}" class="text-secondary"><u data-i18n="cookies_learn_more">{{ t.cookies_learn_more }}</u></a>
-            </div>
-            <ul class="listview image-listview text inset no-line mb-2">
-                <li>
-                    <div class="item">
-                        <div class="in">
-                            <div>
-                                <strong data-i18n="cookies_necessary_label">{{ t.cookies_necessary_label }}</strong>
-                                <div class="text-muted cookie-desc" data-i18n="cookies_necessary_desc">{{ t.cookies_necessary_desc }}</div>
-                            </div>
-                            <div class="form-check form-switch ms-2">
-                                <input class="form-check-input" type="checkbox" id="consentNecessary" checked disabled>
-                                <label class="form-check-label" for="consentNecessary"></label>
-                            </div>
-                        </div>
+    <div id="cookiesbox" class="modal fade cookies-box" tabindex="-1" data-bs-backdrop="false"
+        data-bs-keyboard="false" role="dialog" aria-labelledby="cookiesboxTitle" aria-describedby="cookiesboxBody">
+        <div class="modal-dialog modal-dialog-centered cookies-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cookiesboxTitle" data-i18n="cookies_title">{{ t.cookies_title }}</h5>
+                </div>
+                <div class="modal-body" id="cookiesboxBody">
+                    <div class="mb-2">
+                        <span data-i18n="cookies_body">{{ t.cookies_body }}</span>
+                        <a href="{{ t.privacy_link }}" class="text-secondary"><u data-i18n="cookies_learn_more">{{ t.cookies_learn_more }}</u></a>
                     </div>
-                </li>
-                <li>
-                    <div class="item">
-                        <div class="in">
-                            <div>
-                                <strong data-i18n="cookies_analytics_label">{{ t.cookies_analytics_label }}</strong>
-                                <div class="text-muted cookie-desc" data-i18n="cookies_analytics_desc">{{ t.cookies_analytics_desc }}</div>
+                    <ul class="listview image-listview text inset no-line mb-2">
+                        <li>
+                            <div class="item">
+                                <div class="in">
+                                    <div>
+                                        <strong data-i18n="cookies_necessary_label">{{ t.cookies_necessary_label }}</strong>
+                                        <div class="text-muted cookie-desc" data-i18n="cookies_necessary_desc">{{ t.cookies_necessary_desc }}</div>
+                                    </div>
+                                    <div class="form-check form-switch ms-2">
+                                        <input class="form-check-input" type="checkbox" id="consentNecessary" checked disabled>
+                                        <label class="form-check-label" for="consentNecessary"></label>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-check form-switch ms-2">
-                                <input class="form-check-input consent-analytics-toggle" type="checkbox" id="consentAnalytics">
-                                <label class="form-check-label" for="consentAnalytics"></label>
+                        </li>
+                        <li>
+                            <div class="item">
+                                <div class="in">
+                                    <div>
+                                        <strong data-i18n="cookies_analytics_label">{{ t.cookies_analytics_label }}</strong>
+                                        <div class="text-muted cookie-desc" data-i18n="cookies_analytics_desc">{{ t.cookies_analytics_desc }}</div>
+                                    </div>
+                                    <div class="form-check form-switch ms-2">
+                                        <input class="form-check-input consent-analytics-toggle" type="checkbox" id="consentAnalytics">
+                                        <label class="form-check-label" for="consentAnalytics"></label>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </li>
+                        <li>
+                            <div class="item">
+                                <div class="in">
+                                    <div>
+                                        <strong data-i18n="cookies_marketing_label">{{ t.cookies_marketing_label }}</strong>
+                                        <div class="text-muted cookie-desc" data-i18n="cookies_marketing_desc">{{ t.cookies_marketing_desc }}</div>
+                                    </div>
+                                    <div class="form-check form-switch ms-2">
+                                        <input class="form-check-input consent-marketing-toggle" type="checkbox" id="consentMarketing">
+                                        <label class="form-check-label" for="consentMarketing"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="buttons">
+                        <a href="#" class="btn btn-primary btn-block accept-cookies accept-all-cookies mb-1" data-bs-dismiss="modal" data-i18n="cookies_accept">{{ t.cookies_accept }}</a>
+                        <a href="#" class="btn btn-outline-primary btn-block accept-cookies accept-selected-cookies mb-1" data-bs-dismiss="modal" data-i18n="cookies_accept_selected">{{ t.cookies_accept_selected }}</a>
+                        <a href="#" class="btn btn-link btn-block accept-cookies decline-optional-cookies" data-bs-dismiss="modal" data-i18n="cookies_decline">{{ t.cookies_decline }}</a>
                     </div>
-                </li>
-                <li>
-                    <div class="item">
-                        <div class="in">
-                            <div>
-                                <strong data-i18n="cookies_marketing_label">{{ t.cookies_marketing_label }}</strong>
-                                <div class="text-muted cookie-desc" data-i18n="cookies_marketing_desc">{{ t.cookies_marketing_desc }}</div>
-                            </div>
-                            <div class="form-check form-switch ms-2">
-                                <input class="form-check-input consent-marketing-toggle" type="checkbox" id="consentMarketing">
-                                <label class="form-check-label" for="consentMarketing"></label>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-            </ul>
-            <div class="buttons">
-                <a href="#" class="btn btn-primary btn-block accept-cookies accept-all-cookies mb-1" data-bs-dismiss="offcanvas" data-i18n="cookies_accept">{{ t.cookies_accept }}</a>
-                <a href="#" class="btn btn-outline-primary btn-block accept-cookies accept-selected-cookies mb-1" data-bs-dismiss="offcanvas" data-i18n="cookies_accept_selected">{{ t.cookies_accept_selected }}</a>
-                <a href="#" class="btn btn-link btn-block accept-cookies decline-optional-cookies" data-bs-dismiss="offcanvas" data-i18n="cookies_decline">{{ t.cookies_decline }}</a>
+                </div>
             </div>
         </div>
     </div>

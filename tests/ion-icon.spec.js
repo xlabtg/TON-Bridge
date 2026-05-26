@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { execFileSync } from 'child_process';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { resolve, dirname } from 'path';
 
@@ -33,12 +33,14 @@ function trackedAppFiles() {
     .trim()
     .split('\n')
     .filter(file =>
-      file.endsWith('.html') ||
-      file === '__service-worker.js' ||
-      (file.startsWith('assets/js/') && file.endsWith('.js')) ||
-      (file.startsWith('assets/css/') && file.endsWith('.css')) ||
-      (file.startsWith('assets/sass/') && file.endsWith('.scss')) ||
-      (file.startsWith('src/') && file.endsWith('.njk'))
+      existsSync(resolve(repoRoot, file)) && (
+        file.endsWith('.html') ||
+        file === '__service-worker.js' ||
+        (file.startsWith('assets/js/') && file.endsWith('.js')) ||
+        (file.startsWith('assets/css/') && file.endsWith('.css')) ||
+        (file.startsWith('assets/sass/') && file.endsWith('.scss')) ||
+        (file.startsWith('src/') && file.endsWith('.njk'))
+      )
     );
 }
 

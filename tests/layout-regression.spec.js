@@ -114,7 +114,7 @@ test.describe('Layout regressions', () => {
     await page.route('https://bridge-worker.tonbankcard.workers.dev/api/referral*', route => route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ ref_code: 'ABC123', pending_stars: 0, stars_disabled: false }),
+      body: JSON.stringify({ ref_code: 'ABC123', pending_points: 0, pending_tbc: 0 }),
     }));
 
     for (const file of ['redeem.html', 'referral.html', 'program.html']) {

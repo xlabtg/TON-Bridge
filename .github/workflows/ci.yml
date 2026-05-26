@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches:
@@ -15,16 +16,18 @@ jobs:
     name: i18n Key Parity
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository without GitHub token
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          git init -b ci .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -c protocol.version=2 fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:refs/remotes/origin/ci"
+          git checkout --detach refs/remotes/origin/ci
+          git log -1 --format="%H"
 
-      - name: Read .nvmrc
-        id: nvmrc
-        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ steps.nvmrc.outputs.version }}
-          cache: npm
+      - name: Set up Node.js
+        run: bash .github/scripts/setup-node-from-dist.sh
 
       - name: Install dependencies
         run: npm ci
@@ -37,16 +40,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: i18n-check
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository without GitHub token
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          git init -b ci .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -c protocol.version=2 fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:refs/remotes/origin/ci"
+          git checkout --detach refs/remotes/origin/ci
+          git log -1 --format="%H"
 
-      - name: Read .nvmrc
-        id: nvmrc
-        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ steps.nvmrc.outputs.version }}
-          cache: npm
+      - name: Set up Node.js
+        run: bash .github/scripts/setup-node-from-dist.sh
 
       - name: Install dependencies
         run: npm ci
@@ -82,16 +87,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository without GitHub token
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          git init -b ci .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -c protocol.version=2 fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:refs/remotes/origin/ci"
+          git checkout --detach refs/remotes/origin/ci
+          git log -1 --format="%H"
 
-      - name: Read .nvmrc
-        id: nvmrc
-        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ steps.nvmrc.outputs.version }}
-          cache: npm
+      - name: Set up Node.js
+        run: bash .github/scripts/setup-node-from-dist.sh
 
       - name: Install dependencies
         run: npm ci
@@ -118,16 +125,18 @@ jobs:
     name: Affiliate Schema Smoke Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository without GitHub token
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          git init -b ci .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -c protocol.version=2 fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:refs/remotes/origin/ci"
+          git checkout --detach refs/remotes/origin/ci
+          git log -1 --format="%H"
 
-      - name: Read .nvmrc
-        id: nvmrc
-        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ steps.nvmrc.outputs.version }}
-          cache: npm
+      - name: Set up Node.js
+        run: bash .github/scripts/setup-node-from-dist.sh
 
       - name: Install dependencies
         run: npm ci
@@ -139,16 +148,18 @@ jobs:
     name: Auth-Verify Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository without GitHub token
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          git init -b ci .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -c protocol.version=2 fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:refs/remotes/origin/ci"
+          git checkout --detach refs/remotes/origin/ci
+          git log -1 --format="%H"
 
-      - name: Read .nvmrc
-        id: nvmrc
-        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ steps.nvmrc.outputs.version }}
-          cache: npm
+      - name: Set up Node.js
+        run: bash .github/scripts/setup-node-from-dist.sh
 
       - name: Install dependencies
         run: npm ci
@@ -160,16 +171,18 @@ jobs:
     name: Accrual Job Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository without GitHub token
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          git init -b ci .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -c protocol.version=2 fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:refs/remotes/origin/ci"
+          git checkout --detach refs/remotes/origin/ci
+          git log -1 --format="%H"
 
-      - name: Read .nvmrc
-        id: nvmrc
-        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ steps.nvmrc.outputs.version }}
-          cache: npm
+      - name: Set up Node.js
+        run: bash .github/scripts/setup-node-from-dist.sh
 
       - name: Install dependencies
         run: npm ci
@@ -181,16 +194,18 @@ jobs:
     name: Referral Rewards Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository without GitHub token
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          git init -b ci .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -c protocol.version=2 fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:refs/remotes/origin/ci"
+          git checkout --detach refs/remotes/origin/ci
+          git log -1 --format="%H"
 
-      - name: Read .nvmrc
-        id: nvmrc
-        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ steps.nvmrc.outputs.version }}
-          cache: npm
+      - name: Set up Node.js
+        run: bash .github/scripts/setup-node-from-dist.sh
 
       - name: Install dependencies
         run: npm ci
@@ -202,16 +217,18 @@ jobs:
     name: Rate Config Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository without GitHub token
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          git init -b ci .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -c protocol.version=2 fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:refs/remotes/origin/ci"
+          git checkout --detach refs/remotes/origin/ci
+          git log -1 --format="%H"
 
-      - name: Read .nvmrc
-        id: nvmrc
-        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ steps.nvmrc.outputs.version }}
-          cache: npm
+      - name: Set up Node.js
+        run: bash .github/scripts/setup-node-from-dist.sh
 
       - name: Install dependencies
         run: npm ci
@@ -223,16 +240,18 @@ jobs:
     name: Admin Panel Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository without GitHub token
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          git init -b ci .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -c protocol.version=2 fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:refs/remotes/origin/ci"
+          git checkout --detach refs/remotes/origin/ci
+          git log -1 --format="%H"
 
-      - name: Read .nvmrc
-        id: nvmrc
-        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ steps.nvmrc.outputs.version }}
-          cache: npm
+      - name: Set up Node.js
+        run: bash .github/scripts/setup-node-from-dist.sh
 
       - name: Install dependencies
         run: npm ci
@@ -244,12 +263,18 @@ jobs:
     name: PHP Installer Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository without GitHub token
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          git init -b ci .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -c protocol.version=2 fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:refs/remotes/origin/ci"
+          git checkout --detach refs/remotes/origin/ci
+          git log -1 --format="%H"
 
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-          extensions: mbstring, openssl, pdo_mysql
+      - name: Verify PHP runtime
+        run: php -v
 
       - name: Run installer tests
         run: php tests/installer.test.php && php tests/installer-navigation.test.php && php tests/installer-review.test.php && php tests/installer-database-step.test.php
@@ -259,16 +284,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository without GitHub token
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          git init -b ci .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -c protocol.version=2 fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:refs/remotes/origin/ci"
+          git checkout --detach refs/remotes/origin/ci
+          git log -1 --format="%H"
 
-      - name: Read .nvmrc
-        id: nvmrc
-        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ steps.nvmrc.outputs.version }}
-          cache: npm
+      - name: Set up Node.js
+        run: bash .github/scripts/setup-node-from-dist.sh
 
       - name: Install dependencies
         run: npm ci
@@ -296,16 +323,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository without GitHub token
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          git init -b ci .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -c protocol.version=2 fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:refs/remotes/origin/ci"
+          git checkout --detach refs/remotes/origin/ci
+          git log -1 --format="%H"
 
-      - name: Read .nvmrc
-        id: nvmrc
-        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ steps.nvmrc.outputs.version }}
-          cache: npm
+      - name: Set up Node.js
+        run: bash .github/scripts/setup-node-from-dist.sh
 
       - name: Install dependencies
         run: npm ci
@@ -349,16 +378,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository without GitHub token
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          git init -b ci .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -c protocol.version=2 fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:refs/remotes/origin/ci"
+          git checkout --detach refs/remotes/origin/ci
+          git log -1 --format="%H"
 
-      - name: Read .nvmrc
-        id: nvmrc
-        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ steps.nvmrc.outputs.version }}
-          cache: npm
+      - name: Set up Node.js
+        run: bash .github/scripts/setup-node-from-dist.sh
 
       - name: Install dependencies
         run: npm ci
@@ -395,16 +426,18 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository without GitHub token
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          git init -b ci .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -c protocol.version=2 fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:refs/remotes/origin/ci"
+          git checkout --detach refs/remotes/origin/ci
+          git log -1 --format="%H"
 
-      - name: Read .nvmrc
-        id: nvmrc
-        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ steps.nvmrc.outputs.version }}
-          cache: npm
+      - name: Set up Node.js
+        run: bash .github/scripts/setup-node-from-dist.sh
 
       - name: Install dependencies
         run: npm ci

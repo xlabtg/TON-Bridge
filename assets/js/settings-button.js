@@ -14,7 +14,14 @@
             tg.SettingsButton.offClick(_handler);
         }
 
-        _handler = function () { window.location.href = url; };
+        _handler = function () {
+            var target = url;
+            if (window.TonBridgeLanguageRouting && typeof window.TonBridgeLanguageRouting.localizedHref === 'function') {
+                var lang = window.i18n && typeof window.i18n.getLang === 'function' ? window.i18n.getLang() : null;
+                target = window.TonBridgeLanguageRouting.localizedHref(url, lang || document.documentElement.lang);
+            }
+            window.location.href = target;
+        };
         tg.SettingsButton.onClick(_handler);
         tg.SettingsButton.show();
     }

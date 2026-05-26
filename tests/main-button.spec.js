@@ -292,6 +292,39 @@ test.describe('Runtime i18n', () => {
     expect(navText).toBe('Мост');
   });
 
+  test('language switch keeps bottom-menu navigation on Russian pages', async ({ page }) => {
+    await mockTelegramWebApp(page, {
+      cloudStorage: {},
+    });
+
+    await page.goto(distUrl('app-settings.html'));
+    await page.waitForFunction(() => document.documentElement.lang === 'en');
+
+    await page.evaluate(() => {
+      var sw = document.getElementById('languageSwitch');
+      sw.checked = true;
+      sw.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    await page.waitForFunction(() => document.documentElement.lang === 'ru');
+
+    await page.locator('nav.appBottomMenu a.item').nth(3).click();
+
+    await expect(page).toHaveURL(/orders-ru\.html$/);
+    await expect(page.locator('.pageTitle')).toHaveText('Заказы');
+  });
+
+  test('CloudStorage language preference redirects static English shells on a new device', async ({ page }) => {
+    await mockTelegramWebApp(page, {
+      languageCode: 'en',
+      cloudStorage: { 'pref:migrated': '1', 'pref:lang': 'ru' },
+    });
+
+    await page.goto(distUrl('orders.html'));
+
+    await expect(page).toHaveURL(/orders-ru\.html$/);
+    await expect(page.locator('.pageTitle')).toHaveText('Заказы');
+  });
+
   test('language switch persists through reload when CloudStorage callbacks hang', async ({ page }) => {
     await mockTelegramWebApp(page, {
       cloudStorageHangs: true,

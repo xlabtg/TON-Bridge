@@ -171,6 +171,62 @@ rmdir($tmpEnvPlaceholders . '/assets');
 array_map('unlink', glob($tmpEnvPlaceholders . '/*.html'));
 rmdir($tmpEnvPlaceholders);
 
+// Verify that fixes from recent app issues are applied to an installed static
+// deployment, not only to the source build.
+$tmpInstallRoot = sys_get_temp_dir() . '/tonbridge-installer-install-' . bin2hex(random_bytes(4));
+mkdir($tmpInstallRoot . '/assets/js', 0777, true);
+mkdir($tmpInstallRoot . '/config', 0777, true);
+file_put_contents($tmpInstallRoot . '/__service-worker.js', file_get_contents(__DIR__ . '/../__service-worker.js'));
+file_put_contents($tmpInstallRoot . '/tonconnect-manifest.json', json_encode([
+    'url' => 'https://tonbankcard.com/bridge/TMA/00.html',
+    'name' => 'TON Bridge',
+    'iconUrl' => 'https://tonbankcard.com/bridge/TMA/00.html/assets/img/icon/512x512.png',
+], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+file_put_contents($tmpInstallRoot . '/app-settings.html', '<script src="assets/js/tonbridge-config.js"></script><script src="assets/js/auth.js"></script><script src="assets/js/wallet-connect.js"></script>');
+file_put_contents($tmpInstallRoot . '/orders.html', '<script defer src="assets/js/language-routing.js"></script>');
+file_put_contents($tmpInstallRoot . '/assets/js/auth.js', "var DEFAULT_WORKER_URL = 'https://ton-bridge-worker.tonbankcard.workers.dev';\n");
+file_put_contents($tmpInstallRoot . '/assets/js/referral-rewards.js', "var WORKER_BASE = 'https://ton-bridge-worker.tonbankcard.workers.dev';\n");
+file_put_contents($tmpInstallRoot . '/assets/js/wallet-connect.js', "return config().tonConnectManifestUrl || (window.location.origin + '/tonconnect-manifest.json');\n");
+file_put_contents($tmpInstallRoot . '/assets/js/language-routing.js', "var ROUTES = { orders: { en: 'orders.html', ru: 'orders-ru.html' } };\n");
+
+[$installWritten, $installBackups] = tonbridge_installer_install([
+    ...$config,
+    'mysql_create_schema' => '0',
+], $tmpInstallRoot);
+sort($installWritten);
+sort($installBackups);
+$installedManifest = json_decode((string) file_get_contents($tmpInstallRoot . '/tonconnect-manifest.json'), true);
+$installedConfigJs = file_get_contents($tmpInstallRoot . '/assets/js/tonbridge-config.js');
+
+assert_true(in_array('tonconnect-manifest.json', $installWritten, true), 'installer should write TonConnect manifest');
+assert_true(in_array('assets/js/tonbridge-config.js', $installWritten, true), 'installer should write browser runtime config');
+assert_true(in_array('assets/js/auth.js', $installWritten, true), 'installer should rewrite auth.js for the selected worker');
+assert_true(in_array('assets/js/referral-rewards.js', $installWritten, true), 'installer should rewrite referral rewards worker URL');
+assert_true($installedManifest['url'] === 'https://example.com/bridge', 'installed TonConnect manifest should use installer base URL');
+assert_true($installedManifest['iconUrl'] === 'https://example.com/icon.png', 'installed TonConnect manifest should use installer icon URL');
+assert_contains('"tonConnectManifestUrl": "https://example.com/bridge/tonconnect-manifest.json"', $installedConfigJs, 'browser config should point wallet connect to installed manifest URL');
+assert_contains('"workerBaseUrl": "https://worker.example.com"', $installedConfigJs, 'browser config should expose installed worker URL');
+assert_contains("var DEFAULT_WORKER_URL = 'https://worker.example.com'", file_get_contents($tmpInstallRoot . '/assets/js/auth.js'), 'installed auth.js should not keep placeholder worker URL');
+assert_contains("var WORKER_BASE = 'https://worker.example.com'", file_get_contents($tmpInstallRoot . '/assets/js/referral-rewards.js'), 'installed referral rewards should not keep placeholder worker URL');
+assert_contains('tonConnectManifestUrl', file_get_contents($tmpInstallRoot . '/assets/js/wallet-connect.js'), 'installed wallet connect JS should read runtime manifest URL');
+assert_contains('orders-ru.html', file_get_contents($tmpInstallRoot . '/assets/js/language-routing.js'), 'installed language routing JS should keep localized bottom-nav routes');
+
+unlink($tmpInstallRoot . '/__service-worker.js');
+foreach (glob($tmpInstallRoot . '/*.bak-*') ?: [] as $backupFile) {
+    unlink($backupFile);
+}
+unlink($tmpInstallRoot . '/.env');
+unlink($tmpInstallRoot . '/tonconnect-manifest.json');
+unlink($tmpInstallRoot . '/app-settings.html');
+unlink($tmpInstallRoot . '/orders.html');
+array_map('unlink', glob($tmpInstallRoot . '/assets/js/*.js'));
+unlink($tmpInstallRoot . '/config/tonbridge.php');
+rmdir($tmpInstallRoot . '/config');
+rmdir($tmpInstallRoot . '/assets/js');
+rmdir($tmpInstallRoot . '/assets');
+rmdir($tmpInstallRoot);
+@unlink(__DIR__ . '/../installer/.installed');
+
 // The installer must invalidate old PWA caches after uploading a new project
 // version. Otherwise an existing service worker can keep serving stale CSS/JS.
 $tmpSwRoot = sys_get_temp_dir() . '/tonbridge-installer-sw-' . bin2hex(random_bytes(4));

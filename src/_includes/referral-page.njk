@@ -14,10 +14,11 @@
     {% set seoDesc = t.desc_referral %}
     {% include "seo-head.njk" %}
     <meta name="keywords"
-        content="ton bridge, referral, tbc token, crypto, exchange" />
+        content="ton bridge, referral, tbc rewards, crypto, exchange" />
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
-    <link rel="stylesheet" href="assets/css/style.css">
+    {% set includeTgThemeCss = true %}
+    {% include "performance-head.njk" %}
     <link rel="manifest" href="__manifest.json">
     {# Enforced CSP (issue #117). 'unsafe-inline' is required while the page shells
        contain inline <script> blocks templated with Nunjucks variables and inline
@@ -26,6 +27,24 @@
        intentionally omitted — they are silently ignored inside <meta> and need an
        HTTP response header to take effect. #}
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://cdn.jsdelivr.net https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://changenow.io; connect-src 'self' https://*.changenow.io https://api.telegram.org https://tganalytics.xyz https://*.workers.dev https://mc.yandex.ru">
+    <style>
+        .referral-reward-balance {
+            background: rgba(0, 127, 167, 0.10);
+            border: 1px solid rgba(0, 127, 167, 0.26);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+        }
+        .referral-reward-balance strong {
+            display: block;
+            color: #007fa7;
+            font-size: 1.3rem;
+            line-height: 1.25;
+        }
+        .referral-reward-balance small {
+            color: var(--tg-hint, #6b6479);
+        }
+    </style>
 </head>
 
 <body class="referral-page">
@@ -110,23 +129,26 @@
             </div>
         </div>
 
-        <!-- Pending TBC rewards -->
-        <div class="section mb-3" id="claim-section">
+        <!-- TBC rewards balance -->
+        <div class="section mb-3" id="reward-section">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">{{ t.referral_claim_section }}</h5>
-                    <div id="claim-loading" class="text-muted">{{ t.referral_loading }}</div>
-                    <div id="claim-error" class="text-danger" style="display:none;">{{ t.referral_error }}</div>
-                    <div id="claim-reward-disabled" class="text-warning" style="display:none;">{{ t.referral_rewards_disabled }}</div>
-                    <div id="claim-no-pending" style="display:none;">
-                        <p class="text-muted">{{ t.referral_no_pending }}</p>
+                    <h5 class="card-title">{{ t.referral_reward_section }}</h5>
+                    <div id="reward-loading" class="text-muted">{{ t.referral_loading }}</div>
+                    <div id="reward-error" class="text-danger" style="display:none;">{{ t.referral_error }}</div>
+                    <div id="reward-empty" style="display:none;">
+                        <p class="text-muted mb-0">{{ t.referral_no_rewards }}</p>
                     </div>
-                    <div id="claim-available" style="display:none;">
-                        <p class="mb-1">{{ t.referral_claim_amount_label }}: <strong id="pending-tbc-count">—</strong> TBC</p>
-                        <button class="btn referral-primary-action w-100" id="claim-reward-btn"
-                            aria-label="{{ t.referral_claim_btn }}">
-                            {{ t.referral_claim_btn }}
-                        </button>
+                    <div id="reward-available" style="display:none;">
+                        <div class="referral-reward-balance" aria-live="polite">
+                            <span class="text-muted">{{ t.referral_reward_amount_label }}</span>
+                            <strong><span id="reward-tbc-count">—</span> TBC</strong>
+                            <small><span id="reward-points-count">—</span> points</small>
+                        </div>
+                        <a class="btn btn-primary w-100" id="redeem-tbc-btn" href="redeem{{ t.suffix }}.html"
+                            aria-label="{{ t.referral_redeem_btn }}">
+                            {{ t.referral_redeem_btn }}
+                        </a>
                     </div>
                 </div>
             </div>
@@ -251,13 +273,17 @@
     <script src="assets/js/base.js"></script>
     <!-- Sentry error reporting -->
     <script src="assets/js/sentry.js"></script>
+    <!-- Telegram Theme Integration -->
+    <script defer src="assets/js/tg-theme.js"></script>
     <!-- Referral Rewards -->
-    <script src="assets/js/referral-rewards.js"></script>
+    <script defer src="assets/js/referral.js"></script>
+    <script defer src="assets/js/referral-rewards.js"></script>
     <script>
-        ReferralRewards.init({
-            lang: '{{ t.lang_attr }}',
-            copied: '{{ t.referral_copied }}',
-            redeemPath: 'redeem{{ t.suffix }}.html'
+        document.addEventListener('DOMContentLoaded', function() {
+            ReferralRewards.init({
+                lang: '{{ t.lang_attr }}',
+                copied: '{{ t.referral_copied }}'
+            });
         });
     </script>
 

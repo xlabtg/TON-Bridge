@@ -93,7 +93,7 @@
     gap: 4px;
     padding: 2px 8px;
     font-size: 12px;
-    color: #6236ff;
+    color: #007fa7;
     background: transparent;
     border: 1px solid #dcdce9;
     border-radius: 6px;
@@ -102,12 +102,12 @@
 }
 
 .order-copy-btn:hover {
-    background: #f5f5ff;
+    background: #f0fbff;
 }
 
 .order-copy-btn.copied {
-    color: #1bb2da;
-    border-color: #1bb2da;
+    color: #007fa7;
+    border-color: #007fa7;
 }
 
 .order-copy-btn ion-icon {

@@ -89,7 +89,7 @@ const pageSpecs = [
   [
     "referral.png",
     "title_referral",
-    "Earn Telegram Stars for referrals",
+    "Earn TBC rewards for referrals",
     "en"
   ],
   [
@@ -113,7 +113,7 @@ const pageSpecs = [
   [
     "referral-ru.png",
     "title_referral",
-    "Получайте Telegram Stars за приглашения",
+    "Получайте TBC-награды за приглашения",
     "ru"
   ],
   [

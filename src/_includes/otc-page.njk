@@ -179,7 +179,7 @@
         </div>
         <script>
         (function() {
-            var BASE_IFRAME_SRC = 'https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=1000000&amountFiat&backgroundColor=f6fafd&darkMode=false&from=usdtton&horizontal=false&isFiat=false&lang={{ t.otc_widget_lang }}&link_id={{ env.CHANGENOW_LINK_ID }}&locales=false&logo=false&primaryColor=1bb2da&to=ton&toTheMoon=false';
+            var BASE_IFRAME_SRC = 'https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=1000000&amountFiat&backgroundColor=f6fafd&darkMode=false&from=usdtton&horizontal=false&isFiat=false&lang={{ t.otc_widget_lang }}&link_id={{ env.CHANGENOW_LINK_ID }}&locales=false&logo=false&primaryColor=007fa7&to=ton&toTheMoon=false';
             var STEPPER_SRC = 'https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js';
             var IFRAME_HEIGHT = '356px';
             var I18N_LANG_KEY = 'otc_widget_lang';
@@ -206,7 +206,7 @@
 
             function buildIframeSrc() {
                 var url = new URL(BASE_IFRAME_SRC, window.location.href);
-                var primaryColor = stripHash(cssVar('--tg-theme-button-color') || cssVar('--tg-theme-link-color') || '#1bb2da');
+                var primaryColor = stripHash(cssVar('--tg-theme-button-color') || cssVar('--tg-theme-link-color') || '#007fa7');
                 var backgroundColor = stripHash(cssVar('--tg-theme-bg-color') || '#f6fafd');
                 var colorScheme = cssVar('--tg-color-scheme') || (document.body.classList.contains('dark-mode') || document.documentElement.className === 'dark' ? 'dark' : 'light');
 

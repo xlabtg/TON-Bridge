@@ -111,10 +111,22 @@ test.describe('Layout regressions', () => {
   test('static app shells reset browser body margin consistently', async ({ page }) => {
     await mockTelegramWebApp(page);
     await waitForDistStyleReset();
-    await page.route('https://bridge-worker.tonbankcard.workers.dev/api/referral*', route => route.fulfill({
+    await page.route('https://ton-bridge-worker.tonbankcard.workers.dev/api/balance*', route => route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ ref_code: 'ABC123', pending_points: 0, pending_tbc: 0 }),
+      body: JSON.stringify({ points: 0, ton_address: null, redemptions: [] }),
+    }));
+    await page.route('https://ton-bridge-worker.tonbankcard.workers.dev/api/referral*', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        ok: true,
+        ref_code: 'ABC123',
+        ref_share_url: 'https://t.me/TONBridge_robot/app?startapp=ref_ABC123',
+        points_per_tbc: 10,
+        pending_points: 0,
+        pending_tbc: 0,
+      }),
     }));
 
     for (const file of ['redeem.html', 'referral.html', 'program.html']) {

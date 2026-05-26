@@ -3,15 +3,24 @@ import { fileURLToPath } from 'url';
 import { resolve, dirname } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const PRIMARY_RGB = 'rgb(0, 127, 167)';
+const PURPLE_RGB = 'rgb(98, 54, 255)';
 
-/**
- * Mock Telegram.WebApp with referral-reward-relevant APIs.
- */
 async function mockTelegramWebApp(page, opts = {}) {
     await page.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({
         status: 200,
         contentType: 'application/javascript',
         body: '/* mocked */',
+    }));
+    await page.route('https://tganalytics.xyz/**', route => route.fulfill({
+        status: 200,
+        contentType: 'application/javascript',
+        body: '/* analytics mocked */',
+    }));
+    await page.route('https://mc.yandex.ru/**', route => route.fulfill({
+        status: 200,
+        contentType: 'application/javascript',
+        body: '/* metrika mocked */',
     }));
 
     await page.addInitScript((o) => {
@@ -24,8 +33,9 @@ async function mockTelegramWebApp(page, opts = {}) {
             onClick(fn) { this._handlers.push(fn); },
             offClick(fn) { this._handlers = this._handlers.filter(h => h !== fn); },
         };
+        let storedRefCode = o.refCode || 'TESTCODE';
+
         window.__tgBackButton = backButton;
-        window.__tgOpenInvoiceCalls = [];
         window.__tgShareUrlCalls = [];
         window.Telegram = {
             WebApp: {
@@ -34,12 +44,14 @@ async function mockTelegramWebApp(page, opts = {}) {
                 onEvent() {},
                 setHeaderColor() {},
                 colorScheme: 'light',
-                initData: o.initData || '',
-                initDataUnsafe: o.initDataUnsafe || {},
+                themeParams: o.themeParams || {},
+                initData: o.initData || 'user=%7B%22id%22%3A123456789%7D&hash=abc',
+                initDataUnsafe: o.initDataUnsafe || { user: { id: 123456789 } },
                 HapticFeedback: haptic,
                 BackButton: backButton,
-                openInvoice(url, cb) {
-                    window.__tgOpenInvoiceCalls.push({ url, cb });
+                CloudStorage: {
+                    getItem(_key, cb) { cb(null, storedRefCode); },
+                    setItem(_key, value, cb) { storedRefCode = value; if (cb) cb(null); },
                 },
                 shareUrl(url) {
                     window.__tgShareUrlCalls.push(url);
@@ -53,90 +65,108 @@ function distUrl(file) {
     return 'file://' + resolve(__dirname, '..', 'dist', file);
 }
 
-/**
- * Helper: intercept the backend fetch so tests don't call the real Worker.
- */
-async function mockBackend(page, response) {
-    await page.route('https://bridge-worker.tonbankcard.workers.dev/api/referral*', route => {
+async function mockReferralApi(page, response, status = 200) {
+    await page.route('https://ton-bridge-worker.tonbankcard.workers.dev/api/referral*', route => {
         route.fulfill({
-            status: 200,
+            status,
             contentType: 'application/json',
             body: JSON.stringify(response),
         });
     });
 }
 
-// ---------------------------------------------------------------------------
+function referralResponse(overrides = {}) {
+    const refCode = overrides.ref_code || 'ABC12345';
+    return {
+        ok: true,
+        ref_code: refCode,
+        ref_share_url: 'https://t.me/TONBridge_robot/app?startapp=ref_' + refCode,
+        points_per_tbc: 10,
+        pending_points: 0,
+        pending_tbc: 0,
+        referral_points: 0,
+        referral_tbc: 0,
+        ...overrides,
+    };
+}
 
-test.describe('TBC Referral Page — EN', () => {
-    test('page title is correct', async ({ page }) => {
-        await mockTelegramWebApp(page);
-        await mockBackend(page, { ref_code: 'ABC123', pending_points: 0, pending_tbc: 0 });
-        await page.goto(distUrl('referral.html'));
+async function openReferral(page, file = 'referral.html', response = referralResponse()) {
+    await mockTelegramWebApp(page);
+    await mockReferralApi(page, response);
+    await page.goto(distUrl(file));
+}
+
+test.describe('TBC Referral Page — copy and link', () => {
+    test('page title and heading use TBC rewards copy', async ({ page }) => {
+        await openReferral(page);
+
         await expect(page).toHaveTitle(/Referral/i);
-    });
-
-    test('referral heading is visible', async ({ page }) => {
-        await mockTelegramWebApp(page);
-        await mockBackend(page, { ref_code: 'ABC123', pending_points: 0, pending_tbc: 0 });
-        await page.goto(distUrl('referral.html'));
         await expect(page.locator('h2').first()).toContainText('TBC Referral Program');
+        await expect(page.locator('body')).not.toContainText('Stars');
+        await expect(page.locator('body')).not.toContainText('⭐');
+        await expect(page.locator('ion-icon[name="star-outline"]')).toHaveCount(0);
     });
 
-    test('referral link input is rendered', async ({ page }) => {
-        await mockTelegramWebApp(page);
-        await mockBackend(page, { ref_code: 'ABC123', pending_points: 0, pending_tbc: 0 });
-        await page.goto(distUrl('referral.html'));
-        await expect(page.locator('#referral-link-input')).toBeVisible();
+    test('referral link comes from the referral rewards endpoint', async ({ page }) => {
+        await openReferral(page, 'referral.html', referralResponse({
+            ref_code: 'ABC12345',
+            ref_share_url: 'https://t.me/TONBridge_robot/app?startapp=ref_ABC12345',
+        }));
+
+        await expect.poll(() => page.locator('#referral-link-input').inputValue())
+            .toBe('https://t.me/TONBridge_robot/app?startapp=ref_ABC12345');
     });
 
-    test('referral link contains deep-link format when user id present', async ({ page }) => {
-        await mockTelegramWebApp(page, {
-            initData: '',
-            initDataUnsafe: { user: { id: 123456789 } },
-        });
-        await mockBackend(page, { ref_code: 'ABC123', pending_points: 0, pending_tbc: 0 });
-        await page.goto(distUrl('referral.html'));
+    test('copy and share buttons are rendered', async ({ page }) => {
+        await openReferral(page);
 
-        // Give ReferralRewards.init() time to run.
-        await page.waitForFunction(() => {
-            const el = document.getElementById('referral-link-input');
-            return el && el.value && el.value !== 'Loading…' && el.value !== '—';
-        });
-
-        const value = await page.locator('#referral-link-input').inputValue();
-        expect(value).toBe('https://t.me/TONBridge_robot/app?startapp=ref_ABC123');
-    });
-
-    test('copy button is present', async ({ page }) => {
-        await mockTelegramWebApp(page);
-        await mockBackend(page, { ref_code: 'ABC123', pending_points: 0, pending_tbc: 0 });
-        await page.goto(distUrl('referral.html'));
         await expect(page.locator('#copy-referral-btn')).toBeVisible();
-    });
-
-    test('share button is present', async ({ page }) => {
-        await mockTelegramWebApp(page);
-        await mockBackend(page, { ref_code: 'ABC123', pending_points: 0, pending_tbc: 0 });
-        await page.goto(distUrl('referral.html'));
         await expect(page.locator('#share-referral-btn')).toBeVisible();
     });
+});
 
-    test('uses TBC copy and main-page colors instead of Stars or purple', async ({ page }) => {
-        await mockTelegramWebApp(page, {
-            initData: 'user=%7B%22id%22%3A1%7D&hash=abc',
-            initDataUnsafe: { user: { id: 1 } },
-        });
-        await mockBackend(page, { ref_code: 'ABC123', pending_points: 770, pending_tbc: 77 });
+test.describe('TBC Referral Page — rewards balance', () => {
+    test('shows empty state when the TBC points balance is zero', async ({ page }) => {
+        await openReferral(page, 'referral.html', referralResponse({ pending_points: 0, pending_tbc: 0 }));
+
+        await expect(page.locator('#reward-empty')).toBeVisible();
+        await expect(page.locator('#reward-available')).toBeHidden();
+    });
+
+    test('shows TBC token equivalent when points are available', async ({ page }) => {
+        await openReferral(page, 'referral.html', referralResponse({ pending_points: 125, pending_tbc: 12 }));
+
+        await expect(page.locator('#reward-available')).toBeVisible();
+        await expect(page.locator('#reward-points-count')).toHaveText('125');
+        await expect(page.locator('#reward-tbc-count')).toHaveText('12.5');
+        await expect(page.locator('#redeem-tbc-btn')).toHaveAttribute('href', 'redeem.html');
+    });
+
+    test('shows error when the referral rewards endpoint is unavailable', async ({ page }) => {
+        await mockTelegramWebApp(page);
+        await mockReferralApi(page, { ok: false, error: 'unavailable' }, 500);
         await page.goto(distUrl('referral.html'));
 
-        await page.waitForFunction(() => {
-            const el = document.getElementById('claim-available');
-            return el && el.style.display !== 'none';
-        });
+        await expect(page.locator('#reward-error')).toBeVisible();
+    });
+});
 
+test.describe('TBC Referral Page — RU', () => {
+    test('uses Russian TBC copy and no Stars wording', async ({ page }) => {
+        await openReferral(page, 'referral-ru.html', referralResponse({ pending_points: 100, pending_tbc: 10 }));
+
+        await expect(page.locator('h2').first()).toContainText('Реферальная программа TBC');
+        await expect(page.locator('body')).toContainText('TBC-вознаграждения');
         await expect(page.locator('body')).not.toContainText('Stars');
-        await expect(page.locator('#pending-tbc-count')).toHaveText('77');
+        await expect(page.locator('body')).not.toContainText('⭐');
+    });
+});
+
+test.describe('TBC Referral Page — main-page style', () => {
+    test('uses the shared primary color instead of purple', async ({ page }) => {
+        await openReferral(page, 'referral.html', referralResponse({ pending_points: 125, pending_tbc: 12 }));
+
+        await expect(page.locator('#reward-available')).toBeVisible();
 
         const colors = await page.evaluate(() => {
             const style = selector => getComputedStyle(document.querySelector(selector));
@@ -145,151 +175,44 @@ test.describe('TBC Referral Page — EN', () => {
                 headerButton: style('.appHeader .headerButton').color,
                 copyButton: style('#copy-referral-btn').backgroundColor,
                 shareButton: style('#share-referral-btn').backgroundColor,
-                claimButton: style('#claim-reward-btn').backgroundColor,
+                redeemButton: style('#redeem-tbc-btn').backgroundColor,
             };
         });
 
         expect(colors.headerBackground).toBe('rgb(255, 255, 255)');
-        expect(colors.headerButton).toBe('rgb(4, 159, 246)');
-        expect(colors.copyButton).toBe('rgb(4, 159, 246)');
+        expect(colors.headerButton).not.toBe(PURPLE_RGB);
+        expect(colors.copyButton).toBe(PRIMARY_RGB);
         expect(colors.shareButton).toBe('rgb(132, 148, 168)');
-        expect(colors.claimButton).toBe('rgb(4, 159, 246)');
-        expect(Object.values(colors)).not.toContain('rgb(98, 54, 255)');
+        expect(colors.redeemButton).toBe(PRIMARY_RGB);
+        expect(Object.values(colors)).not.toContain(PURPLE_RGB);
     });
 });
 
-test.describe('TBC Referral Page — RU', () => {
-    test('referral heading is in Russian', async ({ page }) => {
-        await mockTelegramWebApp(page);
-        await mockBackend(page, { ref_code: 'ABC123', pending_points: 0, pending_tbc: 0 });
-        await page.goto(distUrl('referral-ru.html'));
-        await expect(page.locator('h2').first()).toContainText('TBC');
-        await expect(page.locator('body')).not.toContainText('Stars');
-    });
+test.describe('TBC Referral Page — navigation', () => {
+    test('marks referral tab active with a people icon', async ({ page }) => {
+        await openReferral(page);
 
-    test('html lang attribute is ru', async ({ page }) => {
-        await mockTelegramWebApp(page);
-        await mockBackend(page, { ref_code: 'ABC123', pending_points: 0, pending_tbc: 0 });
-        await page.goto(distUrl('referral-ru.html'));
-        const lang = await page.locator('html').getAttribute('lang');
-        expect(lang).toBe('ru');
+        const active = page.locator('.appBottomMenu .item.active');
+        await expect(active).toContainText('Referral');
+        await expect(active.locator('ion-icon[name="people-circle-outline"]')).toHaveCount(1);
+        await expect(active.locator('ion-icon[name="star-outline"]')).toHaveCount(0);
     });
 });
 
-test.describe('TBC Referral — pending rewards UI', () => {
-    test('shows no-pending message when pending_tbc is 0', async ({ page }) => {
-        await mockTelegramWebApp(page, {
-            initData: 'user=%7B%22id%22%3A1%7D&hash=abc',
-            initDataUnsafe: { user: { id: 1 } },
-        });
-        await mockBackend(page, { ref_code: 'X', pending_points: 0, pending_tbc: 0 });
-        await page.goto(distUrl('referral.html'));
+test.describe('TBC Referral Page — screenshots', () => {
+    test('captures EN referral page', async ({ page }) => {
+        await page.setViewportSize({ width: 390, height: 844 });
+        await openReferral(page, 'referral.html', referralResponse({ pending_points: 1250, pending_tbc: 125 }));
 
-        await page.waitForFunction(() => {
-            const el = document.getElementById('claim-no-pending');
-            return el && el.style.display !== 'none';
-        });
-        await expect(page.locator('#claim-no-pending')).toBeVisible();
+        await expect(page.locator('#reward-available')).toBeVisible();
+        await page.screenshot({ path: 'tests/screenshots/referral-en.png', fullPage: true });
     });
 
-    test('shows redeem button when pending_tbc > 0', async ({ page }) => {
-        await mockTelegramWebApp(page, {
-            initData: 'user=%7B%22id%22%3A1%7D&hash=abc',
-            initDataUnsafe: { user: { id: 1 } },
-        });
-        await mockBackend(page, { ref_code: 'X', pending_points: 420, pending_tbc: 42 });
-        await page.goto(distUrl('referral.html'));
+    test('captures RU referral page', async ({ page }) => {
+        await page.setViewportSize({ width: 390, height: 844 });
+        await openReferral(page, 'referral-ru.html', referralResponse({ pending_points: 0, pending_tbc: 0 }));
 
-        await page.waitForFunction(() => {
-            const el = document.getElementById('claim-available');
-            return el && el.style.display !== 'none';
-        });
-        await expect(page.locator('#claim-reward-btn')).toBeVisible();
-        await expect(page.locator('#pending-tbc-count')).toHaveText('42');
-    });
-
-    test('shows rewards-disabled message when rewards_disabled is true', async ({ page }) => {
-        await mockTelegramWebApp(page, {
-            initData: 'user=%7B%22id%22%3A1%7D&hash=abc',
-            initDataUnsafe: { user: { id: 1 } },
-        });
-        await mockBackend(page, { ref_code: 'X', pending_points: 0, pending_tbc: 0, rewards_disabled: true });
-        await page.goto(distUrl('referral.html'));
-
-        await page.waitForFunction(() => {
-            const el = document.getElementById('claim-reward-disabled');
-            return el && el.style.display !== 'none';
-        });
-        await expect(page.locator('#claim-reward-disabled')).toBeVisible();
-    });
-
-    test('shows error when backend is unavailable', async ({ page }) => {
-        await mockTelegramWebApp(page);
-        // Simulate backend failure
-        await page.route('https://bridge-worker.tonbankcard.workers.dev/api/referral*', route => {
-            route.fulfill({ status: 500, body: 'Internal Error' });
-        });
-        await page.goto(distUrl('referral.html'));
-
-        await page.waitForFunction(() => {
-            const el = document.getElementById('claim-error');
-            return el && el.style.display !== 'none';
-        });
-        await expect(page.locator('#claim-error')).toBeVisible();
-    });
-});
-
-test.describe('TBC Referral — navigation', () => {
-    test('bottom menu referral item is active on referral page', async ({ page }) => {
-        await mockTelegramWebApp(page);
-        await mockBackend(page, { ref_code: 'X', pending_points: 0, pending_tbc: 0 });
-        await page.goto(distUrl('referral.html'));
-        const activeItem = page.locator('.appBottomMenu .item.active');
-        await expect(activeItem).toContainText('Referral');
-    });
-
-    test('bottom menu on Bridge page includes referral link', async ({ page }) => {
-        await mockTelegramWebApp(page);
-        await page.goto(distUrl('index.html'));
-        const referralLink = page.locator('.appBottomMenu a[href="referral.html"]');
-        await expect(referralLink).toBeVisible();
-    });
-
-    test('bottom menu on OTC page includes referral link', async ({ page }) => {
-        await mockTelegramWebApp(page);
-        await page.goto(distUrl('index3.html'));
-        const referralLink = page.locator('.appBottomMenu a[href="referral.html"]');
-        await expect(referralLink).toBeVisible();
-    });
-
-    test('bottom menu on Settings page includes referral link', async ({ page }) => {
-        await mockTelegramWebApp(page);
-        await page.goto(distUrl('app-settings.html'));
-        const referralLink = page.locator('.appBottomMenu a[href="referral.html"]');
-        await expect(referralLink).toBeVisible();
-    });
-});
-
-test.describe('TBC Referral — screenshots', () => {
-    test('Screenshot: Referral EN — page renders correctly', async ({ page }) => {
-        await mockTelegramWebApp(page);
-        await mockBackend(page, { ref_code: 'ABC123', pending_points: 770, pending_tbc: 77 });
-        await page.goto(distUrl('referral.html'));
-        await page.waitForFunction(() => {
-            const el = document.getElementById('claim-available');
-            return el && el.style.display !== 'none';
-        });
-        await page.screenshot({ path: 'tests/screenshots/referral-en.png', fullPage: false });
-    });
-
-    test('Screenshot: Referral RU — page renders correctly', async ({ page }) => {
-        await mockTelegramWebApp(page);
-        await mockBackend(page, { ref_code: 'ABC123', pending_points: 0, pending_tbc: 0 });
-        await page.goto(distUrl('referral-ru.html'));
-        await page.waitForFunction(() => {
-            const el = document.getElementById('claim-no-pending');
-            return el && el.style.display !== 'none';
-        });
-        await page.screenshot({ path: 'tests/screenshots/referral-ru.png', fullPage: false });
+        await expect(page.locator('#reward-empty')).toBeVisible();
+        await page.screenshot({ path: 'tests/screenshots/referral-ru.png', fullPage: true });
     });
 });

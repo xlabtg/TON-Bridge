@@ -3,8 +3,8 @@
 }
 
 .referral-page {
-  --referral-primary: #049ff6;
-  --referral-primary-active: #048fdc;
+  --referral-primary: #{$colorPrimary};
+  --referral-primary-active: #{darken($colorPrimary, 6%)};
   --referral-secondary: #8494a8;
 
   .referral-app-header {

@@ -2,12 +2,12 @@
     --tg-theme-bg-color: #fff;
     --tg-theme-text-color: #000;
     --tg-theme-hint-color: #999;
-    --tg-theme-link-color: #6236ff;
-    --tg-theme-button-color: #1bb2da;
+    --tg-theme-link-color: #007fa7;
+    --tg-theme-button-color: #007fa7;
     --tg-theme-button-text-color: #fff;
     --tg-theme-secondary-bg-color: #ededf5;
     --tg-theme-header-bg-color: #fff;
-    --tg-theme-accent-text-color: #6236ff;
+    --tg-theme-accent-text-color: #007fa7;
     --tg-theme-section-bg-color: #fff;
     --tg-theme-section-header-text-color: #999;
     --tg-theme-section-separator-color: rgba(0, 0, 0, 0.12);
@@ -18,8 +18,8 @@
     --tg-bg: var(--tg-theme-bg-color, #fff);
     --tg-text: var(--tg-theme-text-color, #000);
     --tg-hint: var(--tg-theme-hint-color, #999);
-    --tg-link: var(--tg-theme-link-color, #6236ff);
-    --tg-button: var(--tg-theme-button-color, #1bb2da);
+    --tg-link: var(--tg-theme-link-color, #007fa7);
+    --tg-button: var(--tg-theme-button-color, #007fa7);
     --tg-button-text: var(--tg-theme-button-text-color, #fff);
     --tg-secondary-bg: var(--tg-theme-secondary-bg-color, #ededf5);
     --tg-header-bg: var(--tg-theme-header-bg-color, var(--tg-button));

@@ -192,6 +192,8 @@
   "referral_heading": "TBC Referral Program",
   "referral_intro": "Invite friends to TON Bridge and earn TBC rewards for every finished exchange they complete.",
   "referral_link_label": "Your referral link",
+  "referral_stats_section": "Referral installs",
+  "referral_installed_label": "Installed via your link",
   "referral_how_title": "How it works",
   "referral_how_step1": "Share your referral link with friends",
   "referral_how_step2": "Friend completes their first exchange",

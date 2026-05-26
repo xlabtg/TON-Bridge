@@ -50,6 +50,18 @@
         return Math.max(0, Math.floor(Number.isFinite(value) ? value : 0));
     }
 
+    function installedReferrals(data) {
+        var value = Number(data && (data.installed_referrals || data.referral_count || 0));
+        return Math.max(0, Math.floor(Number.isFinite(value) ? value : 0));
+    }
+
+    function renderReferralStats(data) {
+        var countEl = document.getElementById('referral-installed-count');
+        if (countEl) {
+            countEl.textContent = formatNumber(installedReferrals(data || {}));
+        }
+    }
+
     function renderRewardBalance(data) {
         hideEl('reward-loading');
 
@@ -116,6 +128,7 @@
             })
             .then(function (data) {
                 renderReferralLink(data && data.ref_code, data && data.ref_share_url);
+                renderReferralStats(data || {});
                 renderRewardBalance(data || {});
             })
             .catch(function () {

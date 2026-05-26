@@ -202,6 +202,33 @@ test.describe('ReferralModule — integration (settings page)', () => {
     expect(stored).toBeUndefined();
   });
 
+  test('Settings: verifies initData against the deployed worker before rendering referral code', async ({ page }) => {
+    let authCalled = false;
+    await page.route('https://ton-bridge-worker.tonbankcard.workers.dev/auth/verify', route => {
+      authCalled = true;
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          token: 'header.payload.sig',
+          expiresAt: Math.floor(Date.now() / 1000) + 3600,
+          user: {
+            id: 42,
+            username: 'alice',
+            language_code: 'en',
+            ref_code: 'SERVER42',
+            ref_share_url: 'https://t.me/TONBridge_robot/app?startapp=ref_SERVER42',
+          },
+        }),
+      });
+    });
+    await mockTelegramWebApp(page, { initData: 'query_id=AAA&auth_date=9999999999&hash=abc' });
+    await page.goto(distUrl('app-settings.html'));
+
+    await expect(page.locator('#ref-code-display')).toHaveText('SERVER42', { timeout: 5000 });
+    expect(authCalled).toBe(true);
+  });
+
   test('Settings: share button calls openTelegramLink with share URL', async ({ page }) => {
     await mockTelegramWebApp(page);
     await page.goto(distUrl('app-settings.html'));

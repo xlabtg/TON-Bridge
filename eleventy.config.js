@@ -33,6 +33,8 @@ function getBuildSha() {
 }
 
 const baseUrl = process.env.BASE_URL || 'https://tonbankcard.com/bridge/TMA/00.html';
+const normalizedBaseUrl = baseUrl.replace(/\/+$/, '');
+const tonConnectManifestUrl = `${normalizedBaseUrl}/tonconnect-manifest.json`;
 const buildSha = process.env.BUILD_SHA || getBuildSha();
 
 function jsStringValue(value) {
@@ -50,6 +52,7 @@ export default function(eleventyConfig) {
   eleventyConfig.addGlobalData('locales', locales);
   eleventyConfig.addGlobalData('criticalCss', criticalCss);
   eleventyConfig.addGlobalData('baseUrl', baseUrl);
+  eleventyConfig.addGlobalData('tonConnectManifestUrl', tonConnectManifestUrl);
   eleventyConfig.addGlobalData('buildSha', buildSha);
   eleventyConfig.addGlobalData('ADMIN_TELEGRAM_IDS', process.env.ADMIN_TELEGRAM_IDS || '__ADMIN_TELEGRAM_IDS__');
   eleventyConfig.addGlobalData('ADMIN_API_BASE', process.env.ADMIN_API_BASE || '');
@@ -103,6 +106,16 @@ export default function(eleventyConfig) {
       "'%%YANDEX_METRIKA_ID%%'": jsStringValue(process.env.YANDEX_METRIKA_ID || ''),
     });
     writeFileSync(join(destDir, 'base.js'), baseOut);
+
+    const tonConnectManifest = {
+      url: normalizedBaseUrl,
+      name: 'TON Bridge',
+      iconUrl: `${normalizedBaseUrl}/assets/img/icon/512x512.png`,
+    };
+    writeFileSync(
+      join(__dirname, dir.output, 'tonconnect-manifest.json'),
+      `${JSON.stringify(tonConnectManifest, null, 2)}\n`
+    );
   });
 
   return {

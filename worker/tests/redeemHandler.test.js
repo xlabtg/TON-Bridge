@@ -86,12 +86,20 @@ function seedUser(db, telegramId, points, { ton_address = null } = {}) {
 // ── import the handlers ───────────────────────────────────────────────────────
 
 // We import dynamically so Jest can pick up the ESM module.
-const { handleRedeem, handleBalance } = await import('../src/redeemHandler.js');
+const { handleRedeem, handleBalance, handleWalletLink } = await import('../src/redeemHandler.js');
 
 // ── helpers for building fake Requests ───────────────────────────────────────
 
 function postRequest(body) {
     return new Request('https://worker/api/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+    });
+}
+
+function postWalletRequest(body) {
+    return new Request('https://worker/api/wallet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -218,6 +226,32 @@ describe('POST /api/redeem — idempotency & rate limiting', () => {
         const body = await res.json();
         assert.equal(res.status, 429);
         assert.equal(body.error, 'rate_limit');
+    });
+});
+
+describe('POST /api/wallet', () => {
+    test('stores payout TON address for the authenticated Telegram user', async () => {
+        const db = makeDb();
+        seedUser(db, 35, 0);
+        const env = makeEnv(db);
+        const tonAddress = 'EQD1234567890ABCDEFABCDEF1234567890ABCDEF1234A';
+
+        const res = await handleWalletLink(postWalletRequest({
+            initData: fakeInitData(35),
+            ton_address: tonAddress,
+        }), env);
+
+        assert.equal(res.status, 200);
+        const body = await res.json();
+        assert.equal(body.ok, true);
+        assert.equal(body.ton_address, tonAddress);
+
+        const row = db.prepare('SELECT ton_address FROM users WHERE telegram_id = 35').get();
+        assert.equal(row.ton_address, tonAddress);
+
+        const balanceRes = await handleBalance(getBalanceRequest(35), env);
+        const balanceBody = await balanceRes.json();
+        assert.equal(balanceBody.ton_address, tonAddress);
     });
 });
 

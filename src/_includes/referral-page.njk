@@ -14,10 +14,11 @@
     {% set seoDesc = t.desc_referral %}
     {% include "seo-head.njk" %}
     <meta name="keywords"
-        content="ton bridge, referral, telegram stars, crypto, exchange" />
+        content="ton bridge, referral, tbc rewards, crypto, exchange" />
     <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
-    <link rel="stylesheet" href="assets/css/style.css">
+    {% set includeTgThemeCss = true %}
+    {% include "performance-head.njk" %}
     <link rel="manifest" href="__manifest.json">
     {# Enforced CSP (issue #117). 'unsafe-inline' is required while the page shells
        contain inline <script> blocks templated with Nunjucks variables and inline
@@ -26,9 +27,27 @@
        intentionally omitted — they are silently ignored inside <meta> and need an
        HTTP response header to take effect. #}
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://cdn.jsdelivr.net https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://changenow.io; connect-src 'self' https://*.changenow.io https://api.telegram.org https://tganalytics.xyz https://*.workers.dev https://mc.yandex.ru">
+    <style>
+        .referral-reward-balance {
+            background: rgba(0, 127, 167, 0.10);
+            border: 1px solid rgba(0, 127, 167, 0.26);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+        }
+        .referral-reward-balance strong {
+            display: block;
+            color: #007fa7;
+            font-size: 1.3rem;
+            line-height: 1.25;
+        }
+        .referral-reward-balance small {
+            color: var(--tg-hint, #6b6479);
+        }
+    </style>
 </head>
 
-<body>
+<body class="referral-page">
     <div id="viewport"></div>
     <script src="https://telegram.org/js/telegram-web-app.js" integrity="sha384-1XuC9S4cgk6RH1oCsL2diDRwLiiivu/oZHNfxYUitEFuiKpP5ceNbzu220KKrcK+" crossorigin="anonymous"></script>
     <script>
@@ -65,7 +84,7 @@
     <!-- * loader -->
 
     <!-- App Header -->
-    <div class="appHeader bg-primary text-light">
+    <div class="appHeader referral-app-header">
         <div class="left">
             <a href="#" class="headerButton" data-bs-toggle="modal" data-bs-target="#sidebarPanel">
                 <ion-icon name="menu-outline"></ion-icon>
@@ -95,12 +114,12 @@
                             value="{{ t.referral_loading }}" aria-label="{{ t.referral_link_label }}">
                     </div>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-primary flex-fill" id="copy-referral-btn"
+                        <button class="btn referral-primary-action flex-fill" id="copy-referral-btn"
                             aria-label="{{ t.referral_copy_btn }}">
                             <ion-icon name="copy-outline"></ion-icon>
                             {{ t.referral_copy_btn }}
                         </button>
-                        <button class="btn btn-secondary flex-fill" id="share-referral-btn"
+                        <button class="btn referral-secondary-action flex-fill" id="share-referral-btn"
                             aria-label="{{ t.referral_share_btn }}">
                             <ion-icon name="share-social-outline"></ion-icon>
                             {{ t.referral_share_btn }}
@@ -110,23 +129,26 @@
             </div>
         </div>
 
-        <!-- Pending Stars claim -->
-        <div class="section mb-3" id="claim-section">
+        <!-- TBC rewards balance -->
+        <div class="section mb-3" id="reward-section">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">{{ t.referral_claim_section }}</h5>
-                    <div id="claim-loading" class="text-muted">{{ t.referral_loading }}</div>
-                    <div id="claim-error" class="text-danger" style="display:none;">{{ t.referral_error }}</div>
-                    <div id="claim-stars-disabled" class="text-warning" style="display:none;">{{ t.referral_stars_disabled }}</div>
-                    <div id="claim-no-pending" style="display:none;">
-                        <p class="text-muted">{{ t.referral_no_pending }}</p>
+                    <h5 class="card-title">{{ t.referral_reward_section }}</h5>
+                    <div id="reward-loading" class="text-muted">{{ t.referral_loading }}</div>
+                    <div id="reward-error" class="text-danger" style="display:none;">{{ t.referral_error }}</div>
+                    <div id="reward-empty" style="display:none;">
+                        <p class="text-muted mb-0">{{ t.referral_no_rewards }}</p>
                     </div>
-                    <div id="claim-available" style="display:none;">
-                        <p class="mb-1">{{ t.referral_claim_amount_label }}: <strong id="pending-stars-count">—</strong> ⭐</p>
-                        <button class="btn btn-success w-100" id="claim-stars-btn"
-                            aria-label="{{ t.referral_claim_btn }}">
-                            {{ t.referral_claim_btn }}
-                        </button>
+                    <div id="reward-available" style="display:none;">
+                        <div class="referral-reward-balance" aria-live="polite">
+                            <span class="text-muted">{{ t.referral_reward_amount_label }}</span>
+                            <strong><span id="reward-tbc-count">—</span> TBC</strong>
+                            <small><span id="reward-points-count">—</span> points</small>
+                        </div>
+                        <a class="btn btn-primary w-100" id="redeem-tbc-btn" href="redeem{{ t.suffix }}.html"
+                            aria-label="{{ t.referral_redeem_btn }}">
+                            {{ t.referral_redeem_btn }}
+                        </a>
                     </div>
                 </div>
             </div>
@@ -159,8 +181,8 @@
                         </li>
                         <li class="mt-2">
                             <div class="d-flex justify-content-between">
-                                <span class="text-muted">{{ t.referral_star_value_label }}</span>
-                                <strong>{{ t.referral_star_value_value }}</strong>
+                                <span class="text-muted">{{ t.referral_reward_unit_label }}</span>
+                                <strong>{{ t.referral_reward_unit_value }}</strong>
                             </div>
                         </li>
                         <li class="mt-2">
@@ -192,7 +214,7 @@
                     <ul class="listview flush transparent no-line image-listview">
                         <li>
                             <a href="app-settings{{ t.suffix }}.html" class="item">
-                                <div class="icon-box bg-primary">
+                                <div class="icon-box referral-sidebar-icon-primary">
                                     <ion-icon name="settings-outline"></ion-icon>
                                 </div>
                                 <div class="in">
@@ -202,7 +224,7 @@
                         </li>
                         <li>
                             <a href="https://t.me/tonbankcard_bot" class="item" id="support-link" target="_blank" rel="noopener noreferrer" data-telegram-link="support">
-                                <div class="icon-box bg-primary">
+                                <div class="icon-box referral-sidebar-icon-primary">
                                     <ion-icon name="chatbubble-outline"></ion-icon>
                                 </div>
                                 <div class="in">
@@ -215,7 +237,7 @@
                     <ul class="listview flush transparent no-line image-listview">
                         <li>
                             <a href="{{ t.community_group_link }}" class="item" id="community-group-link" target="_blank" rel="noopener noreferrer" data-telegram-link="community_group_link" data-i18n-attr="href:community_group_link">
-                                <div class="icon-box bg-secondary">
+                                <div class="icon-box referral-sidebar-icon-secondary">
                                     <ion-icon name="people-circle-outline"></ion-icon>
                                 </div>
                                 <div class="in">
@@ -225,7 +247,7 @@
                         </li>
                         <li>
                             <a href="{{ t.community_chat_link }}" class="item" id="community-chat-link" target="_blank" rel="noopener noreferrer" data-telegram-link="community_chat_link" data-i18n-attr="href:community_chat_link">
-                                <div class="icon-box bg-secondary">
+                                <div class="icon-box referral-sidebar-icon-secondary">
                                     <ion-icon name="chatbubbles-outline"></ion-icon>
                                 </div>
                                 <div class="in">
@@ -251,12 +273,17 @@
     <script src="assets/js/base.js"></script>
     <!-- Sentry error reporting -->
     <script src="assets/js/sentry.js"></script>
-    <!-- Stars Referral -->
-    <script src="assets/js/stars-referral.js"></script>
+    <!-- Telegram Theme Integration -->
+    <script defer src="assets/js/tg-theme.js"></script>
+    <!-- Referral Rewards -->
+    <script defer src="assets/js/referral.js"></script>
+    <script defer src="assets/js/referral-rewards.js"></script>
     <script>
-        StarsReferral.init({
-            lang: '{{ t.lang_attr }}',
-            copied: '{{ t.referral_copied }}'
+        document.addEventListener('DOMContentLoaded', function() {
+            ReferralRewards.init({
+                lang: '{{ t.lang_attr }}',
+                copied: '{{ t.referral_copied }}'
+            });
         });
     </script>
 

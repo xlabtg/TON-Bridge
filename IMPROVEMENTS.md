@@ -94,7 +94,7 @@ Tasks are ordered so each builds on the previous one. Estimates are rough develo
 
 ### Phase 4 — Virality & growth loops
 
-- [ ] **4.1 Telegram Stars referral program** ([#29](https://github.com/xlabtg/TON-Bridge/issues/29)) — give the inviter a fee rebate (paid in Stars) for every successful exchange a referee makes. Build on `Telegram.WebApp.openInvoice` / `requestWriteAccess`. *(2 d)*
+- [ ] **4.1 TBC referral rewards** ([#29](https://github.com/xlabtg/TON-Bridge/issues/29)) — give the inviter TBC points for every successful exchange a referee makes, then redeem points through the TBC rewards flow. *(2 d)*
 - [ ] **4.2 `shareToStory` after a successful trade** ([#30](https://github.com/xlabtg/TON-Bridge/issues/30)) — a pre-rendered story card ("I just bridged 0.5 TON in 38 s with @TONBridge_robot — try it ↗") with the deep-link sticker. *(1 d)*
 - [ ] **4.3 Deep-link presets** ([#31](https://github.com/xlabtg/TON-Bridge/issues/31)) — `t.me/TONBridge_robot/app?startapp=ton_bsc_10` opens directly on the Bridge tab pre-filled. Encode `from-to-amount` in `start_param`. *(0.5 d)*
 - [ ] **4.4 Social proof widget** ([#32](https://github.com/xlabtg/TON-Bridge/issues/32)) — "12 343 bridges in the last 24 h" pulled from the partner stats endpoint, refreshed every minute. *(0.5 d)*

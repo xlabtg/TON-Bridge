@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'url';
 import { resolve, dirname } from 'path';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -15,6 +15,13 @@ function distPath(file) {
 
 async function waitForDistFile(file) {
   await expect.poll(() => existsSync(distPath(file)), { timeout: 30000 }).toBe(true);
+}
+
+async function waitForDistStyleReset() {
+  await expect.poll(() => {
+    const cssFile = distPath('assets/css/style.css');
+    return existsSync(cssFile) && readFileSync(cssFile, 'utf8').includes('overflow-x:hidden;margin:0');
+  }, { timeout: 30000 }).toBe(true);
 }
 
 async function seedStoredConsent(page) {
@@ -101,6 +108,38 @@ async function mockTelegramWebApp(page, options = {}) {
 }
 
 test.describe('Layout regressions', () => {
+  test('static app shells reset browser body margin consistently', async ({ page }) => {
+    await mockTelegramWebApp(page);
+    await waitForDistStyleReset();
+    await page.route('https://ton-bridge-worker.tonbankcard.workers.dev/api/balance*', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ points: 0, ton_address: null, redemptions: [] }),
+    }));
+    await page.route('https://ton-bridge-worker.tonbankcard.workers.dev/api/referral*', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        ok: true,
+        ref_code: 'ABC123',
+        ref_share_url: 'https://t.me/TONBridge_robot/app?startapp=ref_ABC123',
+        points_per_tbc: 10,
+        pending_points: 0,
+        pending_tbc: 0,
+      }),
+    }));
+
+    for (const file of ['redeem.html', 'referral.html', 'program.html']) {
+      await waitForDistFile(file);
+      await page.goto(distUrl(file));
+
+      await expect.poll(
+        () => page.evaluate(() => getComputedStyle(document.body).margin),
+        { message: `${file} should not keep the browser default body margin` },
+      ).toBe('0px');
+    }
+  });
+
   test('left sidebar does not expose hidden offcanvas panels', async ({ page }) => {
     await mockTelegramWebApp(page);
     await seedStoredConsent(page);

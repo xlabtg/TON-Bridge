@@ -8,12 +8,12 @@
             bg_color: '#ffffff',
             text_color: '#000000',
             hint_color: '#999999',
-            link_color: '#6236ff',
-            button_color: '#1bb2da',
+            link_color: '#007fa7',
+            button_color: '#007fa7',
             button_text_color: '#ffffff',
             secondary_bg_color: '#ededf5',
             header_bg_color: '#ffffff',
-            accent_text_color: '#6236ff',
+            accent_text_color: '#007fa7',
             section_bg_color: '#ffffff',
             section_header_text_color: '#999999',
             section_separator_color: 'rgba(0, 0, 0, 0.12)',
@@ -25,12 +25,12 @@
             bg_color: '#030108',
             text_color: '#ffffff',
             hint_color: '#8f82a5',
-            link_color: '#1bb2da',
-            button_color: '#1bb2da',
+            link_color: '#007fa7',
+            button_color: '#007fa7',
             button_text_color: '#ffffff',
             secondary_bg_color: '#161129',
             header_bg_color: '#161129',
-            accent_text_color: '#1bb2da',
+            accent_text_color: '#007fa7',
             section_bg_color: '#161129',
             section_header_text_color: '#8f82a5',
             section_separator_color: '#2d1f3b',
@@ -106,7 +106,7 @@
         var params = theme.params;
         var isDark = theme.colorScheme === 'dark';
 
-        var primaryColor = stripHash(params.button_color || params.link_color || '#1bb2da');
+        var primaryColor = stripHash(params.button_color || params.link_color || '#007fa7');
         var backgroundColor = stripHash(params.bg_color);
 
         var src = iframe.src;

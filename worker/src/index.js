@@ -24,6 +24,7 @@ const NOTIFICATION_BATCH_SIZE = 10;
 const REF_CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const REF_CODE_LENGTH = 8;
 const REF_CODE_MAX_ATTEMPTS = 5;
+const DEFAULT_POINTS_PER_TBC = 10;
 
 export const POLLING_STATES = new Set(['confirming', 'exchanging', 'sending']);
 export const TERMINAL_STATES = new Set(['finished', 'failed', 'refunded']);
@@ -231,6 +232,95 @@ async function getOrCreateUser(db, user, nowS, logger = console) {
 
   logger.error('failed to create unique referral code after max attempts', { telegramId });
   throw new Error('ref_code collision limit reached');
+}
+
+async function parseTelegramUserForRewards(initData, env) {
+  try {
+    const parsed = await validateInitData(initData, env.BOT_TOKEN || env.TELEGRAM_BOT_TOKEN || '');
+    return parsed.user;
+  } catch (err) {
+    if (env.DEV_MODE === 'true' && initData) {
+      try {
+        const params = new URLSearchParams(initData);
+        return JSON.parse(params.get('user') || '{}');
+      } catch {
+        throw err;
+      }
+    }
+    throw err;
+  }
+}
+
+function getPointsPerTbc(env) {
+  const value = Number(env.POINTS_PER_TBC || DEFAULT_POINTS_PER_TBC);
+  return Number.isFinite(value) && value > 0 ? Math.floor(value) : DEFAULT_POINTS_PER_TBC;
+}
+
+async function getRewardSnapshot(db, userId, pointsPerTbc) {
+  const row = await db.prepare(`
+    SELECT
+      COALESCE(SUM(delta_points), 0) AS pending_points,
+      COALESCE(SUM(CASE WHEN role = 'referrer' THEN delta_points ELSE 0 END), 0) AS referral_points,
+      COALESCE(SUM(CASE WHEN role = 'trader' THEN delta_points ELSE 0 END), 0) AS trader_points
+    FROM point_ledger
+    WHERE user_id = ?
+  `).bind(userId).first();
+
+  const pendingPoints = Math.max(0, Number(row && row.pending_points ? row.pending_points : 0));
+  const referralPoints = Math.max(0, Number(row && row.referral_points ? row.referral_points : 0));
+  const traderPoints = Math.max(0, Number(row && row.trader_points ? row.trader_points : 0));
+
+  return {
+    pending_points: pendingPoints,
+    pending_tbc: Math.floor(pendingPoints / pointsPerTbc),
+    referral_points: referralPoints,
+    referral_tbc: Math.floor(referralPoints / pointsPerTbc),
+    trader_points: traderPoints,
+    trader_tbc: Math.floor(traderPoints / pointsPerTbc),
+  };
+}
+
+async function handleReferralRewards(request, url, env, cors) {
+  if (!env.DB) {
+    return new Response(JSON.stringify({ ok: false, error: 'db_not_configured' }), {
+      status: 500,
+      headers: { ...cors, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const initData = url.searchParams.get('initData') || '';
+  let user;
+  try {
+    user = await parseTelegramUserForRewards(initData, env);
+  } catch {
+    return new Response(JSON.stringify({ ok: false, error: 'unauthorized' }), {
+      status: 401,
+      headers: { ...cors, 'Content-Type': 'application/json' },
+    });
+  }
+
+  if (!user || !user.id) {
+    return new Response(JSON.stringify({ ok: false, error: 'unauthorized' }), {
+      status: 401,
+      headers: { ...cors, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const nowS = Math.floor(Date.now() / 1000);
+  const dbUser = await getOrCreateUser(env.DB, user, nowS);
+  const pointsPerTbc = getPointsPerTbc(env);
+  const snapshot = await getRewardSnapshot(env.DB, Number(user.id), pointsPerTbc);
+
+  return new Response(JSON.stringify({
+    ok: true,
+    ref_code: dbUser ? dbUser.ref_code : null,
+    ref_share_url: dbUser ? buildReferralShareUrl(dbUser.ref_code) : null,
+    points_per_tbc: pointsPerTbc,
+    ...snapshot,
+  }), {
+    status: 200,
+    headers: { ...cors, 'Content-Type': 'application/json' },
+  });
 }
 
 export function shouldNotify(previousState, currentState, alreadyNotified) {
@@ -460,6 +550,10 @@ export default {
 
     if (request.method === 'GET' && url.pathname === '/api/balance') {
       return handleBalance(request, env);
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/referral') {
+      return handleReferralRewards(request, url, env, cors);
     }
 
     if (request.method === 'POST' && url.pathname === '/admin/replay') {

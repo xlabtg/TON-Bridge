@@ -36,19 +36,19 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(27, 178, 218, 0.12);
-            border: 1px solid rgba(27, 178, 218, 0.35);
+            background: rgba(0, 127, 167, 0.12);
+            border: 1px solid rgba(0, 127, 167, 0.35);
             border-radius: 999px;
             padding: 4px 12px;
             font-size: 12px;
             font-weight: 500;
-            color: #1bb2da;
+            color: #007fa7;
             margin: 0 auto 12px;
             max-width: fit-content;
         }
         .social-proof-pill .sp-dot {
             font-size: 8px;
-            color: #1bb2da;
+            color: #007fa7;
             animation: sp-pulse 2s ease-in-out infinite;
         }
         @keyframes sp-pulse {
@@ -233,7 +233,7 @@
         </div>
         <script>
         (function() {
-            var BASE_IFRAME_SRC = 'https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount={{ iframeAmount }}&amountFiat&backgroundColor=f6fafd&darkMode=false&from={{ iframeFrom }}&horizontal=false&isFiat=false&lang={{ t.widget_lang }}&link_id={{ env.CHANGENOW_LINK_ID }}&locales=true&logo=false&primaryColor=1bb2da&to={{ iframeTo }}&toTheMoon=false';
+            var BASE_IFRAME_SRC = 'https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount={{ iframeAmount }}&amountFiat&backgroundColor=f6fafd&darkMode=false&from={{ iframeFrom }}&horizontal=false&isFiat=false&lang={{ t.widget_lang }}&link_id={{ env.CHANGENOW_LINK_ID }}&locales=true&logo=false&primaryColor=007fa7&to={{ iframeTo }}&toTheMoon=false';
             var STEPPER_SRC = 'https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js';
             var IFRAME_HEIGHT = '450px';
             var I18N_LANG_KEY = 'widget_lang';
@@ -261,7 +261,7 @@
 
             function buildIframeSrc() {
                 var url = new URL(BASE_IFRAME_SRC, window.location.href);
-                var primaryColor = stripHash(cssVar('--tg-theme-button-color') || cssVar('--tg-theme-link-color') || '#1bb2da');
+                var primaryColor = stripHash(cssVar('--tg-theme-button-color') || cssVar('--tg-theme-link-color') || '#007fa7');
                 var backgroundColor = stripHash(cssVar('--tg-theme-bg-color') || '#f6fafd');
                 var colorScheme = cssVar('--tg-color-scheme') || (document.body.classList.contains('dark-mode') || document.documentElement.className === 'dark' ? 'dark' : 'light');
 

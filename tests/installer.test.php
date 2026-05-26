@@ -108,11 +108,13 @@ file_put_contents($tmpRoot . '/admin/index.html', '<meta name="admin-ids" conten
 file_put_contents($tmpRoot . '/dist/admin/index.html', '<meta name="admin-ids" content="__ADMIN_TELEGRAM_IDS__">');
 file_put_contents($tmpRoot . '/assets/js/base.js', "tgAnalyticsToken: '%%TG_ANALYTICS_TOKEN%%'\ntgAnalyticsAppName: '%%TG_ANALYTICS_APP_NAME%%'\nyandexMetrikaId: '%%YANDEX_METRIKA_ID%%'\n");
 file_put_contents($tmpRoot . '/assets/js/deep-link.js', "return 'https://t.me/TONBridge_robot/app?startapp=' + param;");
+file_put_contents($tmpRoot . '/assets/js/referral.js', "var BOT_USERNAME = 'TONBridge_robot';\n");
+file_put_contents($tmpRoot . '/assets/js/referral-rewards.js', "var WORKER_BASE = 'https://ton-bridge-worker.tonbankcard.workers.dev';\n");
 file_put_contents($tmpRoot . '/assets/js/social-proof.js', 'https://api.changenow.io/v1/info/stats?link_id=3cc0024a18fd9d');
 
 $changed = tonbridge_installer_apply_static_config($tmpRoot, $config);
 sort($changed);
-assert_true($changed === ['0.html', 'admin/index.html', 'app-settings.html', 'assets/js/base.js', 'assets/js/deep-link.js', 'assets/js/social-proof.js', 'dist/admin/index.html', 'index.html'], 'static replacement should report changed deploy files');
+assert_true($changed === ['0.html', 'admin/index.html', 'app-settings.html', 'assets/js/base.js', 'assets/js/deep-link.js', 'assets/js/referral-rewards.js', 'assets/js/referral.js', 'assets/js/social-proof.js', 'dist/admin/index.html', 'index.html'], 'static replacement should report changed deploy files');
 assert_contains("token: 'analytics-token'", file_get_contents($tmpRoot . '/0.html'), 'static HTML should get analytics token');
 assert_contains('ym(98019798, "init")', file_get_contents($tmpRoot . '/0.html'), 'static HTML should get Yandex ID');
 assert_contains("tgAnalyticsToken: 'analytics-token'", file_get_contents($tmpRoot . '/assets/js/base.js'), 'base.js should get analytics token');
@@ -123,6 +125,8 @@ assert_contains('data-admin-ids="12345,67890"', file_get_contents($tmpRoot . '/a
 assert_contains('content="12345,67890"', file_get_contents($tmpRoot . '/admin/index.html'), 'admin page should get installer admin IDs');
 assert_contains('content="12345,67890"', file_get_contents($tmpRoot . '/dist/admin/index.html'), 'dist admin page should get installer admin IDs');
 assert_contains('https://t.me/ExampleBridgeBot/app?startapp=', file_get_contents($tmpRoot . '/assets/js/deep-link.js'), 'static JS should get bot username');
+assert_contains("var BOT_USERNAME = 'ExampleBridgeBot'", file_get_contents($tmpRoot . '/assets/js/referral.js'), 'referral JS should get bot username');
+assert_contains("var WORKER_BASE = 'https://worker.example.com'", file_get_contents($tmpRoot . '/assets/js/referral-rewards.js'), 'referral rewards JS should get worker URL');
 assert_contains('link_id=partner123', file_get_contents($tmpRoot . '/assets/js/social-proof.js'), 'static JS should get stats link id');
 
 array_map('unlink', glob($tmpRoot . '/assets/js/*.js'));
@@ -144,10 +148,11 @@ file_put_contents($tmpEnvPlaceholders . '/index.html', "link_id=your-changenow-l
 file_put_contents($tmpEnvPlaceholders . '/redeem.html', "var metrikaId = \"your-yandex-metrika-id-here\";\ntoken: \"your-tganalytics-jwt-here\"\nappName: \"your-analytics-app-name\"\n");
 file_put_contents($tmpEnvPlaceholders . '/assets/js/base.js', "yandexMetrikaId: \"your-yandex-metrika-id-here\",\ntgAnalyticsToken: \"your-tganalytics-jwt-here\",\ntgAnalyticsAppName: \"your-analytics-app-name\"\n");
 file_put_contents($tmpEnvPlaceholders . '/assets/js/deep-link.js', "var BOT_USERNAME = 'your-bot-username';\n");
+file_put_contents($tmpEnvPlaceholders . '/assets/js/referral.js', "var BOT_USERNAME = 'your-bot-username';\n");
 
 $changedEnv = tonbridge_installer_apply_static_config($tmpEnvPlaceholders, $config);
 sort($changedEnv);
-assert_true($changedEnv === ['assets/js/base.js', 'assets/js/deep-link.js', 'index.html', 'redeem.html'], 'installer should replace .env.example placeholder values in pre-built files');
+assert_true($changedEnv === ['assets/js/base.js', 'assets/js/deep-link.js', 'assets/js/referral.js', 'index.html', 'redeem.html'], 'installer should replace .env.example placeholder values in pre-built files');
 assert_contains('link_id=partner123', file_get_contents($tmpEnvPlaceholders . '/index.html'), 'pre-built HTML should get ChangeNOW link id from env placeholder');
 assert_contains('var metrikaId = "98019798"', file_get_contents($tmpEnvPlaceholders . '/redeem.html'), 'pre-built HTML should get Yandex ID from env placeholder');
 assert_contains('token: "analytics-token"', file_get_contents($tmpEnvPlaceholders . '/redeem.html'), 'pre-built HTML should get analytics token from env placeholder');
@@ -156,6 +161,7 @@ assert_contains('yandexMetrikaId: "98019798"', file_get_contents($tmpEnvPlacehol
 assert_contains('tgAnalyticsToken: "analytics-token"', file_get_contents($tmpEnvPlaceholders . '/assets/js/base.js'), 'pre-built base.js should get analytics token from env placeholder');
 assert_contains('tgAnalyticsAppName: "ExampleBridgeBot"', file_get_contents($tmpEnvPlaceholders . '/assets/js/base.js'), 'pre-built base.js should get analytics app name from env placeholder');
 assert_contains("var BOT_USERNAME = 'ExampleBridgeBot'", file_get_contents($tmpEnvPlaceholders . '/assets/js/deep-link.js'), 'pre-built JS should get bot username from env placeholder');
+assert_contains("var BOT_USERNAME = 'ExampleBridgeBot'", file_get_contents($tmpEnvPlaceholders . '/assets/js/referral.js'), 'pre-built referral JS should get bot username from env placeholder');
 
 array_map('unlink', glob($tmpEnvPlaceholders . '/assets/js/*.js'));
 rmdir($tmpEnvPlaceholders . '/assets/js');

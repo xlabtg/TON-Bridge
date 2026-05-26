@@ -192,6 +192,8 @@
   "referral_heading": "Реферальная программа TBC",
   "referral_intro": "Приглашайте друзей в TON Bridge и получайте TBC-вознаграждения за каждый завершённый обмен.",
   "referral_link_label": "Ваша реферальная ссылка",
+  "referral_stats_section": "Реферальные установки",
+  "referral_installed_label": "Установили по вашей ссылке",
   "referral_how_title": "Как это работает",
   "referral_how_step1": "Поделитесь своей реферальной ссылкой",
   "referral_how_step2": "Друг завершает первый обмен",

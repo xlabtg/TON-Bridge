@@ -9,16 +9,23 @@
  *   <script src="assets/js/auth.js"></script>
  *   <!-- auth initialises automatically; read the token via window.TonBridgeAuth.getToken() -->
  *
- * The WORKER_URL constant below must be updated to the deployed Worker URL
- * before going to production.  For local development it falls back to
- * http://localhost:8787 automatically.
+ * Uses the public workerBaseUrl config when present. For local development it
+ * falls back to http://localhost:8787 automatically.
  */
 
 (function () {
-  var WORKER_URL =
-    typeof window !== 'undefined' && window.location.hostname === 'localhost'
-      ? 'http://localhost:8787'
-      : 'https://ton-bridge-auth.YOUR_ACCOUNT.workers.dev';
+  var DEFAULT_WORKER_URL = 'https://ton-bridge-worker.tonbankcard.workers.dev';
+
+  function config() {
+    return window.__TON_BRIDGE_CONFIG__ || {};
+  }
+
+  function workerUrl() {
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      return 'http://localhost:8787';
+    }
+    return String(config().workerBaseUrl || DEFAULT_WORKER_URL).replace(/\/+$/, '');
+  }
 
   var _token = null;
   var _expiresAt = 0;
@@ -61,7 +68,7 @@
 
     _pending = getNotificationsOptOut()
       .then(function (notificationsOptOut) {
-        return fetch(WORKER_URL + '/auth/verify', {
+        return fetch(workerUrl() + '/auth/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

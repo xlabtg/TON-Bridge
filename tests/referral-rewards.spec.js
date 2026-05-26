@@ -126,6 +126,12 @@ test.describe('TBC Referral Page — copy and link', () => {
 });
 
 test.describe('TBC Referral Page — rewards balance', () => {
+    test('shows the number of installed referrals returned by the worker', async ({ page }) => {
+        await openReferral(page, 'referral.html', referralResponse({ referral_count: 7, installed_referrals: 7 }));
+
+        await expect(page.locator('#referral-installed-count')).toHaveText('7');
+    });
+
     test('shows empty state when the TBC points balance is zero', async ({ page }) => {
         await openReferral(page, 'referral.html', referralResponse({ pending_points: 0, pending_tbc: 0 }));
 

@@ -24,6 +24,8 @@ const NOTIFICATION_BATCH_SIZE = 10;
 const REF_CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const REF_CODE_LENGTH = 8;
 const REF_CODE_MAX_ATTEMPTS = 5;
+const REF_PARAM_RE = /^ref_([A-Za-z0-9]{8})$/;
+const REFERRAL_CYCLE_DEPTH = 5;
 const DEFAULT_POINTS_PER_TBC = 10;
 
 export const POLLING_STATES = new Set(['confirming', 'exchanging', 'sending']);
@@ -234,15 +236,18 @@ async function getOrCreateUser(db, user, nowS, logger = console) {
   throw new Error('ref_code collision limit reached');
 }
 
-async function parseTelegramUserForRewards(initData, env) {
+async function parseTelegramInitDataForRewards(initData, env) {
   try {
     const parsed = await validateInitData(initData, env.BOT_TOKEN || env.TELEGRAM_BOT_TOKEN || '');
-    return parsed.user;
+    return { user: parsed.user, params: parsed.params };
   } catch (err) {
     if (env.DEV_MODE === 'true' && initData) {
       try {
         const params = new URLSearchParams(initData);
-        return JSON.parse(params.get('user') || '{}');
+        return {
+          user: JSON.parse(params.get('user') || '{}'),
+          params,
+        };
       } catch {
         throw err;
       }
@@ -280,6 +285,109 @@ async function getRewardSnapshot(db, userId, pointsPerTbc) {
   };
 }
 
+async function getReferralStats(db, userId) {
+  const row = await db.prepare(`
+    SELECT COUNT(*) AS referral_count
+    FROM users
+    WHERE referred_by = ?
+  `).bind(userId).first();
+
+  const referralCount = Math.max(0, Number(row && row.referral_count ? row.referral_count : 0));
+  return {
+    referral_count: referralCount,
+    installed_referrals: referralCount,
+  };
+}
+
+async function hasReferralCycle(db, targetId, startId, maxDepth) {
+  const row = await db.prepare(`
+    WITH RECURSIVE chain(node, depth) AS (
+      SELECT referred_by, 1
+        FROM users
+       WHERE telegram_id = ?
+      UNION ALL
+      SELECT u.referred_by, c.depth + 1
+        FROM users u
+        JOIN chain c ON u.telegram_id = c.node
+       WHERE c.node IS NOT NULL
+         AND c.depth < ?
+    )
+    SELECT 1 AS found FROM chain WHERE node = ? LIMIT 1
+  `).bind(startId, maxDepth, targetId).first();
+
+  return row !== null && row !== undefined;
+}
+
+function changedRows(result) {
+  const metaChanges = Number(result && result.meta ? result.meta.changes : undefined);
+  if (Number.isFinite(metaChanges)) return metaChanges;
+
+  const directChanges = Number(result ? result.changes : undefined);
+  return Number.isFinite(directChanges) ? directChanges : 0;
+}
+
+async function captureReferredBy(db, userId, startParam, nowS) {
+  if (!db || !userId || !startParam) {
+    return { captured: false, reason: 'missing referral context' };
+  }
+
+  const match = REF_PARAM_RE.exec(String(startParam));
+  if (!match) {
+    return { captured: false, reason: 'start_param does not match ref_<CODE> format' };
+  }
+  const code = match[1].toUpperCase();
+
+  const inviter = await db
+    .prepare('SELECT telegram_id, referred_by FROM users WHERE ref_code = ?')
+    .bind(code)
+    .first();
+  if (!inviter) {
+    return { captured: false, reason: `ref_code ${code} not found` };
+  }
+
+  if (Number(inviter.telegram_id) === userId) {
+    return { captured: false, reason: 'self-referral rejected' };
+  }
+
+  const currentUser = await db
+    .prepare('SELECT referred_by FROM users WHERE telegram_id = ?')
+    .bind(userId)
+    .first();
+  if (!currentUser) {
+    return { captured: false, reason: 'user row not found' };
+  }
+  if (currentUser.referred_by !== null && currentUser.referred_by !== undefined) {
+    return { captured: false, reason: 'referred_by already set' };
+  }
+
+  if (Number(inviter.referred_by) === userId) {
+    return { captured: false, reason: '1-cycle detected: inviter was referred by current user' };
+  }
+
+  if (await hasReferralCycle(db, userId, Number(inviter.telegram_id), REFERRAL_CYCLE_DEPTH)) {
+    return { captured: false, reason: `cycle detected within depth ${REFERRAL_CYCLE_DEPTH}` };
+  }
+
+  const update = await db
+    .prepare('UPDATE users SET referred_by = ? WHERE telegram_id = ? AND referred_by IS NULL')
+    .bind(Number(inviter.telegram_id), userId)
+    .run();
+
+  if (changedRows(update) <= 0) {
+    return { captured: false, reason: 'referred_by already set' };
+  }
+
+  await db
+    .prepare(`
+      INSERT INTO point_ledger (user_id, swap_id, role, delta_points, memo, created_at)
+      VALUES (?, NULL, 'admin_grant', 0, ?, ?)
+    `)
+    .bind(userId, `referral_captured:${inviter.telegram_id}`, nowS)
+    .run();
+
+  return { captured: true };
+}
+
 async function handleReferralRewards(request, url, env, cors) {
   if (!env.DB) {
     return new Response(JSON.stringify({ ok: false, error: 'db_not_configured' }), {
@@ -289,9 +397,9 @@ async function handleReferralRewards(request, url, env, cors) {
   }
 
   const initData = url.searchParams.get('initData') || '';
-  let user;
+  let parsed;
   try {
-    user = await parseTelegramUserForRewards(initData, env);
+    parsed = await parseTelegramInitDataForRewards(initData, env);
   } catch {
     return new Response(JSON.stringify({ ok: false, error: 'unauthorized' }), {
       status: 401,
@@ -299,6 +407,7 @@ async function handleReferralRewards(request, url, env, cors) {
     });
   }
 
+  const user = parsed && parsed.user;
   if (!user || !user.id) {
     return new Response(JSON.stringify({ ok: false, error: 'unauthorized' }), {
       status: 401,
@@ -308,8 +417,14 @@ async function handleReferralRewards(request, url, env, cors) {
 
   const nowS = Math.floor(Date.now() / 1000);
   const dbUser = await getOrCreateUser(env.DB, user, nowS);
+  try {
+    await captureReferredBy(env.DB, Number(user.id), parsed.params && parsed.params.get('start_param'), nowS);
+  } catch (err) {
+    console.warn('referral capture skipped', err && err.message ? err.message : err);
+  }
   const pointsPerTbc = getPointsPerTbc(env);
   const snapshot = await getRewardSnapshot(env.DB, Number(user.id), pointsPerTbc);
+  const referralStats = await getReferralStats(env.DB, Number(user.id));
 
   return new Response(JSON.stringify({
     ok: true,
@@ -317,6 +432,7 @@ async function handleReferralRewards(request, url, env, cors) {
     ref_share_url: dbUser ? buildReferralShareUrl(dbUser.ref_code) : null,
     points_per_tbc: pointsPerTbc,
     ...snapshot,
+    ...referralStats,
   }), {
     status: 200,
     headers: { ...cors, 'Content-Type': 'application/json' },
@@ -498,6 +614,11 @@ export default {
         dbUser = await getOrCreateUser(env.DB, parsed.user, nowS);
       } catch {
         return new Response(null, { status: 500, headers: cors });
+      }
+      try {
+        await captureReferredBy(env.DB, Number(id), parsed.params && parsed.params.get('start_param'), nowS);
+      } catch (err) {
+        console.warn('referral capture skipped', err && err.message ? err.message : err);
       }
 
       const payload = {

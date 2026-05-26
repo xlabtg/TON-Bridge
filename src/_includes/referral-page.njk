@@ -44,6 +44,17 @@
         .referral-reward-balance small {
             color: var(--tg-hint, #6b6479);
         }
+        .referral-installed-stat {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .referral-installed-stat strong {
+            color: #007fa7;
+            font-size: 1.6rem;
+            line-height: 1;
+        }
     </style>
 </head>
 
@@ -124,6 +135,19 @@
                             <ion-icon name="share-social-outline"></ion-icon>
                             {{ t.referral_share_btn }}
                         </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Referral install stats -->
+        <div class="section mb-3" id="referral-stats-section">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ t.referral_stats_section }}</h5>
+                    <div class="referral-installed-stat" aria-live="polite">
+                        <span class="text-muted">{{ t.referral_installed_label }}</span>
+                        <strong id="referral-installed-count">0</strong>
                     </div>
                 </div>
             </div>

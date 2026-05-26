@@ -7,6 +7,7 @@
     var PAYOUT_RATE_LIMIT_KEY = 'tbc_ton_address_updated_at';
     var DAY_MS = 864e5;
     var TONCENTER_BASE = 'https://toncenter.com/api/v2/getAddressInformation?address=';
+    var DEFAULT_WORKER_BASE = 'https://ton-bridge-worker.tonbankcard.workers.dev';
 
     var _ui = null;              // TonConnectUI instance
     var _manifestUrl = null;
@@ -27,11 +28,46 @@
         return (parseInt(nano, 10) / 1e9).toFixed(2);
     }
 
+    function telegramWebApp() {
+        try {
+            return window.Telegram && window.Telegram.WebApp;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    function cloudStorage() {
+        var tg = telegramWebApp();
+        return tg && tg.CloudStorage ? tg.CloudStorage : null;
+    }
+
+    function setCloudValue(key, value) {
+        var storage = cloudStorage();
+        if (!storage || !storage.setItem) return;
+
+        try {
+            storage.setItem(key, value || '', function () {});
+        } catch (_) {}
+    }
+
+    function removeCloudValue(key) {
+        var storage = cloudStorage();
+        if (!storage) return;
+
+        try {
+            if (storage.removeItem) {
+                storage.removeItem(key, function () {});
+            } else {
+                storage.setItem(key, '', function () {});
+            }
+        } catch (_) {}
+    }
+
     function saveAddress(addr) {
         try {
-            var tg = window.Telegram && window.Telegram.WebApp;
-            if (tg && tg.CloudStorage) {
-                tg.CloudStorage.setItem(STORAGE_KEY, addr || '', function () {});
+            var storage = cloudStorage();
+            if (storage) {
+                storage.setItem(STORAGE_KEY, addr || '', function () {});
             } else {
                 localStorage.setItem(STORAGE_KEY, addr || '');
             }
@@ -39,21 +75,39 @@
     }
 
     function getStoredPayoutAddress() {
-        return localStorage.getItem(PAYOUT_STORAGE_KEY) || '';
+        try {
+            return localStorage.getItem(PAYOUT_STORAGE_KEY) || '';
+        } catch (_) {
+            return '';
+        }
     }
 
     function savePayoutAddress(addr) {
-        localStorage.setItem(PAYOUT_STORAGE_KEY, addr || '');
-        localStorage.setItem(PAYOUT_RATE_LIMIT_KEY, String(Date.now()));
+        var ts = String(Date.now());
+        try {
+            localStorage.setItem(PAYOUT_STORAGE_KEY, addr || '');
+            localStorage.setItem(PAYOUT_RATE_LIMIT_KEY, ts);
+        } catch (_) {}
+        setCloudValue(PAYOUT_STORAGE_KEY, addr || '');
+        setCloudValue(PAYOUT_RATE_LIMIT_KEY, ts);
     }
 
     function removePayoutAddress() {
-        localStorage.removeItem(PAYOUT_STORAGE_KEY);
-        localStorage.removeItem(PAYOUT_RATE_LIMIT_KEY);
+        try {
+            localStorage.removeItem(PAYOUT_STORAGE_KEY);
+            localStorage.removeItem(PAYOUT_RATE_LIMIT_KEY);
+        } catch (_) {}
+        removeCloudValue(PAYOUT_STORAGE_KEY);
+        removeCloudValue(PAYOUT_RATE_LIMIT_KEY);
+        syncPayoutAddress('');
     }
 
     function isPayoutReplaceRateLimited() {
-        var ts = parseInt(localStorage.getItem(PAYOUT_RATE_LIMIT_KEY) || '0', 10);
+        var raw = '0';
+        try {
+            raw = localStorage.getItem(PAYOUT_RATE_LIMIT_KEY) || '0';
+        } catch (_) {}
+        var ts = parseInt(raw, 10);
         return ts > 0 && (Date.now() - ts) < DAY_MS;
     }
 
@@ -66,9 +120,9 @@
 
     function loadAddress(cb) {
         try {
-            var tg = window.Telegram && window.Telegram.WebApp;
-            if (tg && tg.CloudStorage) {
-                tg.CloudStorage.getItem(STORAGE_KEY, function (err, val) {
+            var storage = cloudStorage();
+            if (storage) {
+                storage.getItem(STORAGE_KEY, function (err, val) {
                     cb(err ? null : val);
                 });
             } else {
@@ -77,6 +131,40 @@
         } catch (_) {
             cb(null);
         }
+    }
+
+    function loadPayoutAddress() {
+        var storage = cloudStorage();
+        if (!storage || !storage.getItem) return;
+
+        try {
+            storage.getItem(PAYOUT_STORAGE_KEY, function (addrErr, cloudAddr) {
+                var localAddr = getStoredPayoutAddress();
+                cloudAddr = addrErr ? '' : (cloudAddr || '');
+
+                if (cloudAddr) {
+                    try { localStorage.setItem(PAYOUT_STORAGE_KEY, cloudAddr); } catch (_) {}
+                } else if (localAddr) {
+                    setCloudValue(PAYOUT_STORAGE_KEY, localAddr);
+                }
+
+                storage.getItem(PAYOUT_RATE_LIMIT_KEY, function (tsErr, cloudTs) {
+                    var localTs = '';
+                    try { localTs = localStorage.getItem(PAYOUT_RATE_LIMIT_KEY) || ''; } catch (_) {}
+                    cloudTs = tsErr ? '' : (cloudTs || '');
+
+                    if (cloudTs) {
+                        try { localStorage.setItem(PAYOUT_RATE_LIMIT_KEY, cloudTs); } catch (_) {}
+                    } else if (localTs) {
+                        setCloudValue(PAYOUT_RATE_LIMIT_KEY, localTs);
+                    }
+
+                    var currentAddress = getStoredPayoutAddress();
+                    if (currentAddress) syncPayoutAddress(currentAddress);
+                    notifyPayoutLoaded(currentAddress);
+                });
+            });
+        } catch (_) {}
     }
 
     function fetchBalance(addr, cb) {
@@ -121,6 +209,10 @@
         return window.__TON_BRIDGE_CONFIG__ || {};
     }
 
+    function workerBaseUrl() {
+        return String(publicConfig().workerBaseUrl || DEFAULT_WORKER_BASE).replace(/\/+$/, '');
+    }
+
     function resolveManifestUrl(manifestUrl) {
         var configured = publicConfig().tonConnectManifestUrl;
         var raw = configured || manifestUrl || '';
@@ -136,6 +228,32 @@
 
     function notifyPayoutLinked(addr) {
         window.dispatchEvent(new CustomEvent('tbc:wallet-linked', { detail: { address: addr } }));
+    }
+
+    function notifyPayoutLoaded(addr) {
+        window.dispatchEvent(new CustomEvent('tbc:payout-wallet-loaded', { detail: { address: addr } }));
+    }
+
+    function syncPayoutAddress(addr) {
+        var tg = telegramWebApp();
+        var initData = tg && tg.initData ? tg.initData : '';
+        var base = workerBaseUrl();
+        if (!initData || !base || !window.fetch) return;
+
+        fetch(base + '/api/wallet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                initData: initData,
+                ton_address: addr || ''
+            })
+        }).then(function (resp) {
+            if (!resp.ok) {
+                console.warn('Failed to sync payout wallet', resp.status);
+            }
+        }).catch(function (err) {
+            console.warn('Failed to sync payout wallet', err);
+        });
     }
 
     function confirmReplacePayout(message, cb) {
@@ -161,6 +279,7 @@
             confirmReplacePayout(options.replaceConfirm || 'Replace existing payout address?', function (ok) {
                 if (ok) {
                     savePayoutAddress(addr);
+                    syncPayoutAddress(addr);
                     notifyPayoutLinked(addr);
                 }
             });
@@ -168,6 +287,7 @@
         }
 
         savePayoutAddress(addr);
+        syncPayoutAddress(addr);
         notifyPayoutLinked(addr);
         return true;
     }
@@ -255,6 +375,7 @@
                     });
                 }
             });
+            loadPayoutAddress();
         },
 
         /** Open the TonConnect modal. */
@@ -291,6 +412,7 @@
         setPayoutAddress: setPayoutAddress,
         getPayoutAddress: getStoredPayoutAddress,
         removePayoutAddress: removePayoutAddress,
+        syncPayoutAddress: syncPayoutAddress,
         isPayoutReplaceRateLimited: isPayoutReplaceRateLimited,
         looksLikeExchangeAddress: looksLikeExchangeAddress,
     };

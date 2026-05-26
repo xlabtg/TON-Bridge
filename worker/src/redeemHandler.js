@@ -9,6 +9,39 @@ const MIN_REDEEM_POINTS = 100;
 const POINTS_PER_TBC    = 10;
 const MAX_PER_DAY       = 5;
 const SECONDS_PER_DAY   = 24 * 60 * 60;
+const MAX_TON_ADDRESS_LENGTH = 128;
+
+async function parseTelegramUser(initData, env) {
+    try {
+        return await validateInitData(initData || '', env.TELEGRAM_BOT_TOKEN || env.BOT_TOKEN || '');
+    } catch (err) {
+        // In dev/test mode without a real bot token, fall back to initData user field
+        if (env.DEV_MODE === 'true' && initData) {
+            try {
+                const p = new URLSearchParams(initData);
+                return JSON.parse(p.get('user') || '{}');
+            } catch {
+                throw err;
+            }
+        }
+        throw err;
+    }
+}
+
+function normalizeTonAddress(value) {
+    if (value == null) return '';
+    if (typeof value !== 'string') return null;
+
+    const addr = value.trim();
+    if (!addr) return '';
+    if (addr.length > MAX_TON_ADDRESS_LENGTH) return null;
+    if (/[\s\x00-\x1f\x7f]/.test(addr)) return null;
+    return addr;
+}
+
+function walletRefCode(telegramId) {
+    return `WALLET${telegramId}`;
+}
 
 export async function handleRedeem(request, env) {
     // Parse body
@@ -24,19 +57,9 @@ export async function handleRedeem(request, env) {
     // --- Authenticate ---
     let tgUser;
     try {
-        tgUser = await validateInitData(initData || '', env.TELEGRAM_BOT_TOKEN || '');
+        tgUser = await parseTelegramUser(initData || '', env);
     } catch {
-        // In dev/test mode without a real bot token, fall back to initData user field
-        if (env.DEV_MODE === 'true' && initData) {
-            try {
-                const p = new URLSearchParams(initData);
-                tgUser = JSON.parse(p.get('user') || '{}');
-            } catch {
-                return jsonError('unauthorized', 401);
-            }
-        } else {
-            return jsonError('unauthorized', 401);
-        }
+        return jsonError('unauthorized', 401);
     }
 
     const telegram_id = tgUser.id;
@@ -138,18 +161,9 @@ export async function handleBalance(request, env) {
 
     let tgUser;
     try {
-        tgUser = await validateInitData(initData, env.TELEGRAM_BOT_TOKEN || '');
+        tgUser = await parseTelegramUser(initData, env);
     } catch {
-        if (env.DEV_MODE === 'true' && initData) {
-            try {
-                const p = new URLSearchParams(initData);
-                tgUser = JSON.parse(p.get('user') || '{}');
-            } catch {
-                return jsonError('unauthorized', 401);
-            }
-        } else {
-            return jsonError('unauthorized', 401);
-        }
+        return jsonError('unauthorized', 401);
     }
 
     const telegram_id = tgUser.id;
@@ -175,6 +189,43 @@ export async function handleBalance(request, env) {
         ton_address: userRow ? userRow.ton_address : null,
         redemptions: redemptions.results || [],
     });
+}
+
+// POST /api/wallet
+// Persists the payout wallet for the authenticated Telegram user.
+export async function handleWalletLink(request, env) {
+    let body;
+    try {
+        body = await request.json();
+    } catch {
+        return jsonError('bad_request', 400);
+    }
+
+    const tonAddress = normalizeTonAddress(body && body.ton_address);
+    if (tonAddress === null) return jsonError('bad_ton_address', 400);
+
+    let tgUser;
+    try {
+        tgUser = await parseTelegramUser((body && body.initData) || '', env);
+    } catch {
+        return jsonError('unauthorized', 401);
+    }
+
+    const telegram_id = Number(tgUser.id);
+    if (!telegram_id) return jsonError('unauthorized', 401);
+
+    const nowS = Math.floor(Date.now() / 1000);
+    const storedAddress = tonAddress || null;
+
+    await env.DB.prepare(
+        `INSERT INTO users (telegram_id, ref_code, ton_address, created_at, last_seen)
+         VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(telegram_id) DO UPDATE SET
+           ton_address = excluded.ton_address,
+           last_seen = excluded.last_seen`
+    ).bind(telegram_id, walletRefCode(telegram_id), storedAddress, nowS, nowS).run();
+
+    return jsonResponse({ ok: true, ton_address: storedAddress });
 }
 
 // Stub for TONBANKCARD API call — replace with real endpoint when available.

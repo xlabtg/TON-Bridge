@@ -62,10 +62,11 @@ async function setupMocks(page, options = {}) {
         body: JSON.stringify({ ok: true, result: { balance: TEST_BALANCE_NANO } }),
     }));
 
-    await page.addInitScript(({ config }) => {
+    await page.addInitScript(({ config, cloudStorage, initData }) => {
         if (config) {
             window.__TON_BRIDGE_CONFIG__ = config;
         }
+        const cloudStorageStore = Object.assign({}, cloudStorage || {});
         const mainButton = {
             _text: '', _visible: false, _handlers: [],
             setText(t) { this._text = t; },
@@ -85,18 +86,25 @@ async function setupMocks(page, options = {}) {
             WebApp: {
                 ready() {}, expand() {}, onEvent() {}, setHeaderColor() {},
                 colorScheme: 'light',
+                initData: initData || '',
                 MainButton: mainButton,
                 BackButton: backButton,
                 CloudStorage: {
-                    _store: {},
+                    _store: cloudStorageStore,
                     setItem(k, v, cb) { this._store[k] = v; if (cb) cb(null); },
                     getItem(k, cb) { cb(null, this._store[k] || ''); },
+                    removeItem(k, cb) { delete this._store[k]; if (cb) cb(null); },
                 },
             },
         };
+        window.__tgCloudStorageStore = cloudStorageStore;
 
         window.__tcStatusChange = null;
-    }, { config: options.config || null });
+    }, {
+        config: options.config || null,
+        cloudStorage: options.cloudStorage || null,
+        initData: options.initData || '',
+    });
 }
 
 /** Simulate a wallet connecting and wait for the UI to update. */
@@ -305,7 +313,8 @@ test.describe('Wallet Connect — widget pages', () => {
 
         await expect.poll(() => page.evaluate(() => window.__tcOpenModalCalled === true)).toBe(true);
         const sdkOpts = await page.evaluate(() => window.__tcInstance && window.__tcInstance._opts);
-        expect(sdkOpts.manifestUrl).toMatch(/tonconnect-manifest\.json$/);
+        expect(sdkOpts.manifestUrl).toBe('https://tonbankcard.com/bridge/TMA/00.html/tonconnect-manifest.json');
+        expect(new URL(sdkOpts.manifestUrl).protocol).toBe('https:');
     });
 
     test('Settings EN: uses configured absolute TonConnect manifest URL', async ({ page }) => {
@@ -347,8 +356,60 @@ test.describe('Wallet Connect — widget pages', () => {
         await page.locator('#wallet-payout-save-btn').click();
 
         expect(await page.evaluate(() => WalletConnect.getPayoutAddress())).toBe(TEST_ADDRESS);
+        await expect.poll(() => page.evaluate(() => window.__tgCloudStorageStore.tbc_ton_address)).toBe(TEST_ADDRESS);
         await expect(page.locator('#wallet-payout-connected-row')).not.toHaveClass(/d-none/);
         await expect(page.locator('#wallet-payout-address-display')).toHaveAttribute('title', TEST_ADDRESS);
+    });
+
+    test('Settings EN: payout address restores from Telegram CloudStorage', async ({ page }) => {
+        await setupMocks(page, {
+            cloudStorage: {
+                tbc_ton_address: TEST_ADDRESS,
+                tbc_ton_address_updated_at: '1700000000000',
+            },
+        });
+        await page.goto(distUrl('app-settings.html'));
+
+        await expect.poll(() => page.evaluate(() => WalletConnect.getPayoutAddress())).toBe(TEST_ADDRESS);
+        await expect(page.locator('#wallet-payout-connected-row')).not.toHaveClass(/d-none/);
+        await expect(page.locator('#wallet-payout-address-display')).toHaveAttribute('title', TEST_ADDRESS);
+    });
+
+    test('Settings EN: payout address syncs to worker with Telegram initData', async ({ page }) => {
+        const initData = 'user=' + encodeURIComponent(JSON.stringify({ id: 42, first_name: 'Test' }));
+        let walletRequest = null;
+
+        await setupMocks(page, {
+            config: { workerBaseUrl: 'https://worker.example.com' },
+            initData,
+        });
+        await page.route('https://worker.example.com/api/wallet', route => {
+            if (route.request().method() === 'OPTIONS') {
+                return route.fulfill({
+                    status: 204,
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Headers': 'Content-Type',
+                        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    },
+                });
+            }
+
+            walletRequest = route.request().postDataJSON();
+            return route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                headers: { 'Access-Control-Allow-Origin': '*' },
+                body: JSON.stringify({ ok: true, ton_address: TEST_ADDRESS }),
+            });
+        });
+        await page.goto(distUrl('app-settings.html'));
+
+        await simulateConnectSettings(page, TEST_ADDRESS);
+        await page.locator('#wallet-payout-save-btn').click();
+
+        await expect.poll(() => walletRequest && walletRequest.ton_address).toBe(TEST_ADDRESS);
+        expect(walletRequest.initData).toBe(initData);
     });
 
     test('Settings EN: payout address persists after wallet disconnect', async ({ page }) => {

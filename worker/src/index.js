@@ -1,7 +1,7 @@
 import leaderboardWorker from '../leaderboard.js';
 import { handleAdminReplay, runScheduledAccrual } from './accrualJob.js';
 import { handleAdminPanelRequest } from './adminPanel.js';
-import { handleBalance, handleRedeem } from './redeemHandler.js';
+import { handleBalance, handleRedeem, handleWalletLink } from './redeemHandler.js';
 
 /**
  * Cloudflare Worker — POST /auth/verify
@@ -550,6 +550,10 @@ export default {
 
     if (request.method === 'GET' && url.pathname === '/api/balance') {
       return handleBalance(request, env);
+    }
+
+    if (request.method === 'POST' && url.pathname === '/api/wallet') {
+      return handleWalletLink(request, env);
     }
 
     if (request.method === 'GET' && url.pathname === '/api/referral') {

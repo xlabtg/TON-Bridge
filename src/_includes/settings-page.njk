@@ -674,9 +674,13 @@
             WalletConnect.removePayoutAddress();
             updatePayoutWalletUI('');
         });
+        window.addEventListener('tbc:payout-wallet-loaded', function() {
+            var statusEl = document.getElementById('wallet-settings-status');
+            updatePayoutWalletUI(statusEl && statusEl.title ? statusEl.title : '');
+        });
 
         WalletConnect.onChange(updateSettingsWalletUI);
-        WalletConnect.init('tonconnect-manifest.json', {
+        WalletConnect.init({{ tonConnectManifestUrl | jsString | safe }}, {
             sdkUrl: 'assets/js/vendor/tonconnect-ui.min.js',
             lazy: true
         });

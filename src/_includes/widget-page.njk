@@ -718,7 +718,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             WalletConnect.onChange(updateWalletUI);
-            WalletConnect.init('tonconnect-manifest.json', {
+            WalletConnect.init({{ tonConnectManifestUrl | jsString | safe }}, {
                 sdkUrl: 'assets/js/vendor/tonconnect-ui.min.js',
                 lazy: true
             });

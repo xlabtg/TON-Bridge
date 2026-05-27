@@ -46,6 +46,43 @@ async function mockTelegramWebApp(page) {
   });
 }
 
+async function mockTelegramWebAppWithoutSwitchInlineQuery(page) {
+  await page.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({
+    status: 200,
+    contentType: 'application/javascript',
+    body: '/* mocked */',
+  }));
+
+  await page.addInitScript(() => {
+    localStorage.setItem('FinappConsent', JSON.stringify({
+      version: 1,
+      analytics: false,
+      marketing: false,
+      ts: Date.now(),
+    }));
+
+    const mainButton = {
+      _text: '', _visible: false, _handlers: [],
+      setText(text) { this._text = text; },
+      show() { this._visible = true; },
+      hide() { this._visible = false; },
+      onClick(fn) { this._handlers.push(fn); },
+      offClick(fn) { this._handlers = this._handlers.filter(h => h !== fn); },
+    };
+    window.Telegram = {
+      WebApp: {
+        ready() {},
+        expand() {},
+        onEvent() {},
+        setHeaderColor() {},
+        colorScheme: 'light',
+        MainButton: mainButton,
+        // switchInlineQuery intentionally absent to test fallback
+      },
+    };
+  });
+}
+
 async function setLangPref(page, lang) {
   await page.addInitScript(l => {
     localStorage.setItem('pref:lang', l);
@@ -131,12 +168,40 @@ test.describe('"Send to chat" button — switchInlineQuery', () => {
   });
 
   test('sendToChat is a no-op when switchInlineQuery is unavailable', async ({ page }) => {
+    await mockTelegramWebAppWithoutSwitchInlineQuery(page);
+    await page.goto(distUrl('index.html'));
+    // Button is hidden when switchInlineQuery is not available, so sendToChat is never called
+    const btn = page.locator('#send-to-chat-btn');
+    await expect(btn).toBeHidden();
+  });
+
+  test('Bridge EN: button is hidden when switchInlineQuery is unavailable', async ({ page }) => {
+    await mockTelegramWebAppWithoutSwitchInlineQuery(page);
+    await page.goto(distUrl('index.html'));
+    const btn = page.locator('#send-to-chat-btn');
+    await expect(btn).toBeHidden();
+  });
+
+  test('Exchange EN: button is hidden when switchInlineQuery is unavailable', async ({ page }) => {
+    await mockTelegramWebAppWithoutSwitchInlineQuery(page);
+    await page.goto(distUrl('index2.html'));
+    const btn = page.locator('#send-to-chat-btn');
+    await expect(btn).toBeHidden();
+  });
+
+  test('OTC EN: button is hidden when switchInlineQuery is unavailable', async ({ page }) => {
+    await mockTelegramWebAppWithoutSwitchInlineQuery(page);
+    await page.goto(distUrl('index3.html'));
+    const btn = page.locator('#send-to-chat-btn');
+    await expect(btn).toBeHidden();
+  });
+
+  test('Bridge EN: button is hidden when running outside Telegram (no window.Telegram)', async ({ page }) => {
     await page.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({
       status: 200,
       contentType: 'application/javascript',
       body: '/* mocked */',
     }));
-
     await page.addInitScript(() => {
       localStorage.setItem('FinappConsent', JSON.stringify({
         version: 1,
@@ -144,30 +209,10 @@ test.describe('"Send to chat" button — switchInlineQuery', () => {
         marketing: false,
         ts: Date.now(),
       }));
-
-      const mainButton = {
-        _text: '', _visible: false, _handlers: [],
-        setText(text) { this._text = text; },
-        show() { this._visible = true; },
-        hide() { this._visible = false; },
-        onClick(fn) { this._handlers.push(fn); },
-        offClick(fn) { this._handlers = this._handlers.filter(h => h !== fn); },
-      };
-      window.Telegram = {
-        WebApp: {
-          ready() {},
-          expand() {},
-          onEvent() {},
-          setHeaderColor() {},
-          colorScheme: 'light',
-          MainButton: mainButton,
-          // switchInlineQuery intentionally absent to test fallback
-        },
-      };
+      // window.Telegram intentionally not set to simulate non-Telegram environment
     });
-
     await page.goto(distUrl('index.html'));
-    // Should not throw
-    await expect(page.locator('#send-to-chat-btn').click()).resolves.toBeUndefined();
+    const btn = page.locator('#send-to-chat-btn');
+    await expect(btn).toBeHidden();
   });
 });

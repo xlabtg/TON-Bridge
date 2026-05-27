@@ -17,3 +17,20 @@ function sendToChatFromButton(button) {
 
     sendToChat(query);
 }
+
+// Hide every #send-to-chat-btn when switchInlineQuery is not available
+// (outside Telegram or on older SDK versions that don't support inline mode).
+function initSendToChatButton() {
+    var tg = window.Telegram && window.Telegram.WebApp;
+    var available = tg && typeof tg.switchInlineQuery === 'function';
+    var buttons = document.querySelectorAll('#send-to-chat-btn');
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].style.display = available ? '' : 'none';
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSendToChatButton);
+} else {
+    initSendToChatButton();
+}

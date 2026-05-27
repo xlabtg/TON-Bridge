@@ -102,6 +102,7 @@ async function mockTelegramWebApp(page, options = {}) {
           setItem(_key, _value, cb) { if (cb) cb(null); },
           getItem(_key, cb) { if (cb) cb(null, ''); },
         },
+        switchInlineQuery() {},
       },
     };
   }, { userId, adminIds });

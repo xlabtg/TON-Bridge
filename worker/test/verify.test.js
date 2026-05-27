@@ -263,4 +263,31 @@ describe('/auth/verify referral issuance', () => {
       crypto.getRandomValues = originalRandomValues;
     }
   });
+
+  it('uses BOT_USERNAME and MINI_APP_SHORT_NAME env vars in ref_share_url (issue #176)', async () => {
+    const db = createMockDb();
+    const initData = await buildValidInitData({ user: JSON.stringify({ id: 555, username: 'frank' }) });
+
+    const request = new Request('https://worker.example/auth/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ initData }),
+    });
+
+    const response = await worker.fetch(request, {
+      BOT_TOKEN,
+      JWT_SECRET: 'test-jwt-secret-that-is-long-enough',
+      DB: db,
+      BOT_USERNAME: 'MyCustomBot',
+      MINI_APP_SHORT_NAME: 'bridge',
+    });
+
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.match(
+      body.user.ref_share_url,
+      /^https:\/\/t\.me\/MyCustomBot\/bridge\?startapp=ref_[A-Z2-9]{8}$/,
+      'ref_share_url should use custom BOT_USERNAME and MINI_APP_SHORT_NAME',
+    );
+  });
 });

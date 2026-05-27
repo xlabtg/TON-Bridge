@@ -12,6 +12,21 @@
  */
 (function () {
 
+  var BOT_USERNAME = 'TONBridge_robot';
+  var APP_NAME = 'app';
+
+  function config() {
+    return window.__TON_BRIDGE_CONFIG__ || {};
+  }
+
+  function botUsername() {
+    return String(config().botUsername || BOT_USERNAME);
+  }
+
+  function miniAppShortName() {
+    return String(config().miniAppShortName || APP_NAME);
+  }
+
   var ALLOWED_ASSETS = [
     'ton', 'tonbsc', 'btc', 'eth', 'usdt', 'usdtton', 'usdtbsc',
     'bnb', 'trx', 'sol', 'near', 'eos', 'algo', 'matic', 'dot',
@@ -91,7 +106,7 @@
    * @returns {string}
    */
   function buildDeepLinkUrl(startParam) {
-    return 'https://t.me/TONBridge_robot/app?startapp=' + encodeURIComponent(startParam);
+    return 'https://t.me/' + botUsername() + '/' + miniAppShortName() + '?startapp=' + encodeURIComponent(startParam);
   }
 
   /**

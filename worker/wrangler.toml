@@ -51,6 +51,11 @@ namespace_id = "1401"
 #   wrangler secret put ADMIN_SECRET
 #   wrangler secret put TONBANKCARD_API_KEY
 
+# Telegram Bot and Mini App identity (used in deep-link and referral share URLs).
+# Replace with the actual bot username and mini app short name for your deployment.
+BOT_USERNAME = "TONBridge_robot"
+MINI_APP_SHORT_NAME = "app"
+
 # Rate knobs (issue #55, Phase 6.12)
 # All values are validated on boot; cashback_bps + referral_bps must <= service_bps.
 # Use POST /admin/config to schedule runtime changes without a redeploy.

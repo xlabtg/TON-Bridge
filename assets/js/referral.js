@@ -9,6 +9,18 @@
   var BOT_USERNAME = 'TONBridge_robot';
   var APP_NAME = 'app';
 
+  function config() {
+    return window.__TON_BRIDGE_CONFIG__ || {};
+  }
+
+  function botUsername() {
+    return String(config().botUsername || BOT_USERNAME);
+  }
+
+  function miniAppShortName() {
+    return String(config().miniAppShortName || APP_NAME);
+  }
+
   function generateCode() {
     var bytes = new Uint8Array(CODE_LEN);
     crypto.getRandomValues(bytes);
@@ -20,7 +32,7 @@
   }
 
   function shareUrl(code) {
-    return 'https://t.me/' + BOT_USERNAME + '/' + APP_NAME + '?startapp=ref_' + code;
+    return 'https://t.me/' + botUsername() + '/' + miniAppShortName() + '?startapp=ref_' + code;
   }
 
   function normalizeServerUser(user) {

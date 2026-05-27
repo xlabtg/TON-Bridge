@@ -2,6 +2,20 @@
 // Called with metadata captured from the widget's success/finish postMessage.
 (function () {
     var tg = window.Telegram && window.Telegram.WebApp;
+    var BOT_USERNAME = 'TONBridge_robot';
+    var APP_NAME = 'app';
+
+    function config() {
+        return window.__TON_BRIDGE_CONFIG__ || {};
+    }
+
+    function botUsername() {
+        return String(config().botUsername || BOT_USERNAME);
+    }
+
+    function miniAppShortName() {
+        return String(config().miniAppShortName || APP_NAME);
+    }
 
     // Generate a 1080×1920 story card PNG and return a data-URL.
     function buildStoryCard(amount, asset, seconds) {
@@ -76,14 +90,15 @@
     // Build the share caption in the current page's language.
     function buildCaption(amount, asset, seconds) {
         var lang = detectLang();
+        var bot = botUsername();
         if (lang === 'ru') {
             return 'Обменял ' + (amount || '?') + ' ' + (asset || '') +
                 (seconds != null ? ' за ' + seconds + ' с' : '') +
-                ' через @TONBridge_robot';
+                ' через @' + bot;
         }
         return 'Bridged ' + (amount || '?') + ' ' + (asset || '') +
             (seconds != null ? ' in ' + seconds + 's' : '') +
-            ' with @TONBridge_robot';
+            ' with @' + bot;
     }
 
     // Derive referral code: prefer the value cached in localStorage by #6.2,
@@ -93,7 +108,7 @@
     }
 
     function buildStickerUrl(refCode) {
-        var base = 'https://t.me/TONBridge_robot/app';
+        var base = 'https://t.me/' + botUsername() + '/' + miniAppShortName();
         return refCode ? base + '?startapp=ref_' + refCode : base;
     }
 

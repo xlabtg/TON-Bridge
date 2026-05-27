@@ -295,4 +295,61 @@ unlink($existing);
 unlink($backupPath);
 rmdir($backupRoot);
 
+// Issue #176: Verify that installer replaces the mini app short name in JS when it
+// differs from the default 'app'. This ensures referral links generated after a
+// custom-name deployment point to the correct mini app path.
+$tmpMiniAppRoot = sys_get_temp_dir() . '/tonbridge-installer-miniapp-' . bin2hex(random_bytes(4));
+mkdir($tmpMiniAppRoot . '/assets/js', 0777, true);
+
+// Simulate pre-built JS distribution files with the default 'app' mini app short name.
+file_put_contents($tmpMiniAppRoot . '/assets/js/referral.js',
+    "var BOT_USERNAME = 'TONBridge_robot';\nvar APP_NAME = 'app';\n"
+);
+file_put_contents($tmpMiniAppRoot . '/assets/js/deep-link.js',
+    "return 'https://t.me/TONBridge_robot/app?startapp=' + param;\n"
+);
+file_put_contents($tmpMiniAppRoot . '/assets/js/share-to-story.js',
+    "var base = 'https://t.me/TONBridge_robot/app';\n"
+);
+
+$customShortNameConfig = [
+    ...$config,
+    'telegram_mini_app_short_name' => 'bridge',
+];
+$changedMiniApp = tonbridge_installer_apply_static_config($tmpMiniAppRoot, $customShortNameConfig);
+sort($changedMiniApp);
+
+assert_true(
+    in_array('assets/js/referral.js', $changedMiniApp, true),
+    'installer should update referral.js with custom mini app short name'
+);
+assert_true(
+    in_array('assets/js/deep-link.js', $changedMiniApp, true),
+    'installer should update deep-link.js with custom mini app short name'
+);
+assert_true(
+    in_array('assets/js/share-to-story.js', $changedMiniApp, true),
+    'installer should update share-to-story.js with custom mini app short name'
+);
+
+// referral.js: BOT_USERNAME and APP_NAME must both be updated.
+$referralJs = file_get_contents($tmpMiniAppRoot . '/assets/js/referral.js');
+assert_contains("var BOT_USERNAME = 'ExampleBridgeBot'", $referralJs, 'referral.js should get custom bot username');
+assert_contains("var APP_NAME = 'bridge'", $referralJs, 'referral.js should get custom mini app short name (issue #176)');
+
+// deep-link.js: the combined bot/mini-app path must be updated atomically.
+$deepLinkJs = file_get_contents($tmpMiniAppRoot . '/assets/js/deep-link.js');
+assert_contains('https://t.me/ExampleBridgeBot/bridge?startapp=', $deepLinkJs, 'deep-link.js should get custom bot/mini-app path (issue #176)');
+assert_not_contains('TONBridge_robot', $deepLinkJs, 'deep-link.js must not contain the default bot username after replacement');
+assert_not_contains('/app?startapp=', $deepLinkJs, 'deep-link.js must not contain the default mini app short name after replacement');
+
+// share-to-story.js: the combined bot/mini-app path must be updated atomically.
+$shareToStoryJs = file_get_contents($tmpMiniAppRoot . '/assets/js/share-to-story.js');
+assert_contains("'https://t.me/ExampleBridgeBot/bridge'", $shareToStoryJs, 'share-to-story.js should get custom bot/mini-app path (issue #176)');
+
+array_map('unlink', glob($tmpMiniAppRoot . '/assets/js/*.js'));
+rmdir($tmpMiniAppRoot . '/assets/js');
+rmdir($tmpMiniAppRoot . '/assets');
+rmdir($tmpMiniAppRoot);
+
 echo "Installer tests passed.\n";

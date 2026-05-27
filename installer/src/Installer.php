@@ -666,6 +666,7 @@ function tonbridge_installer_static_replacements(array $config): array
     $safeAnalyticsApp = tonbridge_installer_js_single_quote_value($config['tg_analytics_app_name']);
     $workerUrl = $config['worker_base_url'] !== '' ? $config['worker_base_url'] : 'https://bridge-worker.tonbankcard.workers.dev';
     $botUsername = $config['telegram_bot_username'];
+    $miniAppShortName = $config['telegram_mini_app_short_name'];
 
     return [
         // Double-percent placeholders written by eleventy build into source JS.
@@ -680,8 +681,14 @@ function tonbridge_installer_static_replacements(array $config): array
         'your-changenow-link-id-here' => $config['changenow_link_id'],
         'your-bot-username' => $botUsername,
         '__ADMIN_TELEGRAM_IDS__' => $config['admin_telegram_ids'],
-        // Legacy hardcoded values that may appear in older distributions.
+        // Legacy hardcoded bot+mini-app path that appears in pre-built JS (issue #176).
+        // Replace the combined "TONBridge_robot/app" token BEFORE replacing the bare bot
+        // username so the mini app short name is updated at the same time.
+        "TONBridge_robot/app" => $botUsername . '/' . $miniAppShortName,
+        // Bare bot username (remaining occurrences not followed by a mini app path).
         'TONBridge_robot' => $botUsername,
+        // Mini app short name placeholder in JS variables (issue #176).
+        "var APP_NAME = 'app'" => "var APP_NAME = '" . $miniAppShortName . "'",
         '98019798' => $config['yandex_metrika_id'],
         '3cc0024a18fd9d' => $config['changenow_link_id'],
         'https://bridge-worker.tonbankcard.workers.dev' => $workerUrl,

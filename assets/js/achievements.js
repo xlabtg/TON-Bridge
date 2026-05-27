@@ -3,6 +3,16 @@
 // reaches a threshold first.  On tier-up, a celebration modal is shown with a
 // Share CTA wired to Telegram.WebApp.shareToStory (issue #4.2).
 (function () {
+    var BOT_USERNAME = 'TONBridge_robot';
+
+    function config() {
+        return window.__TON_BRIDGE_CONFIG__ || {};
+    }
+
+    function botUsername() {
+        return String(config().botUsername || BOT_USERNAME);
+    }
+
     var TIERS = [
         {
             id: 'bronze',
@@ -177,10 +187,10 @@
             shareBtn.onclick = function () {
                 if (tg && tg.shareToStory) {
                     tg.shareToStory('assets/img/loading-icon.png', {
-                        text: 'I just reached ' + tier.label + ' tier on TON Bridge! 🚀 Try it @TONBridge_robot',
+                        text: 'I just reached ' + tier.label + ' tier on TON Bridge! 🚀 Try it @' + botUsername(),
                     });
                 } else if (tg && tg.openTelegramLink) {
-                    tg.openTelegramLink('https://t.me/share/url?url=https://t.me/TONBridge_robot&text=I+just+reached+' + encodeURIComponent(tier.label) + '+tier+on+TON+Bridge!+%F0%9F%9A%80');
+                    tg.openTelegramLink('https://t.me/share/url?url=https://t.me/' + botUsername() + '&text=I+just+reached+' + encodeURIComponent(tier.label) + '+tier+on+TON+Bridge!+%F0%9F%9A%80');
                 }
                 modal.classList.remove('show');
                 modal.style.display = 'none';

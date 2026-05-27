@@ -163,12 +163,19 @@ export function getNotificationText(state, lang = 'en') {
   return lang === 'ru' ? bucket.ru : bucket.en;
 }
 
-export function buildDeepLink(orderId) {
-  return `https://t.me/TONBridge_robot/app?startapp=order_${orderId}`;
+const DEFAULT_BOT_USERNAME = 'TONBridge_robot';
+const DEFAULT_MINI_APP_SHORT_NAME = 'app';
+
+export function buildDeepLink(orderId, env = {}) {
+  const bot = (env && env.BOT_USERNAME) || DEFAULT_BOT_USERNAME;
+  const miniApp = (env && env.MINI_APP_SHORT_NAME) || DEFAULT_MINI_APP_SHORT_NAME;
+  return `https://t.me/${bot}/${miniApp}?startapp=order_${orderId}`;
 }
 
-export function buildReferralShareUrl(refCode) {
-  return `https://t.me/TONBridge_robot/app?startapp=ref_${refCode}`;
+export function buildReferralShareUrl(refCode, env = {}) {
+  const bot = (env && env.BOT_USERNAME) || DEFAULT_BOT_USERNAME;
+  const miniApp = (env && env.MINI_APP_SHORT_NAME) || DEFAULT_MINI_APP_SHORT_NAME;
+  return `https://t.me/${bot}/${miniApp}?startapp=ref_${refCode}`;
 }
 
 export function generateRefCode() {
@@ -429,7 +436,7 @@ async function handleReferralRewards(request, url, env, cors) {
   return new Response(JSON.stringify({
     ok: true,
     ref_code: dbUser ? dbUser.ref_code : null,
-    ref_share_url: dbUser ? buildReferralShareUrl(dbUser.ref_code) : null,
+    ref_share_url: dbUser ? buildReferralShareUrl(dbUser.ref_code, env) : null,
     points_per_tbc: pointsPerTbc,
     ...snapshot,
     ...referralStats,
@@ -478,7 +485,7 @@ export async function fetchOrderStatus(apiKey, orderId) {
   return data.status;
 }
 
-async function processOrder(kvKey, kv, botToken, apiKey) {
+async function processOrder(kvKey, kv, botToken, apiKey, env = {}) {
   const raw = await kv.get(kvKey, 'json');
   if (!raw) return { kvKey, action: 'missing' };
   if (raw.notificationsOptOut) return { kvKey, action: 'opted-out' };
@@ -499,7 +506,7 @@ async function processOrder(kvKey, kv, botToken, apiKey) {
   if (shouldNotify(lastState, currentState, notified)) {
     const text = getNotificationText(currentState, lang);
     try {
-      await sendTelegramMessage(botToken, telegramUserId, text, buildDeepLink(orderId));
+      await sendTelegramMessage(botToken, telegramUserId, text, buildDeepLink(orderId, env));
     } catch (err) {
       await kv.put(kvKey, JSON.stringify({ ...raw, lastState: currentState }));
       return { kvKey, action: 'notify-error', error: err.message };
@@ -521,14 +528,14 @@ async function processOrder(kvKey, kv, botToken, apiKey) {
   return { kvKey, action: 'polled', state: currentState };
 }
 
-export async function runNotificationCron(kv, botToken, apiKey) {
+export async function runNotificationCron(kv, botToken, apiKey, env = {}) {
   const { keys } = await kv.list({ prefix: 'order:' });
   const results = [];
 
   for (let i = 0; i < keys.length; i += NOTIFICATION_BATCH_SIZE) {
     const batch = keys.slice(i, i + NOTIFICATION_BATCH_SIZE);
     const batchResults = await Promise.all(
-      batch.map(({ name }) => processOrder(name, kv, botToken, apiKey)),
+      batch.map(({ name }) => processOrder(name, kv, botToken, apiKey, env)),
     );
     results.push(...batchResults);
   }
@@ -652,7 +659,7 @@ export default {
           username,
           language_code,
           ref_code: dbUser ? dbUser.ref_code : null,
-          ref_share_url: dbUser ? buildReferralShareUrl(dbUser.ref_code) : null,
+          ref_share_url: dbUser ? buildReferralShareUrl(dbUser.ref_code, env) : null,
         },
       });
 
@@ -709,7 +716,7 @@ export default {
 
   async scheduled(event, env, ctx) {
     if (env.BRIDGE_KV && env.BOT_TOKEN && env.CHANGENOW_API_KEY) {
-      ctx.waitUntil(runNotificationCron(env.BRIDGE_KV, env.BOT_TOKEN, env.CHANGENOW_API_KEY));
+      ctx.waitUntil(runNotificationCron(env.BRIDGE_KV, env.BOT_TOKEN, env.CHANGENOW_API_KEY, env));
     }
 
     if (event.cron === '* * * * *' && env.DB && env.CHANGENOW_API_KEY) {

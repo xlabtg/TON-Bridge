@@ -17,7 +17,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="manifest" href="__manifest.json">
-    
+
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://ton-bridge-worker.tonbankcard.workers.dev https://api.telegram.org https://tganalytics.xyz https://mc.yandex.ru">
     <style>
         .redeem-balance-card {
@@ -121,8 +121,8 @@
 <script>
     function initAnalytics() {
       window.telegramAnalytics.init({
-        token: "test",
-        appName: "test",
+        token: "your-tganalytics-jwt-here",
+        appName: "your-analytics-app-name",
       });
     }
 </script>
@@ -208,7 +208,7 @@
     <!-- * App Capsule -->
 
     <!-- App Bottom Menu -->
-    
+
 <nav class="appBottomMenu" aria-label="Main navigation" data-i18n-attr="aria-label:nav_aria_label" data-admin-ids="__ADMIN_TELEGRAM_IDS__">
     <div role="tablist" aria-label="Main navigation" data-i18n-attr="aria-label:nav_aria_label">
         <a href="index.html" class="item" role="tab" aria-selected="false">
@@ -262,6 +262,7 @@
     </div>
 </nav>
 <script src="assets/js/tonbridge-config.js"></script>
+<script defer src="assets/js/language-routing.js"></script>
 <script defer src="assets/js/admin-access.js"></script>
 
     <!-- * App Bottom Menu -->
@@ -508,7 +509,7 @@
    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-   var metrikaId = "123";
+   var metrikaId = "your-yandex-metrika-id-here";
    ym(Number(metrikaId) || metrikaId, "init", {
         clickmap:true,
         trackLinks:true,
@@ -516,7 +517,7 @@
         webvisor:true
    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/123" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/your-yandex-metrika-id-here" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
 </body>
 

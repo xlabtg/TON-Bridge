@@ -277,7 +277,7 @@ jobs:
         run: php -v
 
       - name: Run installer tests
-        run: php tests/installer.test.php && php tests/installer-navigation.test.php && php tests/installer-review.test.php && php tests/installer-database-step.test.php
+        run: php tests/installer.test.php && php tests/installer-navigation.test.php && php tests/installer-review.test.php && php tests/installer-database-step.test.php && php tests/deployment-assets.test.php
 
   html-validate:
     name: HTML Validate

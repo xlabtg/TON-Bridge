@@ -11,7 +11,10 @@
 
     var tg = window.Telegram && window.Telegram.WebApp;
 
-    var DEFAULT_API_BASE = 'https://ton-bridge-auth.YOUR_ACCOUNT.workers.dev';
+    // Must match auth.js DEFAULT_WORKER_URL and the literal the installer rewrites
+    // (installer/src/Installer.php → tonbridge_installer_static_replacements). A
+    // value outside that allow-list would never be reachable once deployed.
+    var DEFAULT_API_BASE = 'https://ton-bridge-worker.tonbankcard.workers.dev';
 
     function publicConfig() {
         return window.__TON_BRIDGE_CONFIG__ || {};

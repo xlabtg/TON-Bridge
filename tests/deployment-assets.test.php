@@ -88,6 +88,24 @@ foreach (['referral.html', 'referral-ru.html'] as $page) {
     );
 }
 
+// Admin panel (issue #174): the page fetches every dataset from the
+// cross-origin Cloudflare Worker (see assets/js/admin.js + worker/src/
+// adminPanel.js). The committed admin/index.html must therefore list the
+// worker origin in its CSP connect-src — otherwise the browser blocks all
+// /admin/api/* requests and the panel renders no data even after #172/#173.
+// The literal worker URL below is what the installer rewrites to the deployed
+// worker (installer/src/Installer.php → tonbridge_installer_static_replacements).
+$adminHtml = deploy_read($root, 'admin/index.html');
+if (preg_match('/connect-src([^;"]*)/', $adminHtml, $m)) {
+    $connectSrc = $m[1];
+    deploy_assert(
+        str_contains($connectSrc, 'https://ton-bridge-worker.tonbankcard.workers.dev'),
+        'admin/index.html connect-src must include the worker origin so /admin/api/* fetches are not blocked by CSP (issue #174)'
+    );
+} else {
+    deploy_assert(false, 'admin/index.html must declare a CSP connect-src directive');
+}
+
 // No deployment HTML may keep development/test placeholders the installer is
 // unable to rewrite. These would otherwise ship a broken analytics config.
 $stalePlaceholders = [

@@ -104,8 +104,8 @@ mkdir($tmpRoot . '/dist/admin', 0777, true);
 file_put_contents($tmpRoot . '/0.html', "token: '%%TG_ANALYTICS_TOKEN%%'\nappName: '%%TG_ANALYTICS_APP_NAME%%'\nym(%%YANDEX_METRIKA_ID%%, \"init\")\n");
 file_put_contents($tmpRoot . '/index.html', 'https://changenow.io/widget?link_id=00000000000000');
 file_put_contents($tmpRoot . '/app-settings.html', '<nav data-admin-ids="__ADMIN_TELEGRAM_IDS__"></nav>');
-file_put_contents($tmpRoot . '/admin/index.html', '<meta name="admin-ids" content="__ADMIN_TELEGRAM_IDS__">');
-file_put_contents($tmpRoot . '/dist/admin/index.html', '<meta name="admin-ids" content="__ADMIN_TELEGRAM_IDS__">');
+file_put_contents($tmpRoot . '/admin/index.html', '<meta name="admin-ids" content="__ADMIN_TELEGRAM_IDS__"><meta http-equiv="Content-Security-Policy" content="connect-src \'self\' https://ton-bridge-worker.tonbankcard.workers.dev https://api.telegram.org">');
+file_put_contents($tmpRoot . '/dist/admin/index.html', '<meta name="admin-ids" content="__ADMIN_TELEGRAM_IDS__"><meta http-equiv="Content-Security-Policy" content="connect-src \'self\' https://ton-bridge-worker.tonbankcard.workers.dev https://api.telegram.org">');
 file_put_contents($tmpRoot . '/assets/js/base.js', "tgAnalyticsToken: '%%TG_ANALYTICS_TOKEN%%'\ntgAnalyticsAppName: '%%TG_ANALYTICS_APP_NAME%%'\nyandexMetrikaId: '%%YANDEX_METRIKA_ID%%'\n");
 file_put_contents($tmpRoot . '/assets/js/auth.js', "var DEFAULT_WORKER_URL = 'https://ton-bridge-worker.tonbankcard.workers.dev';\n");
 file_put_contents($tmpRoot . '/assets/js/deep-link.js', "return 'https://t.me/TONBridge_robot/app?startapp=' + param;");
@@ -125,6 +125,10 @@ assert_contains('link_id=partner123', file_get_contents($tmpRoot . '/index.html'
 assert_contains('data-admin-ids="12345,67890"', file_get_contents($tmpRoot . '/app-settings.html'), 'static HTML should get installer admin IDs');
 assert_contains('content="12345,67890"', file_get_contents($tmpRoot . '/admin/index.html'), 'admin page should get installer admin IDs');
 assert_contains('content="12345,67890"', file_get_contents($tmpRoot . '/dist/admin/index.html'), 'dist admin page should get installer admin IDs');
+// Issue #174: the admin CSP connect-src worker origin must be rewritten to the
+// deployed worker, otherwise the browser blocks every /admin/api/* fetch.
+assert_contains("connect-src 'self' https://worker.example.com https://api.telegram.org", file_get_contents($tmpRoot . '/admin/index.html'), 'admin page CSP should get installer worker origin');
+assert_contains("connect-src 'self' https://worker.example.com https://api.telegram.org", file_get_contents($tmpRoot . '/dist/admin/index.html'), 'dist admin page CSP should get installer worker origin');
 assert_contains('https://t.me/ExampleBridgeBot/app?startapp=', file_get_contents($tmpRoot . '/assets/js/deep-link.js'), 'static JS should get bot username');
 assert_contains("var DEFAULT_WORKER_URL = 'https://worker.example.com'", file_get_contents($tmpRoot . '/assets/js/auth.js'), 'auth JS should get worker URL');
 assert_contains("var BOT_USERNAME = 'ExampleBridgeBot'", file_get_contents($tmpRoot . '/assets/js/referral.js'), 'referral JS should get bot username');

@@ -55,6 +55,23 @@ test.describe('CSP meta tag', () => {
   }
 });
 
+test.describe('Admin CSP connect-src allows the worker origin', () => {
+  // Issue #174: the admin panel fetches every dataset from the cross-origin
+  // Cloudflare Worker (assets/js/admin.js → worker/src/adminPanel.js). If the
+  // worker origin is missing from connect-src the browser blocks all
+  // /admin/api/* requests and the panel renders no data — which is exactly what
+  // made the #172/#173 data-loading fix look like it had no effect once
+  // deployed. The other worker-backed pages already list the origin; the admin
+  // page must too. (The admin.spec.js suite patches window.fetch before the page
+  // scripts run, so it cannot catch a CSP regression — this static check does.)
+  test('admin/index.html lists the worker origin in connect-src', () => {
+    const html = readFileSync(distPath('admin/index.html'), 'utf8');
+    const match = html.match(/connect-src([^;"]*)/);
+    expect(match, 'admin page must declare a connect-src directive').toBeTruthy();
+    expect(match[1]).toContain('https://ton-bridge-worker.tonbankcard.workers.dev');
+  });
+});
+
 test.describe('SRI hashes on external scripts', () => {
   const TELEGRAM_SRI = 'sha384-1XuC9S4cgk6RH1oCsL2diDRwLiiivu/oZHNfxYUitEFuiKpP5ceNbzu220KKrcK+';
   const TGANALYTICS_SRI = 'sha384-njlroka3F7BclV9FXjiHDU9ZSrhSwNVRewye4d5rpWXYvery9PUnnhuAZAHfLyJ+';

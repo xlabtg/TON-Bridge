@@ -86,6 +86,17 @@
         .referral-reward-balance small {
             color: var(--tg-hint, #6b6479);
         }
+        .referral-installed-stat {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .referral-installed-stat strong {
+            color: #007fa7;
+            font-size: 1.6rem;
+            line-height: 1;
+        }
     </style>
 </head>
 
@@ -113,8 +124,8 @@
     <script>
         function initAnalytics() {
           window.telegramAnalytics.init({
-            token: "test",
-            appName: "test",
+            token: "your-tganalytics-jwt-here",
+            appName: "your-analytics-app-name",
           });
         }
     </script>
@@ -166,6 +177,19 @@
                             <ion-icon name="share-social-outline"></ion-icon>
                             Share link
                         </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Referral install stats -->
+        <div class="section mb-3" id="referral-stats-section">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Referral installs</h5>
+                    <div class="referral-installed-stat" aria-live="polite">
+                        <span class="text-muted">Installed via your link</span>
+                        <strong id="referral-installed-count">0</strong>
                     </div>
                 </div>
             </div>
@@ -298,6 +322,7 @@
     </div>
 </nav>
 <script src="assets/js/tonbridge-config.js"></script>
+<script defer src="assets/js/language-routing.js"></script>
 <script defer src="assets/js/admin-access.js"></script>
 
     <!-- * App Bottom Menu -->
@@ -387,3 +412,4 @@
 </body>
 
 </html>
+

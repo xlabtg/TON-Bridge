@@ -264,12 +264,41 @@ describe('GET /admin/api/stats — payload', () => {
     assert.equal(body.stats.tbc_paid.usd_equiv, 0.03);
   });
 
+  test('counts total and recently-registered users', async () => {
+    const db = makeDb();
+    const nowS = Math.floor(Date.now() / 1000);
+    // within 24h
+    db.prepare('INSERT INTO users (telegram_id, ref_code, created_at, last_seen) VALUES (?,?,?,?)')
+      .run(100, 'R100', nowS - 3600, nowS);
+    // within 7d but not 24h
+    db.prepare('INSERT INTO users (telegram_id, ref_code, created_at, last_seen) VALUES (?,?,?,?)')
+      .run(101, 'R101', nowS - 3 * 86400, nowS);
+    // older than 30d
+    db.prepare('INSERT INTO users (telegram_id, ref_code, created_at, last_seen) VALUES (?,?,?,?)')
+      .run(102, 'R102', nowS - 40 * 86400, nowS);
+
+    const env = makeEnv(db);
+    const [req, url] = getReq('/admin/api/stats', {
+      headers: { Authorization: 'tma ' + fakeInitData(12345) },
+    });
+    const res = await handleAdminPanelRequest(req, url, env);
+    const body = await res.json();
+
+    assert.equal(res.status, 200);
+    assert.equal(body.stats.users.total, 3);
+    assert.equal(body.stats.users.new_24h, 1);
+    assert.equal(body.stats.users.new_7d, 2);
+  });
+
   test('returns zeros when DB is empty', async () => {
     const db = makeDb();
     const stats = await computeAdminStats(wrapD1Wrapper(db), Math.floor(Date.now() / 1000));
     assert.equal(stats.turnover.h24, 0);
     assert.equal(stats.points_outstanding, 0);
     assert.equal(stats.tbc_paid.count, 0);
+    assert.equal(stats.users.total, 0);
+    assert.equal(stats.users.new_24h, 0);
+    assert.equal(stats.users.new_7d, 0);
   });
 });
 
@@ -421,6 +450,56 @@ describe('GET /admin/api/top-users', () => {
     const db = makeDb();
     const env = makeEnv(db, { ADMIN_TELEGRAM_IDS: '' });
     const [req, url] = getReq('/admin/api/top-users', {
+      headers: { Authorization: 'tma ' + fakeInitData(12345) },
+    });
+    const res = await handleAdminPanelRequest(req, url, env);
+    assert.equal(res.status, 403);
+  });
+});
+
+// ── /admin/api/users ────────────────────────────────────────────────────────
+
+describe('GET /admin/api/users', () => {
+  test('returns most recently registered users with points balance', async () => {
+    const db = makeDb();
+    const nowS = Math.floor(Date.now() / 1000);
+    db.prepare('INSERT INTO users (telegram_id, ref_code, created_at, last_seen) VALUES (?,?,?,?)')
+      .run(100, 'R100', nowS - 100, nowS - 10);
+    db.prepare('INSERT INTO users (telegram_id, ref_code, created_at, last_seen) VALUES (?,?,?,?)')
+      .run(101, 'R101', nowS - 50, nowS - 5);
+    // 250 points credited to user 101
+    db.prepare('INSERT INTO point_ledger (user_id, role, delta_points, created_at) VALUES (?,?,?,?)')
+      .run(101, 'trader', 250, nowS);
+
+    const env = makeEnv(db);
+    const [req, url] = getReq('/admin/api/users', {
+      headers: { Authorization: 'tma ' + fakeInitData(12345) },
+    });
+    const res = await handleAdminPanelRequest(req, url, env);
+    const body = await res.json();
+
+    assert.equal(res.status, 200);
+    assert.equal(body.items.length, 2);
+    // Newest first (created_at desc): 101 then 100.
+    assert.equal(body.items[0].user_id, 101);
+    assert.equal(body.items[0].points, 250);
+    assert.equal(body.items[0].last_seen, nowS - 5);
+    assert.equal(body.items[1].user_id, 100);
+    assert.equal(body.items[1].points, 0);
+  });
+
+  test('401 without initData', async () => {
+    const db = makeDb();
+    const env = makeEnv(db);
+    const [req, url] = getReq('/admin/api/users');
+    const res = await handleAdminPanelRequest(req, url, env);
+    assert.equal(res.status, 401);
+  });
+
+  test('403 for non-admin', async () => {
+    const db = makeDb();
+    const env = makeEnv(db, { ADMIN_TELEGRAM_IDS: '99999' });
+    const [req, url] = getReq('/admin/api/users', {
       headers: { Authorization: 'tma ' + fakeInitData(12345) },
     });
     const res = await handleAdminPanelRequest(req, url, env);

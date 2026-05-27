@@ -1,4 +1,11 @@
 .panelbox {
+  // Ensure the panel element itself is fixed-positioned so that Bootstrap's
+  // focus() call when opening the sidebar does not cause the page to scroll
+  // to the bottom (where the modal element sits in the DOM).
+  // Bootstrap controls display via inline style (display:block/none), so we
+  // only need position:fixed here — no additional visibility override.
+  position: fixed;
+
   .modal-dialog {
     margin: 0;
     position: fixed;

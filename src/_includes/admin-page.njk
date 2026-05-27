@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>Admin — TON Bridge</title>
+    <title data-i18n="admin_page_title">Admin — TON Bridge</title>
     <meta name="description" content="TON Bridge admin panel">
     <meta name="robots" content="noindex, nofollow">
     {# ADMIN_TELEGRAM_IDS is injected at build time; comma-separated numeric Telegram user IDs #}
@@ -51,7 +51,7 @@
     <div class="appHeader bg-primary text-light">
         <div class="left">
         </div>
-        <div class="pageTitle">
+        <div class="pageTitle" data-i18n="admin_header_title">
             Admin
         </div>
     </div>
@@ -60,9 +60,9 @@
     <!-- Access Denied -->
     <div id="access-denied" class="flex-column align-items-center justify-content-center" style="min-height:60vh; padding:32px; text-align:center;" hidden>
         <ion-icon name="lock-closed-outline" style="font-size:64px; color:#dc3545;"></ion-icon>
-        <h2 class="mt-3">403 — Access Denied</h2>
-        <p class="text-muted">You are not authorised to view this page.<br>Contact the administrator if you believe this is an error.</p>
-        <a href="../index.html" class="btn btn-primary mt-2">Back to App</a>
+        <h2 class="mt-3" data-i18n="admin_access_denied_title">403 — Access Denied</h2>
+        <p class="text-muted"><span data-i18n="admin_access_denied_text">You are not authorised to view this page.</span><br><span data-i18n="admin_access_denied_hint">Contact the administrator if you believe this is an error.</span></p>
+        <a href="../index.html" class="btn btn-primary mt-2" data-i18n="admin_back_to_app">Back to App</a>
     </div>
     <!-- * Access Denied -->
 
@@ -72,71 +72,100 @@
         <!-- App Capsule -->
         <div id="appCapsule" style="padding-bottom: 80px;">
 
+            <!-- Load error banner -->
+            <div id="admin-error" class="alert alert-danger m-2 d-flex align-items-center justify-content-between" role="alert" hidden>
+                <span data-i18n="admin_load_error">Failed to load data. Check your connection and that you have admin access, then retry.</span>
+                <button id="admin-retry" class="btn btn-sm btn-outline-light ms-2" data-i18n="admin_retry">Retry</button>
+            </div>
+
             <!-- Turnover -->
-            <div class="admin-section-title">Platform Turnover</div>
+            <div class="admin-section-title" data-i18n="admin_section_turnover">Platform Turnover</div>
             <div class="d-flex flex-row flex-wrap gap-2 px-2 pb-2">
                 <div class="card admin-stat-card flex-fill">
                     <div class="card-body p-2 text-center">
                         <div class="admin-stat-value" id="stat-turnover-24h">—</div>
-                        <div class="admin-stat-label">24 h</div>
+                        <div class="admin-stat-label" data-i18n="admin_turnover_24h">24 h</div>
                     </div>
                 </div>
                 <div class="card admin-stat-card flex-fill">
                     <div class="card-body p-2 text-center">
                         <div class="admin-stat-value" id="stat-turnover-7d">—</div>
-                        <div class="admin-stat-label">7 d</div>
+                        <div class="admin-stat-label" data-i18n="admin_turnover_7d">7 d</div>
                     </div>
                 </div>
                 <div class="card admin-stat-card flex-fill">
                     <div class="card-body p-2 text-center">
                         <div class="admin-stat-value" id="stat-turnover-30d">—</div>
-                        <div class="admin-stat-label">30 d</div>
+                        <div class="admin-stat-label" data-i18n="admin_turnover_30d">30 d</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users -->
+            <div class="admin-section-title" data-i18n="admin_section_users">Users</div>
+            <div class="d-flex flex-row flex-wrap gap-2 px-2 pb-2">
+                <div class="card admin-stat-card flex-fill">
+                    <div class="card-body p-2 text-center">
+                        <div class="admin-stat-value" id="stat-users-total">—</div>
+                        <div class="admin-stat-label" data-i18n="admin_users_total">Total</div>
+                    </div>
+                </div>
+                <div class="card admin-stat-card flex-fill">
+                    <div class="card-body p-2 text-center">
+                        <div class="admin-stat-value" id="stat-users-new-24h">—</div>
+                        <div class="admin-stat-label" data-i18n="admin_users_new_24h">New 24 h</div>
+                    </div>
+                </div>
+                <div class="card admin-stat-card flex-fill">
+                    <div class="card-body p-2 text-center">
+                        <div class="admin-stat-value" id="stat-users-new-7d">—</div>
+                        <div class="admin-stat-label" data-i18n="admin_users_new_7d">New 7 d</div>
                     </div>
                 </div>
             </div>
 
             <!-- Points -->
-            <div class="admin-section-title">Points</div>
+            <div class="admin-section-title" data-i18n="admin_section_points">Points</div>
             <div class="d-flex flex-row flex-wrap gap-2 px-2 pb-2">
                 <div class="card admin-stat-card flex-fill">
                     <div class="card-body p-2 text-center">
                         <div class="admin-stat-value" id="stat-points-outstanding">—</div>
-                        <div class="admin-stat-label">Outstanding</div>
+                        <div class="admin-stat-label" data-i18n="admin_points_outstanding">Outstanding</div>
                     </div>
                 </div>
                 <div class="card admin-stat-card flex-fill">
                     <div class="card-body p-2 text-center">
                         <div class="admin-stat-value" id="stat-points-redeemed">—</div>
-                        <div class="admin-stat-label">Redeemed</div>
+                        <div class="admin-stat-label" data-i18n="admin_points_redeemed">Redeemed</div>
                     </div>
                 </div>
             </div>
 
             <!-- TBC Paid -->
-            <div class="admin-section-title">TBC Paid Out</div>
+            <div class="admin-section-title" data-i18n="admin_section_tbc">TBC Paid Out</div>
             <div class="d-flex flex-row flex-wrap gap-2 px-2 pb-2">
                 <div class="card admin-stat-card flex-fill">
                     <div class="card-body p-2 text-center">
                         <div class="admin-stat-value" id="stat-tbc-count">—</div>
-                        <div class="admin-stat-label">Payouts</div>
+                        <div class="admin-stat-label" data-i18n="admin_tbc_payouts">Payouts</div>
                     </div>
                 </div>
                 <div class="card admin-stat-card flex-fill">
                     <div class="card-body p-2 text-center">
                         <div class="admin-stat-value" id="stat-tbc-total">—</div>
-                        <div class="admin-stat-label">Total TBC</div>
+                        <div class="admin-stat-label" data-i18n="admin_tbc_total">Total TBC</div>
                     </div>
                 </div>
                 <div class="card admin-stat-card flex-fill">
                     <div class="card-body p-2 text-center">
                         <div class="admin-stat-value" id="stat-tbc-usd">—</div>
-                        <div class="admin-stat-label">USD equiv.</div>
+                        <div class="admin-stat-label" data-i18n="admin_tbc_usd">USD equiv.</div>
                     </div>
                 </div>
             </div>
 
             <!-- Fraud Flags -->
-            <div class="admin-section-title">Fraud Flags</div>
+            <div class="admin-section-title" data-i18n="admin_section_fraud">Fraud Flags</div>
             <div class="px-2 pb-2">
                 <div class="card">
                     <div class="card-body p-2">
@@ -144,28 +173,28 @@
                             <table class="admin-table table table-sm table-hover mb-1" id="fraud-table">
                                 <thead>
                                     <tr>
-                                        <th>#</th>
-                                        <th>User</th>
-                                        <th>Reason</th>
-                                        <th>Pts</th>
-                                        <th>Date</th>
-                                        <th>Action</th>
+                                        <th data-i18n="admin_th_num">#</th>
+                                        <th data-i18n="admin_th_user">User</th>
+                                        <th data-i18n="admin_th_reason">Reason</th>
+                                        <th data-i18n="admin_th_pts">Pts</th>
+                                        <th data-i18n="admin_th_date">Date</th>
+                                        <th data-i18n="admin_th_action">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody id="fraud-tbody"></tbody>
                             </table>
                         </div>
                         <div class="d-flex align-items-center justify-content-between mt-1">
-                            <button id="fraud-prev" class="btn btn-sm btn-outline-secondary" disabled>&#8249; Prev</button>
+                            <button id="fraud-prev" class="btn btn-sm btn-outline-secondary" data-i18n="admin_prev" disabled>&#8249; Prev</button>
                             <span id="fraud-page-info" class="small text-muted"></span>
-                            <button id="fraud-next" class="btn btn-sm btn-outline-secondary">Next &#8250;</button>
+                            <button id="fraud-next" class="btn btn-sm btn-outline-secondary" data-i18n="admin_next">Next &#8250;</button>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Top 20 Users -->
-            <div class="admin-section-title">Top Users by Lifetime Turnover</div>
+            <div class="admin-section-title" data-i18n="admin_section_top_users">Top Users by Lifetime Turnover</div>
             <div class="px-2 pb-2">
                 <div class="card">
                     <div class="card-body p-2">
@@ -173,9 +202,9 @@
                             <table class="admin-table table table-sm table-hover mb-0" id="top-users-table">
                                 <thead>
                                     <tr>
-                                        <th>#</th>
-                                        <th>User ID</th>
-                                        <th>Lifetime USD</th>
+                                        <th data-i18n="admin_th_num">#</th>
+                                        <th data-i18n="admin_th_user_id">User ID</th>
+                                        <th data-i18n="admin_th_lifetime_usd">Lifetime USD</th>
                                     </tr>
                                 </thead>
                                 <tbody id="top-users-tbody"></tbody>
@@ -185,8 +214,30 @@
                 </div>
             </div>
 
+            <!-- Recent Users -->
+            <div class="admin-section-title" data-i18n="admin_section_recent_users">Recent Users</div>
+            <div class="px-2 pb-2">
+                <div class="card">
+                    <div class="card-body p-2">
+                        <div class="table-responsive">
+                            <table class="admin-table table table-sm table-hover mb-0" id="recent-users-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="admin_th_user_id">User ID</th>
+                                        <th data-i18n="admin_th_registered">Registered</th>
+                                        <th data-i18n="admin_th_points">Points</th>
+                                        <th data-i18n="admin_th_last_seen">Last seen</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-users-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Audit Log -->
-            <div class="admin-section-title">Audit Log</div>
+            <div class="admin-section-title" data-i18n="admin_section_audit">Audit Log</div>
             <div class="px-2 pb-2">
                 <div class="card">
                     <div class="card-body p-2">
@@ -194,15 +245,15 @@
                             <table class="admin-table audit-table table table-sm table-hover mb-0" id="audit-table">
                                 <thead>
                                     <tr>
-                                        <th>When</th>
-                                        <th>Who</th>
-                                        <th>Action</th>
-                                        <th>Before</th>
-                                        <th>After</th>
+                                        <th data-i18n="admin_th_when">When</th>
+                                        <th data-i18n="admin_th_who">Who</th>
+                                        <th data-i18n="admin_th_action">Action</th>
+                                        <th data-i18n="admin_th_before">Before</th>
+                                        <th data-i18n="admin_th_after">After</th>
                                     </tr>
                                 </thead>
                                 <tbody id="audit-tbody">
-                                    <tr><td colspan="5" class="text-muted text-center small">No actions yet</td></tr>
+                                    <tr><td colspan="5" class="text-muted text-center small" data-i18n="admin_no_actions">No actions yet</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -219,9 +270,18 @@
     <!-- ========= JS Files ========= -->
     <script src="../assets/js/lib/bootstrap.bundle.min.js"></script>
     <script src="../assets/js/ion-icon.js"></script>
+    <!-- i18n inline data + loader (runtime translation, driven by pref:lang) -->
+    <script src="../assets/js/prefs.js"></script>
+    {% i18nDataScript %}
+    <script src="../assets/js/i18n.js"></script>
     <script src="../assets/js/base.js"></script>
     <script src="../assets/js/tonbridge-config.js"></script>
     <script src="../assets/js/admin.js"></script>
+    <script>
+        if (window.i18n && typeof window.i18n.init === 'function') {
+            window.i18n.init();
+        }
+    </script>
 
 </body>
 

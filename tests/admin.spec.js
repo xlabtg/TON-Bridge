@@ -12,10 +12,17 @@ const FIXTURES = {
   stats: {
     stats: {
       turnover: { h24: 1234.56, d7: 12345.67, d30: 123456.78 },
+      users: { total: 4321, new_24h: 12, new_7d: 87 },
       points_outstanding: 9876,
       points_redeemed: 5432,
       tbc_paid: { count: 12, tbc_total: 345, usd_equiv: 678.9 },
     },
+  },
+  users: {
+    items: [
+      { user_id: 555, created_at: 1_700_000_500, last_seen: 1_700_000_900, points: 1500 },
+      { user_id: 666, created_at: 1_700_000_400, last_seen: 1_700_000_800, points: 0 },
+    ],
   },
   fraudInitial: {
     total: 3,
@@ -65,12 +72,15 @@ async function mockTelegramAdmin(page, userId, adminIds, options = {}) {
     body: '/* mocked */',
   }));
 
-  await page.addInitScript(({ uid, ids, fixtures, config }) => {
+  await page.addInitScript(({ uid, ids, fixtures, config, lang }) => {
     if (ids !== undefined) {
       window.__adminIds = ids || [];
     }
     if (config) {
       window.__TON_BRIDGE_CONFIG__ = config;
+    }
+    if (lang) {
+      try { localStorage.setItem('pref:lang', lang); } catch (e) {}
     }
     window.__adminInitData = uid ? 'user=%7B%22id%22%3A' + uid + '%7D' : '';
 
@@ -138,12 +148,15 @@ async function mockTelegramAdmin(page, userId, adminIds, options = {}) {
       if (path === '/admin/api/top-users') {
         return Promise.resolve(jsonResponse(fixtures.topUsers));
       }
+      if (path === '/admin/api/users') {
+        return Promise.resolve(jsonResponse(fixtures.users));
+      }
       if (path === '/admin/api/audit-log') {
         return Promise.resolve(jsonResponse(state.audit));
       }
       return Promise.resolve(new Response('Not found', { status: 404 }));
     };
-  }, { uid: userId || null, ids: adminIds, fixtures: FIXTURES, config: options.config || null });
+  }, { uid: userId || null, ids: adminIds, fixtures: FIXTURES, config: options.config || null, lang: options.lang || null });
 }
 
 test.describe('Admin page — access control', () => {
@@ -226,6 +239,25 @@ test.describe('Admin page — stats rendering', () => {
     expect(usd).toMatch(/\$/);
   });
 
+  test('renders user counts (total / new)', async ({ page }) => {
+    await loadAdminAsAdmin(page);
+    await expect(page.locator('#stat-users-total')).not.toHaveText('—');
+    const total = await page.locator('#stat-users-total').textContent();
+    expect(total).toMatch(/4[\s,]?321/);
+    const new24 = await page.locator('#stat-users-new-24h').textContent();
+    expect(new24).not.toBe('—');
+    const new7 = await page.locator('#stat-users-new-7d').textContent();
+    expect(new7).not.toBe('—');
+  });
+
+  test('renders recent users table rows', async ({ page }) => {
+    await loadAdminAsAdmin(page);
+    const rows = page.locator('#recent-users-tbody tr');
+    await expect(rows).toHaveCount(2);
+    const firstRow = await rows.first().textContent();
+    expect(firstRow).toContain('555');
+  });
+
   test('renders fraud flags table rows', async ({ page }) => {
     await loadAdminAsAdmin(page);
     const rows = page.locator('#fraud-tbody tr');
@@ -248,5 +280,52 @@ test.describe('Admin page — stats rendering', () => {
     await expect(auditRows).toHaveCount(1);
     const firstRowText = await auditRows.first().textContent();
     expect(firstRowText).toContain('resolve_fraud_flag');
+  });
+});
+
+test.describe('Admin page — i18n', () => {
+  test('renders Russian labels when pref:lang is ru', async ({ page }) => {
+    await mockTelegramAdmin(page, '12345', ['12345'], { lang: 'ru' });
+    await page.goto(distUrl('admin/index.html'));
+    await expect(page.locator('#admin-content')).toBeVisible();
+
+    // Static markup is translated by i18n.js via data-i18n.
+    await expect(page.locator('.pageTitle')).toHaveText('Админ-панель');
+    await expect(page.locator('[data-i18n="admin_section_users"]')).toHaveText('Пользователи');
+    await expect(page.locator('[data-i18n="admin_section_recent_users"]')).toHaveText('Недавние пользователи');
+
+    // Dynamically-built cells are re-rendered in Russian too.
+    await expect(page.locator('.resolve-btn').first()).toHaveText('Разрешить');
+  });
+
+  test('switching language at runtime re-renders dynamic cells', async ({ page }) => {
+    await mockTelegramAdmin(page, '12345', ['12345']);
+    await page.goto(distUrl('admin/index.html'));
+    await expect(page.locator('#admin-content')).toBeVisible();
+    await expect(page.locator('.resolve-btn').first()).toHaveText('Resolve');
+
+    await page.evaluate(() => window.i18n.setLang('ru'));
+    await expect(page.locator('.resolve-btn').first()).toHaveText('Разрешить');
+    await expect(page.locator('.pageTitle')).toHaveText('Админ-панель');
+  });
+});
+
+test.describe('Admin page — error handling', () => {
+  test('shows the error banner when an endpoint fails', async ({ page }) => {
+    await mockTelegramAdmin(page, '12345', ['12345']);
+    // Make every admin API call fail before the page scripts run.
+    await page.addInitScript(() => {
+      const originalFetch = window.fetch.bind(window);
+      window.fetch = function (input, init) {
+        const url = typeof input === 'string' ? input : (input && input.url) || '';
+        if (url.indexOf('/admin/api/') !== -1) {
+          return Promise.resolve(new Response('boom', { status: 500 }));
+        }
+        return originalFetch(input, init);
+      };
+    });
+    await page.goto(distUrl('admin/index.html'));
+    await expect(page.locator('#admin-content')).toBeVisible();
+    await expect(page.locator('#admin-error')).toBeVisible();
   });
 });

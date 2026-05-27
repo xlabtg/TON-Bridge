@@ -22,6 +22,7 @@
  *   GET  /admin/api/fraud-flags        — paginated fraud flags
  *   POST /admin/api/fraud-flags/resolve — resolve a flag, writes audit row
  *   GET  /admin/api/top-users          — top 20 users by lifetime turnover
+ *   GET  /admin/api/users              — most recently registered users
  *   GET  /admin/api/audit-log          — recent audit-log entries
  *
  * @module adminPanel
@@ -34,6 +35,7 @@ const FRAUD_PAGE_SIZE = 5;
 const FRAUD_MAX_PAGE_SIZE = 50;
 const TOP_USERS_LIMIT = 20;
 const AUDIT_LOG_LIMIT = 50;
+const RECENT_USERS_LIMIT = 20;
 
 // ---------------------------------------------------------------------------
 // Auth helpers
@@ -183,6 +185,19 @@ export async function computeAdminStats(db, nowS) {
     "SELECT COUNT(*) AS c, COALESCE(SUM(tbc_amount), 0) AS total FROM redemptions WHERE status='paid'"
   ).first();
 
+  // User counts: total registered, plus how many joined in the last 24 h / 7 d.
+  const usersTotal = await db.prepare(
+    'SELECT COUNT(*) AS c FROM users'
+  ).first();
+
+  const usersNew24 = await db.prepare(
+    'SELECT COUNT(*) AS c FROM users WHERE created_at >= ?'
+  ).bind(d1Start).first();
+
+  const usersNew7 = await db.prepare(
+    'SELECT COUNT(*) AS c FROM users WHERE created_at >= ?'
+  ).bind(d7Start).first();
+
   // The USD equivalent of paid-out TBC. We treat 1 TBC ≈ POINTS_PER_TBC * POINT_USD_VALUE
   // as a server-side computed estimate so the UI doesn't have to know rate knobs.
   // Both values are present in env (see wrangler.toml [vars]).
@@ -191,6 +206,11 @@ export async function computeAdminStats(db, nowS) {
       h24: Number(turnover24?.v ?? 0),
       d7:  Number(turnover7?.v ?? 0),
       d30: Number(turnover30?.v ?? 0),
+    },
+    users: {
+      total:   Number(usersTotal?.c ?? 0),
+      new_24h: Number(usersNew24?.c ?? 0),
+      new_7d:  Number(usersNew7?.c ?? 0),
     },
     points_outstanding: Number(outstanding?.v ?? 0),
     points_redeemed:    Number(redeemed?.v ?? 0),
@@ -331,6 +351,45 @@ async function handleTopUsers(request, url, env) {
 }
 
 // ---------------------------------------------------------------------------
+// GET /admin/api/users
+// ---------------------------------------------------------------------------
+
+/**
+ * Most recently registered users, with their current points balance.
+ * Answers issue #172: newly registered users were not visible anywhere.
+ */
+async function handleUsers(request, url, env) {
+  const auth = await requireAdmin(request, url, env);
+  if (!auth.ok) return jsonError(auth.error, auth.status);
+
+  const limitParam = Number(url.searchParams.get('limit') ?? RECENT_USERS_LIMIT);
+  const limit = Math.min(
+    Math.max(1, Number.isFinite(limitParam) ? Math.floor(limitParam) : RECENT_USERS_LIMIT),
+    RECENT_USERS_LIMIT,
+  );
+
+  const rows = await env.DB.prepare(`
+    SELECT u.telegram_id AS user_id,
+           u.created_at  AS created_at,
+           u.last_seen   AS last_seen,
+           COALESCE(b.points, 0) AS points
+    FROM users u
+    LEFT JOIN user_balances b ON b.user_id = u.telegram_id
+    ORDER BY u.created_at DESC, u.telegram_id DESC
+    LIMIT ?
+  `).bind(limit).all();
+
+  const items = (rows.results || []).map(r => ({
+    user_id:    Number(r.user_id),
+    created_at: Number(r.created_at),
+    last_seen:  Number(r.last_seen),
+    points:     Number(r.points ?? 0),
+  }));
+
+  return jsonResponse({ ok: true, items });
+}
+
+// ---------------------------------------------------------------------------
 // GET /admin/api/audit-log
 // ---------------------------------------------------------------------------
 
@@ -396,6 +455,9 @@ export async function handleAdminPanelRequest(request, url, env) {
   }
   if (method === 'GET' && path === '/admin/api/top-users') {
     return handleTopUsers(request, url, env);
+  }
+  if (method === 'GET' && path === '/admin/api/users') {
+    return handleUsers(request, url, env);
   }
   if (method === 'GET' && path === '/admin/api/audit-log') {
     return handleAuditLog(request, url, env);

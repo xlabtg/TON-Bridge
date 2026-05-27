@@ -87,6 +87,19 @@
         el.hidden = true;
     }
 
+    // Translate a key via the runtime i18n loader, falling back to the supplied
+    // English string when i18n.js has not initialised yet (or lacks the key).
+    function t(key, fallback) {
+        if (window.i18n && typeof window.i18n.t === 'function') {
+            var val = window.i18n.t(key, fallback);
+            if (val !== undefined && val !== null) return val;
+        }
+        return fallback !== undefined ? fallback : key;
+    }
+
+    function showError() { show('admin-error'); }
+    function hideError() { hide('admin-error'); }
+
     // ---------------------------------------------------------------------------
     // API client
     // ---------------------------------------------------------------------------
@@ -135,42 +148,64 @@
         });
     }
 
+    function setText(id, value) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = value;
+    }
+
     function renderStats(s) {
-        document.getElementById('stat-turnover-24h').textContent = '$' + fmt(s.turnover.h24, 2);
-        document.getElementById('stat-turnover-7d').textContent  = '$' + fmt(s.turnover.d7, 2);
-        document.getElementById('stat-turnover-30d').textContent = '$' + fmt(s.turnover.d30, 2);
-        document.getElementById('stat-points-outstanding').textContent = fmt(s.points_outstanding);
-        document.getElementById('stat-points-redeemed').textContent    = fmt(s.points_redeemed);
-        document.getElementById('stat-tbc-count').textContent    = fmt(s.tbc_paid.count);
-        document.getElementById('stat-tbc-total').textContent    = fmt(s.tbc_paid.tbc_total) + ' TBC';
-        document.getElementById('stat-tbc-usd').textContent      = '$' + fmt(s.tbc_paid.usd_equiv || 0, 2);
+        setText('stat-turnover-24h', '$' + fmt(s.turnover.h24, 2));
+        setText('stat-turnover-7d', '$' + fmt(s.turnover.d7, 2));
+        setText('stat-turnover-30d', '$' + fmt(s.turnover.d30, 2));
+        var users = s.users || {};
+        setText('stat-users-total', fmt(users.total || 0));
+        setText('stat-users-new-24h', fmt(users.new_24h || 0));
+        setText('stat-users-new-7d', fmt(users.new_7d || 0));
+        setText('stat-points-outstanding', fmt(s.points_outstanding));
+        setText('stat-points-redeemed', fmt(s.points_redeemed));
+        setText('stat-tbc-count', fmt(s.tbc_paid.count));
+        setText('stat-tbc-total', fmt(s.tbc_paid.tbc_total) + ' TBC');
+        setText('stat-tbc-usd', '$' + fmt(s.tbc_paid.usd_equiv || 0, 2));
     }
 
     var fraudPage = 0;
     var fraudSize = 5;
     var fraudTotal = 0;
 
+    // Last rendered datasets, kept so the tables can be re-rendered when the
+    // language changes (their dynamic cells are not covered by data-i18n).
+    var lastFraud = null;
+    var lastAudit = null;
+    var lastRecentUsers = null;
+
     function renderFraudTable(items) {
         var tbody = document.getElementById('fraud-tbody');
         if (!tbody) return;
+        lastFraud = items;
         tbody.innerHTML = '';
-        items.forEach(function (f) {
-            var tr = document.createElement('tr');
-            tr.innerHTML =
-                '<td>' + f.id + '</td>' +
-                '<td>' + f.user_id + '</td>' +
-                '<td>' + escHtml(f.reason) + '</td>' +
-                '<td>' + fmt(f.amount_points) + '</td>' +
-                '<td>' + escHtml(formatTs(f.created_at)) + '</td>' +
-                '<td>' + (f.resolved
-                    ? '<span class="badge bg-success">Resolved</span>'
-                    : '<button class="btn btn-sm btn-outline-danger resolve-btn" data-id="' + f.id + '">Resolve</button>') +
-                '</td>';
-            tbody.appendChild(tr);
-        });
+        if (!items.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-muted text-center small">' +
+                escHtml(t('admin_no_data', 'No data')) + '</td></tr>';
+        } else {
+            items.forEach(function (f) {
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td>' + f.id + '</td>' +
+                    '<td>' + f.user_id + '</td>' +
+                    '<td>' + escHtml(f.reason) + '</td>' +
+                    '<td>' + fmt(f.amount_points) + '</td>' +
+                    '<td>' + escHtml(formatTs(f.created_at)) + '</td>' +
+                    '<td>' + (f.resolved
+                        ? '<span class="badge bg-success">' + escHtml(t('admin_resolved', 'Resolved')) + '</span>'
+                        : '<button class="btn btn-sm btn-outline-danger resolve-btn" data-id="' + f.id + '">' +
+                            escHtml(t('admin_resolve', 'Resolve')) + '</button>') +
+                    '</td>';
+                tbody.appendChild(tr);
+            });
+        }
         var pages = Math.max(1, Math.ceil(fraudTotal / fraudSize));
         document.getElementById('fraud-page-info').textContent =
-            'Page ' + (fraudPage + 1) + ' / ' + pages;
+            t('admin_page_label', 'Page') + ' ' + (fraudPage + 1) + ' / ' + pages;
         document.getElementById('fraud-prev').disabled = fraudPage === 0;
         document.getElementById('fraud-next').disabled = (fraudPage + 1) * fraudSize >= fraudTotal;
 
@@ -191,11 +226,13 @@
 
     function resolveFlag(id, btn) {
         if (btn) btn.disabled = true;
+        hideError();
         apiPost('/admin/api/fraud-flags/resolve', { id: id })
             .then(function () { return loadFraud(); })
             .then(function () { return loadAuditLog(); })
             .catch(function () {
                 if (btn) btn.disabled = false;
+                showError();
             });
     }
 
@@ -203,6 +240,11 @@
         var tbody = document.getElementById('top-users-tbody');
         if (!tbody) return;
         tbody.innerHTML = '';
+        if (!items.length) {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-muted text-center small">' +
+                escHtml(t('admin_no_data', 'No data')) + '</td></tr>';
+            return;
+        }
         items.forEach(function (u) {
             var tr = document.createElement('tr');
             tr.innerHTML =
@@ -219,12 +261,41 @@
         });
     }
 
+    function renderRecentUsers(items) {
+        var tbody = document.getElementById('recent-users-tbody');
+        if (!tbody) return;
+        lastRecentUsers = items;
+        tbody.innerHTML = '';
+        if (!items.length) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-muted text-center small">' +
+                escHtml(t('admin_no_data', 'No data')) + '</td></tr>';
+            return;
+        }
+        items.forEach(function (u) {
+            var tr = document.createElement('tr');
+            tr.innerHTML =
+                '<td>' + escHtml(String(u.user_id)) + '</td>' +
+                '<td>' + escHtml(formatTs(u.created_at)) + '</td>' +
+                '<td>' + fmt(u.points) + '</td>' +
+                '<td>' + escHtml(formatTs(u.last_seen)) + '</td>';
+            tbody.appendChild(tr);
+        });
+    }
+
+    function loadUsers() {
+        return apiGet('/admin/api/users').then(function (data) {
+            renderRecentUsers(data.items || []);
+        });
+    }
+
     function renderAuditLog(items) {
         var tbody = document.getElementById('audit-tbody');
         if (!tbody) return;
+        lastAudit = items;
         tbody.innerHTML = '';
         if (!items.length) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center small">No actions yet</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center small">' +
+                escHtml(t('admin_no_actions', 'No actions yet')) + '</td></tr>';
             return;
         }
         items.forEach(function (e) {
@@ -274,13 +345,39 @@
         var prevBtn = document.getElementById('fraud-prev');
         var nextBtn = document.getElementById('fraud-next');
         if (prevBtn) prevBtn.addEventListener('click', function () {
-            if (fraudPage > 0) { fraudPage--; loadFraud(); }
+            if (fraudPage > 0) { fraudPage--; loadFraud().catch(showError); }
         });
         if (nextBtn) nextBtn.addEventListener('click', function () {
             if ((fraudPage + 1) * fraudSize < fraudTotal) {
                 fraudPage++;
-                loadFraud();
+                loadFraud().catch(showError);
             }
+        });
+        var retryBtn = document.getElementById('admin-retry');
+        if (retryBtn) retryBtn.addEventListener('click', function () { loadAll(); });
+
+        // Re-render dynamic table cells when the language changes — data-i18n
+        // only covers the static markup, not rows built in JS.
+        document.addEventListener('i18n:applied', function () {
+            if (lastFraud) renderFraudTable(lastFraud);
+            if (lastAudit) renderAuditLog(lastAudit);
+            if (lastRecentUsers) renderRecentUsers(lastRecentUsers);
+        });
+    }
+
+    // Load every dataset; surface the error banner if any request fails.
+    // Each section still renders independently on success.
+    function loadAll() {
+        hideError();
+        return Promise.allSettled([
+            loadStats(),
+            loadFraud(),
+            loadTopUsers(),
+            loadUsers(),
+            loadAuditLog(),
+        ]).then(function (results) {
+            var anyFailed = results.some(function (r) { return r.status === 'rejected'; });
+            if (anyFailed) showError();
         });
     }
 
@@ -312,11 +409,9 @@
         show('admin-content');
         wireControls();
 
-        // Kick off all loads in parallel; each renders independently.
-        loadStats().catch(function () {});
-        loadFraud().catch(function () {});
-        loadTopUsers().catch(function () {});
-        loadAuditLog().catch(function () {});
+        // Kick off all loads; the error banner surfaces any failure and the
+        // Retry button re-runs them.
+        loadAll();
     }
 
     if (document.readyState === 'loading') {

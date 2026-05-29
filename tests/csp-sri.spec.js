@@ -51,8 +51,35 @@ test.describe('CSP meta tag', () => {
       // report-uri / report-to are no-ops inside <meta>; they must not be shipped.
       expect(html).not.toMatch(/<meta[^>]*Content-Security-Policy[^>]*report-uri/i);
       expect(html).not.toMatch(/<meta[^>]*Content-Security-Policy[^>]*report-to/i);
+      // Issue #185: cdn.jsdelivr.net was a dead allowance (Chart.js is now
+      // self-hosted, #119). It must not reappear in any page policy.
+      expect(html).not.toContain('cdn.jsdelivr.net');
     });
   }
+});
+
+test.describe('CSP HTTP header (.htaccess)', () => {
+  // Issue #185: `frame-ancestors` (clickjacking) and `report-uri` are silently
+  // ignored inside <meta> and only take effect from an HTTP response header, so
+  // the policy is also delivered from .htaccess (passthrough-copied to dist/).
+  const htaccess = readFileSync(distPath('.htaccess'), 'utf8');
+
+  test('.htaccess sets a Content-Security-Policy response header', () => {
+    expect(htaccess).toMatch(/Header set Content-Security-Policy\s+"[^"]+"/);
+  });
+
+  test('header policy enforces frame-ancestors and still allows Telegram Web embedding', () => {
+    const match = htaccess.match(/Header set Content-Security-Policy\s+"([^"]+)"/);
+    expect(match, '.htaccess must declare a Content-Security-Policy header').toBeTruthy();
+    const policy = match[1];
+    expect(policy).toContain('frame-ancestors');
+    // Telegram embeds Mini Apps in an <iframe> on Telegram Web/Desktop; native
+    // clients use a WebView that ignores frame-ancestors. Dropping this origin
+    // would break the app on Telegram Web.
+    expect(policy).toContain('https://web.telegram.org');
+    // The dead CDN allowance must not sneak back in via the header either.
+    expect(policy).not.toContain('cdn.jsdelivr.net');
+  });
 });
 
 test.describe('Admin CSP connect-src allows the worker origin', () => {

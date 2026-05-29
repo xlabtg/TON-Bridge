@@ -7,4 +7,22 @@ Options -Indexes
 <IfModule mod_headers.c>
     Header set X-Content-Type-Options "nosniff"
     Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Content-Security-Policy delivered as an HTTP response header (issue #185).
+    # The per-page <meta http-equiv="Content-Security-Policy"> tags remain as
+    # host-agnostic defense-in-depth, but `frame-ancestors` (clickjacking) is
+    # silently ignored inside <meta> and only takes effect from a header.
+    #
+    # frame-ancestors allows web.telegram.org because Telegram embeds Mini Apps
+    # in an <iframe> on Telegram Web/Desktop; native clients use a WebView that
+    # is not subject to this directive. Dropping web.telegram.org would break
+    # the app on Telegram Web.
+    #
+    # This header is a deliberate superset of the per-page meta policies so it
+    # never blocks a resource a page legitimately needs (the tighter meta tag
+    # still applies per page). 'unsafe-inline' is retained until the inline
+    # <script>/<style> blocks and on* handlers are migrated to external files
+    # (tracked in #185). https://cdn.jsdelivr.net was dropped because Chart.js
+    # is now self-hosted (#119).
+    Header set Content-Security-Policy "default-src 'self'; base-uri 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://tganalytics.xyz https://changenow.io https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https:; frame-src https://changenow.io; frame-ancestors 'self' https://web.telegram.org"
 </IfModule>

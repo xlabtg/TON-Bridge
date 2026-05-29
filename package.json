@@ -22,6 +22,7 @@
     "test:redeem": "node --test worker/tests/redeemHandler.test.js",
     "test:rate-config": "node --test worker/tests/rateConfig.test.js",
     "test:admin-panel": "node --test worker/tests/adminPanel.test.js",
+    "test:admin-contract": "node --test worker/tests/adminPanelContract.test.js",
     "test:admin-config": "node --test worker/tests/adminConfig.test.js"
   },
   "devDependencies": {

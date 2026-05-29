@@ -19,9 +19,27 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function makeDb() {
     const db = new Database(':memory:');
-    const sql = readFileSync(join(__dirname, '../migrations/0001_affiliate.sql'), 'utf8');
-    db.exec(sql);
+    db.exec(readFileSync(join(__dirname, '../migrations/0001_affiliate.sql'), 'utf8'));
+    // 0003 adds point_ledger.config_id + the program_config table (issue #184).
+    db.exec(readFileSync(join(__dirname, '../migrations/0003_program_config.sql'), 'utf8'));
     return db;
+}
+
+/** Seed a program_config row so getActiveConfigId() resolves to its id. */
+function seedConfig(db, { effectiveAt = 1, ...overrides } = {}) {
+    const cfg = {
+        service_bps: 40, cashback_bps: 10, referral_bps: 10, point_usd_value: 0.00003,
+        points_per_tbc: 10, min_redeem_pts: 100, daily_cap_usd: 50000,
+        proposed_by: 'boot', ...overrides,
+    };
+    const r = db.prepare(`
+        INSERT INTO program_config
+          (service_bps, cashback_bps, referral_bps, point_usd_value,
+           points_per_tbc, min_redeem_pts, daily_cap_usd, proposed_by, effective_at, created_at)
+        VALUES (?,?,?,?,?,?,?,?,?,?)
+    `).run(cfg.service_bps, cfg.cashback_bps, cfg.referral_bps, cfg.point_usd_value,
+           cfg.points_per_tbc, cfg.min_redeem_pts, cfg.daily_cap_usd, cfg.proposed_by, effectiveAt, effectiveAt);
+    return r.lastInsertRowid;
 }
 
 /** Wrap a better-sqlite3 instance in the D1-style async API the worker expects. */
@@ -188,6 +206,55 @@ describe('POST /api/redeem — balance bookkeeping', () => {
         // Redemption status should be 'failed'
         const red = db.prepare("SELECT status FROM redemptions WHERE user_id=11").get();
         assert.equal(red.status, 'failed');
+    });
+
+    test('stamps config_id from the active config on the redemption ledger row (#184)', async () => {
+        const db = makeDb();
+        const configId = seedConfig(db);
+        seedUser(db, 12, 200); // no ton_address → queued
+
+        const res = await handleRedeem(postRequest({ points_spent: 100, initData: fakeInitData(12) }), makeEnv(db));
+        assert.equal(res.status, 201);
+
+        const row = db.prepare(
+            "SELECT config_id FROM point_ledger WHERE user_id=12 AND role='redemption'"
+        ).get();
+        assert.equal(Number(row.config_id), Number(configId));
+    });
+
+    test('stamps config_id on the compensating refund ledger row (#184)', async () => {
+        const db = makeDb();
+        const configId = seedConfig(db);
+        seedUser(db, 13, 200, { ton_address: 'EQA' });
+        const env = makeEnv(db, { TONBANKCARD_API_KEY: 'bad_key' });
+
+        const origFetch = global.fetch;
+        global.fetch = async () => new Response('error', { status: 500 });
+        const res = await handleRedeem(postRequest({ points_spent: 100, initData: fakeInitData(13) }), env);
+        global.fetch = origFetch;
+
+        assert.equal(res.status, 502);
+
+        // Both handler-written rows — the redemption debit and its compensating
+        // refund — must carry the active config_id (the seed credit is excluded).
+        const rows = db.prepare(
+            "SELECT config_id FROM point_ledger WHERE user_id=13 AND (role='redemption' OR memo LIKE 'refund:%')"
+        ).all();
+        assert.equal(rows.length, 2);
+        for (const r of rows) assert.equal(Number(r.config_id), Number(configId));
+    });
+
+    test('leaves config_id NULL when no program_config row exists (#184)', async () => {
+        const db = makeDb();
+        seedUser(db, 14, 200); // no config seeded
+
+        const res = await handleRedeem(postRequest({ points_spent: 100, initData: fakeInitData(14) }), makeEnv(db));
+        assert.equal(res.status, 201);
+
+        const row = db.prepare(
+            "SELECT config_id FROM point_ledger WHERE user_id=14 AND role='redemption'"
+        ).get();
+        assert.equal(row.config_id, null);
     });
 });
 

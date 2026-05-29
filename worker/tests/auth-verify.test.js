@@ -24,13 +24,30 @@ const migrationSql = readFileSync(
   resolve(__dirname, '../migrations/0001_affiliate.sql'),
   'utf8',
 );
+// 0003 adds point_ledger.config_id + the program_config table (issue #184).
+const configMigrationSql = readFileSync(
+  resolve(__dirname, '../migrations/0003_program_config.sql'),
+  'utf8',
+);
 
 const NOW = 1_700_000_000;
 
 function createDb() {
   const db = new Database(':memory:');
   db.exec(migrationSql);
+  db.exec(configMigrationSql);
   return db;
+}
+
+/** Seed a program_config row and return its id. */
+function seedConfig(db, effectiveAt = 1) {
+  const r = db.prepare(`
+    INSERT INTO program_config
+      (service_bps, cashback_bps, referral_bps, point_usd_value,
+       points_per_tbc, min_redeem_pts, daily_cap_usd, proposed_by, effective_at, created_at)
+    VALUES (40, 10, 10, 0.00003, 10, 100, 50000, 'boot', ?, ?)
+  `).run(effectiveAt, effectiveAt);
+  return r.lastInsertRowid;
 }
 
 /**
@@ -204,6 +221,23 @@ test('happy path: valid first attribution is persisted and audit ledger row writ
   assert.equal(ledger.delta_points, 0);
   assert.equal(ledger.memo, 'referral_captured:1');
   assert.equal(ledger.created_at, NOW);
+  // No program_config seeded → config_id stays NULL (best-effort audit trail, #184)
+  assert.equal(ledger.config_id, null);
+});
+
+test('happy path: ledger row carries the active config_id when one exists (#184)', () => {
+  const db = createDb();
+  const configId = seedConfig(db);
+  insertUser(db, 1, 'ALICE001');
+  insertUser(db, 2, 'BOB00001');
+
+  const result = captureReferredBy(db, 2, 'ref_ALICE001', NOW);
+  assert.equal(result.captured, true);
+
+  const ledger = db.prepare(
+    "SELECT config_id FROM point_ledger WHERE user_id = 2 AND role = 'admin_grant'",
+  ).get();
+  assert.equal(Number(ledger.config_id), Number(configId));
 });
 
 test('happy path: second call for a user with no referred_by still succeeds', () => {

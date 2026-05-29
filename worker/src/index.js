@@ -3,6 +3,7 @@ import { handleAdminReplay, runScheduledAccrual } from './accrualJob.js';
 import { handleAdminConfig } from './adminConfig.js';
 import { handleAdminPanelRequest } from './adminPanel.js';
 import { handleBalance, handleRedeem, handleWalletLink } from './redeemHandler.js';
+import { getActiveConfigId } from './rateConfig.js';
 
 /**
  * Cloudflare Worker — POST /auth/verify
@@ -385,12 +386,13 @@ async function captureReferredBy(db, userId, startParam, nowS) {
     return { captured: false, reason: 'referred_by already set' };
   }
 
+  const configId = await getActiveConfigId(db);
   await db
     .prepare(`
-      INSERT INTO point_ledger (user_id, swap_id, role, delta_points, memo, created_at)
-      VALUES (?, NULL, 'admin_grant', 0, ?, ?)
+      INSERT INTO point_ledger (user_id, swap_id, role, delta_points, memo, config_id, created_at)
+      VALUES (?, NULL, 'admin_grant', 0, ?, ?, ?)
     `)
-    .bind(userId, `referral_captured:${inviter.telegram_id}`, nowS)
+    .bind(userId, `referral_captured:${inviter.telegram_id}`, configId, nowS)
     .run();
 
   return { captured: true };

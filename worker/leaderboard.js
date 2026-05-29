@@ -13,6 +13,12 @@
  *                            key pattern: "optin:<telegram_user_id>" → "1"
  */
 
+import { validateInitData } from './src/validateInitData.js';
+
+// Maximum age of Telegram initData (issue #182). Mirrors the limit used by
+// /auth/verify (see worker/src/index.js).
+const MAX_AUTH_DATE_AGE_S = 24 * 60 * 60;
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -277,10 +283,12 @@ export default {
    * HTTP handler — allows opt-in/opt-out via a simple webhook called from the
    * Telegram Mini App (Settings page).
    *
-   * POST /optin   { userId, optIn: true|false }
-   *   Requires header X-Telegram-Init-Data with the raw initData string for
-   *   basic authenticity check (hash verification should be done server-side
-   *   in production; this performs a presence check only).
+   * POST /optin   { optIn: true|false }
+   *   Requires header X-Telegram-Init-Data with the raw initData string.
+   *   The HMAC is verified against env.BOT_TOKEN (Telegram spec) and the
+   *   target user id is taken from the *signed* user object — any `userId`
+   *   value in the request body is ignored. This prevents a caller from
+   *   opting other users in or out of the leaderboard (issue #182).
    */
   async fetch(request, env) {
     if (request.method !== 'POST') {
@@ -297,6 +305,28 @@ export default {
       return new Response('Unauthorized', { status: 401 });
     }
 
+    if (!env.BOT_TOKEN) {
+      return new Response('Service Unavailable: BOT_TOKEN not configured', { status: 503 });
+    }
+
+    let signedUser;
+    try {
+      signedUser = await validateInitData(initData, env.BOT_TOKEN);
+    } catch {
+      return new Response('Unauthorized', { status: 401 });
+    }
+
+    // Reject stale initData (matches /auth/verify policy).
+    const authDate = Number(new URLSearchParams(initData).get('auth_date'));
+    const nowS = Math.floor(Date.now() / 1000);
+    if (!authDate || nowS - authDate > MAX_AUTH_DATE_AGE_S) {
+      return new Response('Unauthorized', { status: 401 });
+    }
+
+    if (!signedUser || !signedUser.id) {
+      return new Response('Unauthorized', { status: 401 });
+    }
+
     let body;
     try {
       body = await request.json();
@@ -304,10 +334,8 @@ export default {
       return new Response('Bad Request', { status: 400 });
     }
 
-    const { userId, optIn } = body;
-    if (!userId) {
-      return new Response('Bad Request: userId required', { status: 400 });
-    }
+    const { optIn } = body || {};
+    const userId = String(signedUser.id);
 
     const kv = env.LEADERBOARD_KV;
     if (!kv) {

@@ -21,7 +21,8 @@
     "test:referral-rewards": "node --test worker/tests/referralRewards.test.js",
     "test:redeem": "node --test worker/tests/redeemHandler.test.js",
     "test:rate-config": "node --test worker/tests/rateConfig.test.js",
-    "test:admin-panel": "node --test worker/tests/adminPanel.test.js"
+    "test:admin-panel": "node --test worker/tests/adminPanel.test.js",
+    "test:admin-config": "node --test worker/tests/adminConfig.test.js"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.1.5",

@@ -67,7 +67,14 @@ share the same auth mechanism:
 | `GET` | `/admin/api/fraud-flags?page=&size=` | Paginated open + resolved flags ordered by `resolved ASC, created_at DESC` |
 | `POST` | `/admin/api/fraud-flags/resolve` | Marks `{ id }` as resolved and writes an `audit_log` row |
 | `GET` | `/admin/api/top-users` | Top 20 users by lifetime swap turnover in USD |
+| `GET` | `/admin/api/users` | Most recently registered users with current points balance |
 | `GET` | `/admin/api/audit-log` | Latest 50 audit rows (decoded `before` / `after` JSON) |
+
+Every admin panel view is mapped to its backing endpoint in
+[`ADMIN_PANEL_ENDPOINTS.md`](../ADMIN_PANEL_ENDPOINTS.md), and the
+`adminPanelContract.test.js` smoke check (`npm run test:admin-contract`)
+enforces that mapping so a view can never silently lose its deployed,
+authorised endpoint (issue #186).
 
 All responses are JSON. `401` indicates missing/invalid initData, `403`
 indicates a user outside the allow-list, `404` / `409` are returned by the

@@ -126,6 +126,43 @@ foreach (glob($root . '/*.html') ?: [] as $path) {
     }
 }
 
+// Issue #185: the installer deploys the committed tree to an Apache host, so
+// the root .htaccess is what delivers the Content-Security-Policy as an HTTP
+// response header. `frame-ancestors` (clickjacking) is silently ignored inside
+// the per-page <meta> tag and only takes effect from this header — it must
+// allow Telegram Web (which embeds Mini Apps in an <iframe>) so the deployed
+// app keeps working there. The dead cdn.jsdelivr.net allowance (#119) must not
+// reappear in the policy.
+$htaccess = deploy_read($root, '.htaccess');
+if (preg_match('/Header set Content-Security-Policy\s+"([^"]+)"/', $htaccess, $m)) {
+    $policy = $m[1];
+    deploy_assert(
+        str_contains($policy, 'frame-ancestors'),
+        '.htaccess CSP header must declare frame-ancestors (clickjacking protection only works via a header, not <meta>)'
+    );
+    deploy_assert(
+        str_contains($policy, 'https://web.telegram.org'),
+        '.htaccess CSP frame-ancestors must allow https://web.telegram.org so the Mini App still embeds on Telegram Web'
+    );
+    deploy_assert(
+        !str_contains($policy, 'cdn.jsdelivr.net'),
+        '.htaccess CSP header must not reintroduce the dead cdn.jsdelivr.net allowance (Chart.js is self-hosted, #119)'
+    );
+} else {
+    deploy_assert(false, '.htaccess must set a Content-Security-Policy response header (issue #185)');
+}
+
+// The committed root HTML meta CSPs must not keep the dead cdn.jsdelivr.net
+// allowance either (issue #185 / #119).
+foreach (glob($root . '/*.html') ?: [] as $path) {
+    $html = (string) file_get_contents($path);
+    $name = basename($path);
+    deploy_assert(
+        !str_contains($html, 'cdn.jsdelivr.net'),
+        "{$name} must not keep the dead cdn.jsdelivr.net CSP allowance (Chart.js is self-hosted, #119)"
+    );
+}
+
 if ($failures > 0) {
     fwrite(STDERR, "deployment-assets.test.php: {$failures} assertion(s) failed\n");
     exit(1);

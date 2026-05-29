@@ -259,6 +259,29 @@ jobs:
       - name: Run admin panel unit tests
         run: npm run test:admin-panel
 
+  admin-config-unit-tests:
+    name: Admin Config Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository without GitHub token
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          git init -b ci .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -c protocol.version=2 fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:refs/remotes/origin/ci"
+          git checkout --detach refs/remotes/origin/ci
+          git log -1 --format="%H"
+
+      - name: Set up Node.js
+        run: bash .github/scripts/setup-node-from-dist.sh
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run admin config unit tests
+        run: npm run test:admin-config
+
   php-installer-tests:
     name: PHP Installer Tests
     runs-on: ubuntu-latest

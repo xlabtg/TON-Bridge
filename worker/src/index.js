@@ -1,5 +1,6 @@
 import leaderboardWorker from '../leaderboard.js';
 import { handleAdminReplay, runScheduledAccrual } from './accrualJob.js';
+import { handleAdminConfig } from './adminConfig.js';
 import { handleAdminPanelRequest } from './adminPanel.js';
 import { handleBalance, handleRedeem, handleWalletLink } from './redeemHandler.js';
 
@@ -690,6 +691,19 @@ export default {
 
     if (request.method === 'POST' && url.pathname === '/admin/replay') {
       return handleAdminReplay(request, url, env);
+    }
+
+    // Runtime rate-knob update endpoint (issue #55 — Phase 6.12).
+    // Authenticated via Bearer token matching env.ADMIN_SECRET.
+    if (request.method === 'POST' && url.pathname === '/admin/config') {
+      const configResponse = await handleAdminConfig(request, env);
+      // Merge CORS headers into the response.
+      const merged = new Headers(configResponse.headers);
+      for (const [k, v] of Object.entries(cors)) merged.set(k, v);
+      return new Response(configResponse.body, {
+        status: configResponse.status,
+        headers: merged,
+      });
     }
 
     // Admin panel endpoints (issue #121). Authenticated via Telegram

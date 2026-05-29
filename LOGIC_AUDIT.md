@@ -106,18 +106,19 @@ confirmed to be working as intended:
 
 ## Residual Findings / Recommended Follow-ups
 
-Ordered by severity. None are regressions from this PR; they are pre-existing
-and several are already tracked.
+Ordered by severity. None are regressions from this PR; they are pre-existing.
+Per the request in #181, each open follow-up has now been filed as a dedicated
+tracking issue (linked below).
 
-| # | Severity | Area | Finding | Suggested action |
+| # | Severity | Area | Finding | Tracking issue / action |
 | --- | --- | --- | --- | --- |
-| R1 | Medium | `worker/leaderboard.js:285-326` | The `/optin` endpoint only checks that the `X-Telegram-Init-Data` header is *present* (documented as such on line 282-283); it never verifies the HMAC nor that the posted `userId` matches the signed user. Any caller can opt any `userId` in/out of the leaderboard. | Validate `initData` with `validateInitData()` and derive `userId` from the signed `user`, ignoring the body. File as an issue. |
-| R2 | Low | `worker/src/adminConfig.js` | `handleAdminConfig()` is exported but never imported/mounted in `worker/src/index.js`, so the runtime rate-knob update path (#55) is unreachable dead code. | Mount the route behind the existing admin gate, or remove it. |
-| R3 | Low | `worker/src/accrualJob.js`, `redeemHandler.js`, `index.js`, `auth-verify.js` | `point_ledger.config_id` (added in migration `0003`) is never populated on insert, so ledger rows cannot be tied back to the rate config in effect. Not a bug (column is nullable) but weakens the audit trail. | Populate `config_id` from the active config when writing ledger rows. |
-| R4 | Low | `src/_includes/*-page.njk` (CSP) | CSP is enforced via `<meta>` but still relies on `'unsafe-inline'` for scripts/styles; `report-uri`/`frame-ancestors` are omitted (ignored in meta). Carried over from #117. | Move CSP to HTTP headers and migrate inline blocks to nonces/hashes. |
-| R5 | Low | `src/_includes/statistics-page.njk` | Chart.js still loaded from a CDN URL without SRI (#119). | Self-host or pin with SRI. |
-| R6 | Low | `src/_includes/admin-page.njk` + worker | Admin panel surface is gated by Telegram IDs but production data flows depend on the worker APIs being deployed (#121). | Confirm the deployed worker backs every admin view with authorized endpoints. |
-| R7 | Polish | Bridge / Exchange / OTC | Render-blocking CSS/JS and a legacy-JS warning persist (#122); Lighthouse budgets still pass. | Performance follow-up. |
+| R1 | Medium | `worker/leaderboard.js:285-326` | The `/optin` endpoint only checks that the `X-Telegram-Init-Data` header is *present* (documented as such on line 282-283); it never verifies the HMAC nor that the posted `userId` matches the signed user. Any caller can opt any `userId` in/out of the leaderboard. | [#182](https://github.com/xlabtg/TON-Bridge/issues/182) — validate `initData` with `validateInitData()` and derive `userId` from the signed `user`, ignoring the body. |
+| R2 | Low | `worker/src/adminConfig.js` | `handleAdminConfig()` is exported but never imported/mounted in `worker/src/index.js`, so the runtime rate-knob update path (#55) is unreachable dead code. | [#183](https://github.com/xlabtg/TON-Bridge/issues/183) — mount the route behind the existing admin gate, or remove it. |
+| R3 | Low | `worker/src/accrualJob.js`, `redeemHandler.js`, `index.js`, `auth-verify.js` | `point_ledger.config_id` (added in migration `0003`) is never populated on insert, so ledger rows cannot be tied back to the rate config in effect. Not a bug (column is nullable) but weakens the audit trail. | [#184](https://github.com/xlabtg/TON-Bridge/issues/184) — populate `config_id` from the active config when writing ledger rows. |
+| R4 | Low | `src/_includes/*-page.njk` (CSP) | CSP is enforced via `<meta>` but still relies on `'unsafe-inline'` for scripts/styles; `report-uri`/`frame-ancestors` are omitted (ignored in meta). Carried over from #117. | [#185](https://github.com/xlabtg/TON-Bridge/issues/185) — move CSP to HTTP headers, migrate inline blocks to nonces/hashes, and drop the now-unused `cdn.jsdelivr.net` allowance. |
+| R5 | Resolved | `src/_includes/statistics-page.njk` | Earlier audits flagged Chart.js as loaded from a CDN without SRI (#119). **Re-verified: this is already fixed** — Chart.js is self-hosted at `assets/js/lib/chart.umd.min.js` (same-origin, so SRI does not apply) and #119 is closed. The only remnant is a stale `cdn.jsdelivr.net` entry in some CSP `<meta>` tags, folded into R4 ([#185](https://github.com/xlabtg/TON-Bridge/issues/185)). | No standalone issue (resolved). |
+| R6 | Low | `src/_includes/admin-page.njk` + worker | Admin panel surface is gated by Telegram IDs but production data flows depend on the worker APIs being deployed (#121). | [#186](https://github.com/xlabtg/TON-Bridge/issues/186) — confirm the deployed worker backs every admin view with authorized endpoints. |
+| R7 | Polish | Bridge / Exchange / OTC | Render-blocking CSS/JS and a legacy-JS warning persist (#122); Lighthouse budgets still pass. | [#187](https://github.com/xlabtg/TON-Bridge/issues/187) — performance follow-up. |
 
 ## Notes for Reviewers
 

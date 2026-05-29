@@ -4,6 +4,7 @@
 // Rate limits: 1 in-flight per user; 5 per day.
 
 import { validateInitData } from './validateInitData.js';
+import { getActiveConfigId } from './rateConfig.js';
 
 const MIN_REDEEM_POINTS = 100;
 const POINTS_PER_TBC    = 10;
@@ -108,13 +109,14 @@ export async function handleRedeem(request, env) {
     const initialStatus = hasTonAddress ? 'requested' : 'queued';
 
     // --- Atomic insert: redemptions row + negative ledger entry ---
+    const configId = await getActiveConfigId(db);
     const insertResult = await db.batch([
         db.prepare(
             "INSERT INTO redemptions (user_id, points_spent, tbc_amount, status, created_at) VALUES (?,?,?,?,?)"
         ).bind(telegram_id, pts, tbc_amount, initialStatus, nowS),
         db.prepare(
-            "INSERT INTO point_ledger (user_id, role, delta_points, memo, created_at) VALUES (?,?,?,?,?)"
-        ).bind(telegram_id, 'redemption', -pts, `redeem:${tbc_amount}tbc`, nowS)
+            "INSERT INTO point_ledger (user_id, role, delta_points, memo, config_id, created_at) VALUES (?,?,?,?,?,?)"
+        ).bind(telegram_id, 'redemption', -pts, `redeem:${tbc_amount}tbc`, configId, nowS)
     ]);
 
     // Get the new redemption id from the first statement's result
@@ -145,8 +147,8 @@ export async function handleRedeem(request, env) {
                 "UPDATE redemptions SET status='failed', settled_at=? WHERE id=?"
             ).bind(Math.floor(Date.now() / 1000), redemptionId),
             db.prepare(
-                "INSERT INTO point_ledger (user_id, role, delta_points, memo, created_at) VALUES (?,?,?,?,?)"
-            ).bind(telegram_id, 'admin_grant', pts, `refund:redemption#${redemptionId}`, Math.floor(Date.now() / 1000))
+                "INSERT INTO point_ledger (user_id, role, delta_points, memo, config_id, created_at) VALUES (?,?,?,?,?,?)"
+            ).bind(telegram_id, 'admin_grant', pts, `refund:redemption#${redemptionId}`, configId, Math.floor(Date.now() / 1000))
         ]);
 
         console.error('TONBANKCARD payout failed:', err.message);

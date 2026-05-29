@@ -16,6 +16,7 @@
  */
 
 import { calcPoints } from './pointFormula.js';
+import { getActiveConfigId } from './rateConfig.js';
 
 // ---------------------------------------------------------------------------
 // ChangeNOW API
@@ -104,10 +105,11 @@ const REFERRAL_BPS_DEFAULT = 10;
  * @param {Function} opts.oracle  - USD oracle function
  * @param {number}  opts.cashbackBps
  * @param {number}  opts.referralBps
+ * @param {number|null} [opts.configId] - active program_config id stamped on ledger rows (#184)
  * @param {object}  [opts.log]    - logger object with .info() and .warn()
  * @returns {Promise<'accrued'|'skipped'|'no_user'|'no_usd'>}
  */
-export async function processSwap(swap, { db, oracle, cashbackBps, referralBps, log = console }) {
+export async function processSwap(swap, { db, oracle, cashbackBps, referralBps, configId = null, log = console }) {
   const partnerTxnId = swap.id ?? swap.partner_txn_id;
   const partnerUserId = swap.userId ?? swap.partner_user_id ?? swap.externalId ?? swap.external_id;
 
@@ -183,9 +185,9 @@ export async function processSwap(swap, { db, oracle, cashbackBps, referralBps, 
   stmts.push(
     db.prepare(`
       INSERT OR IGNORE INTO point_ledger
-        (user_id, swap_id, role, delta_points, rate_bps, created_at)
-      VALUES (?, ?, 'trader', ?, ?, ?)
-    `).bind(userRow.telegram_id, partnerTxnId, traderPoints, cashbackBps, now),
+        (user_id, swap_id, role, delta_points, rate_bps, created_at, config_id)
+      VALUES (?, ?, 'trader', ?, ?, ?, ?)
+    `).bind(userRow.telegram_id, partnerTxnId, traderPoints, cashbackBps, now, configId),
   );
 
   // 3. Referrer ledger row (only if referred_by is set)
@@ -200,9 +202,9 @@ export async function processSwap(swap, { db, oracle, cashbackBps, referralBps, 
     stmts.push(
       db.prepare(`
         INSERT OR IGNORE INTO point_ledger
-          (user_id, swap_id, role, delta_points, rate_bps, created_at)
-        VALUES (?, ?, 'referrer', ?, ?, ?)
-      `).bind(userRow.referred_by, partnerTxnId, referrerPoints, referralBps, now),
+          (user_id, swap_id, role, delta_points, rate_bps, created_at, config_id)
+        VALUES (?, ?, 'referrer', ?, ?, ?, ?)
+      `).bind(userRow.referred_by, partnerTxnId, referrerPoints, referralBps, now, configId),
     );
   }
 
@@ -267,6 +269,9 @@ export async function runAccrual({
 
   log.info({ count: swaps.length, fromUnix }, 'accrual: fetched swaps');
 
+  // Stamp every ledger row written this run with the rate config in effect (#184).
+  const configId = await getActiveConfigId(db);
+
   let latestFinishedAt = fromUnix;
 
   for (const swap of swaps) {
@@ -274,7 +279,7 @@ export async function runAccrual({
     if (swapFinishedAt > latestFinishedAt) latestFinishedAt = swapFinishedAt;
 
     try {
-      const outcome = await processSwap(swap, { db, oracle, cashbackBps, referralBps, log });
+      const outcome = await processSwap(swap, { db, oracle, cashbackBps, referralBps, configId, log });
       stats[outcome] = (stats[outcome] ?? 0) + 1;
     } catch (err) {
       log.warn({ err: String(err), swapId: swap.id }, 'accrual: unhandled error for swap');

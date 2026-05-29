@@ -31,17 +31,6 @@ function makeDb(rows = {}) {
   const swapsInserted = [];
   const preparedStmts = [];
 
-  const mockBind = (stmt, values) => ({
-    first: async () => {
-      if (stmt.includes('FROM users')) {
-        const telegramId = values[0];
-        return rows.users?.[telegramId] ?? null;
-      }
-      return null;
-    },
-    run: async () => {},
-  });
-
   const db = {
     _ledger: ledger,
     _swaps:  swapsInserted,
@@ -58,6 +47,9 @@ function makeDb(rows = {}) {
           if (stmt._sql.includes('FROM users')) {
             const telegramId = stmt._vals[0];
             return rows.users?.[telegramId] ?? null;
+          }
+          if (stmt._sql.includes('FROM program_config')) {
+            return rows.config ?? null;
           }
           return null;
         },
@@ -78,6 +70,7 @@ function makeDb(rows = {}) {
             role:         s._sql.includes("'trader'") ? 'trader' : 'referrer',
             delta_points: s._vals[2],
             rate_bps:     s._vals[3],
+            config_id:    s._vals[5] ?? null,
           });
         }
       }
@@ -230,6 +223,29 @@ describe('processSwap', () => {
     assert.equal(referrerRow.user_id, 2000);
   });
 
+  test('stamps the provided config_id on every ledger row (#184)', async () => {
+    const db = makeDb({
+      users: { 2001: { telegram_id: 2001, referred_by: 2000 } },
+    });
+    const swap = { id: 'txn-cfg', userId: '2001', fromCurrency: 'TON', fromAmount: 40, finishedAt: 1700000000 };
+
+    await processSwap(swap, {
+      db, oracle: makeOracle(2.5), cashbackBps: CASHBACK, referralBps: REFERRAL, configId: 7, log: silentLog,
+    });
+
+    assert.equal(db._ledger.length, 2);
+    for (const row of db._ledger) assert.equal(row.config_id, 7);
+  });
+
+  test('defaults config_id to null when none is supplied (#184)', async () => {
+    const db = makeDb({ users: { 1001: { telegram_id: 1001, referred_by: null } } });
+    const swap = { id: 'txn-nocfg', userId: '1001', fromCurrency: 'TON', fromAmount: 10, finishedAt: 1700000000 };
+
+    await processSwap(swap, { db, oracle: makeOracle(2.5), cashbackBps: CASHBACK, referralBps: REFERRAL, log: silentLog });
+
+    assert.equal(db._ledger[0].config_id, null);
+  });
+
   test('returns no_user when partner_user_id not found', async () => {
     const db = makeDb({ users: {} });
     const swap = { id: 'txn-nouser', userId: '9999', fromCurrency: 'TON', fromAmount: 10 };
@@ -316,6 +332,35 @@ describe('runAccrual', () => {
     });
 
     assert.equal(kv._store['accrual:cursor'], '1700000200');
+  });
+
+  test('stamps ledger rows with the active config_id resolved once per run (#184)', async () => {
+    const db = makeDb({
+      users: { 1: { telegram_id: 1, referred_by: null } },
+      config: { id: 42 }, // active program_config row
+    });
+    const kv = makeKv();
+
+    const swaps = [
+      { id: 'a', userId: '1', fromCurrency: 'TON', fromAmount: 10, amountInUsd: 25, finishedAt: 1700000100 },
+      { id: 'b', userId: '1', fromCurrency: 'TON', fromAmount: 20, amountInUsd: 50, finishedAt: 1700000200 },
+    ];
+
+    await runAccrual({
+      db,
+      kv,
+      oracle:       makeOracle(2.5),
+      apiKey:       'test-key',
+      fromUnix:     1700000000,
+      cashbackBps:  10,
+      referralBps:  10,
+      updateCursor: true,
+      fetch:        makeApiResponse(swaps),
+      log:          silentLog,
+    });
+
+    assert.equal(db._ledger.length, 2);
+    for (const row of db._ledger) assert.equal(row.config_id, 42);
   });
 
   test('does not update cursor when updateCursor=false (replay mode)', async () => {

@@ -61,14 +61,17 @@ export function captureReferredBy(db, userId, startParam, now) {
     return { captured: false, reason: `cycle detected within depth ${CYCLE_DEPTH}` };
   }
 
+  // Stamp the ledger row with the rate config in effect (#184).
+  const configId = activeConfigId(db, now);
+
   // All checks passed — persist attribution and audit ledger row in a transaction
   execTransaction(db, () => {
     exec(db, 'UPDATE users SET referred_by = ? WHERE telegram_id = ?', [inviter.telegram_id, userId]);
 
     exec(db,
-      `INSERT INTO point_ledger (user_id, swap_id, role, delta_points, memo, created_at)
-       VALUES (?, NULL, 'admin_grant', 0, ?, ?)`,
-      [userId, `referral_captured:${inviter.telegram_id}`, now],
+      `INSERT INTO point_ledger (user_id, swap_id, role, delta_points, memo, config_id, created_at)
+       VALUES (?, NULL, 'admin_grant', 0, ?, ?, ?)`,
+      [userId, `referral_captured:${inviter.telegram_id}`, configId, now],
     );
   });
 
@@ -104,6 +107,25 @@ function hasCycle(db, targetId, startId, maxDepth) {
 // Thin DB adapters — abstract over D1 (async) vs better-sqlite3 (sync).
 // In production (Cloudflare Worker) these would be async; tests use sync.
 // ---------------------------------------------------------------------------
+
+/**
+ * activeConfigId — id of the active program_config row (latest effective_at <= now),
+ * or null when none exists. Best-effort: if the program_config table has not been
+ * migrated yet the lookup is swallowed and we return null (the column is nullable,
+ * so the ledger write must never fail because of audit metadata). See issue #184.
+ */
+function activeConfigId(db, now) {
+  try {
+    const row = queryOne(
+      db,
+      'SELECT id FROM program_config WHERE effective_at <= ? ORDER BY effective_at DESC LIMIT 1',
+      [now],
+    );
+    return row && row.id != null ? Number(row.id) : null;
+  } catch {
+    return null;
+  }
+}
 
 function queryOne(db, sql, params) {
   if (typeof db.prepare === 'function') {

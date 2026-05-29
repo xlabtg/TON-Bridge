@@ -11,9 +11,21 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function makeDb() {
   const db = new Database(':memory:');
-  const sql = readFileSync(join(__dirname, '../migrations/0001_affiliate.sql'), 'utf8');
-  db.exec(sql);
+  db.exec(readFileSync(join(__dirname, '../migrations/0001_affiliate.sql'), 'utf8'));
+  // 0003 adds point_ledger.config_id + the program_config table (issue #184).
+  db.exec(readFileSync(join(__dirname, '../migrations/0003_program_config.sql'), 'utf8'));
   return db;
+}
+
+/** Seed a program_config row and return its id. */
+function seedConfig(db, effectiveAt = 1) {
+  const r = db.prepare(`
+    INSERT INTO program_config
+      (service_bps, cashback_bps, referral_bps, point_usd_value,
+       points_per_tbc, min_redeem_pts, daily_cap_usd, proposed_by, effective_at, created_at)
+    VALUES (40, 10, 10, 0.00003, 10, 100, 50000, 'boot', ?, ?)
+  `).run(effectiveAt, effectiveAt);
+  return r.lastInsertRowid;
 }
 
 function wrapD1(db) {
@@ -175,6 +187,7 @@ test('GET /api/referral reuses the same referral code for the same Telegram user
 test('POST /auth/verify captures referral start_param and counts installed referrals', async () => {
   const botToken = 'unit-test-bot-token';
   const db = makeDb();
+  const configId = seedConfig(db);
   seedUser(db, 301);
 
   const res = await worker.fetch(
@@ -185,6 +198,13 @@ test('POST /auth/verify captures referral start_param and counts installed refer
 
   const referred = db.prepare('SELECT referred_by FROM users WHERE telegram_id = ?').get(302);
   assert.equal(referred.referred_by, 301);
+
+  // The audit ledger row written on capture carries the active config_id (#184).
+  const ledger = db.prepare(
+    "SELECT config_id FROM point_ledger WHERE user_id = 302 AND role = 'admin_grant'",
+  ).get();
+  assert.ok(ledger, 'capture should write an audit ledger row');
+  assert.equal(Number(ledger.config_id), Number(configId));
 
   const inviterRes = await worker.fetch(referralRequest(301), makeEnv(db));
   assert.equal(inviterRes.status, 200);

@@ -166,6 +166,27 @@ export async function getActiveConfig(db) {
 }
 
 /**
+ * Return the id of the active program_config row, or null when none exists.
+ *
+ * Used by every `point_ledger` insert path to stamp the rate config that was
+ * in effect when the row was written (issue #184). This is best-effort: if the
+ * lookup fails (e.g. the program_config table has not been migrated yet) we
+ * return null rather than letting the ledger write fail — the column is
+ * nullable and the audit trail is informational.
+ *
+ * @param {object} db - D1 database binding
+ * @returns {Promise<number|null>}
+ */
+export async function getActiveConfigId(db) {
+  try {
+    const row = await getActiveConfig(db);
+    return row && row.id != null ? Number(row.id) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Ensure that a program_config row exists in the database.
  *
  * Called on every worker boot. If no row exists, inserts the env-derived

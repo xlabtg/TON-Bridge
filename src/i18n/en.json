@@ -54,6 +54,7 @@
   "send_to_chat_query_exchange": "bridge btc ton 0.1",
   "send_to_chat_query_otc": "bridge usdtton ton 1000000",
   "open_exchange_btn": "Open exchange",
+  "offline_indicator": "You are offline",
   "otc_heading": "PrimeFlow OTC",
   "otc_buy_text": "Buy TON from $1 million Without Losses:",
   "otc_point1": "- Fixed rate",
